@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os
@@ -27,5 +27,6 @@ def dfs_repo(path):
 
 if __name__ == '__main__':
     path_map = dict()
-    repository = "/Users/hyang/workspace/hana"
+    # repository = "/Users/hyang/workspace/hana"
+    repository = "C:\\Users\\I516697\\workspace\\hana"
     dfs_repo(repository)
