@@ -22,19 +22,24 @@ def find_symbol(file_path):
 def dfs_repo(path):
     cur_path = os.path.join(path, "CMakeLists.txt")
     if os.path.exists(cur_path):
-        com_list_1, com_list_2 = find_component(cur_path)
-        for com in com_list_1:
+        parent_list, child_list = find_component(cur_path)
+        for com in parent_list:
             path_map[path] = com
-        for com in com_list_2:
+        for com in child_list:
             for node in com[1].split("\n"):
                 if re.search(r"\w", node):
-                    path_map[os.path.join(path, node.strip())] = com[0]
+                    path_map[os.path.join(path, node.strip(")").strip())] = com[0]
     for node in os.listdir(path):
         child_node = os.path.join(path, node)
+        extension = os.path.splitext(child_node)
         if os.path.isdir(child_node):
             dfs_repo(child_node)
-        elif os.path.splitext(child_node)[-1] in [".cc", ".cpp"]:
-            find_symbol(child_node)
+        elif extension[-1] in [".cc", ".cpp"]:
+            header_1 = extension[0] + '.h'
+            header_2 = extension[0] + '.hpp'
+            for header in [header_1, header_2]:
+                if os.path.exists(header):
+                    find_symbol(header)
 
 
 if __name__ == '__main__':
