@@ -4,9 +4,8 @@
 import os
 import re
 import clang.cindex
+import argparse
 from clang.cindex import Config
-Config.set_compatibility_check(False)
-Config.set_library_path(r"C:\Program Files\LLVM\bin")
 
 
 def find_component(path):
@@ -33,25 +32,8 @@ def long_match(target):
 
 def dump_node(node, deep):
     text = node.spelling or node.displayname
-    global temp_str
-    global flag
-    global prefix
-    # kind = str(node.kind)[str(node.kind).index('.') + 1:]
-    if deep == 0:
-        pass
-    elif deep == 1:
-        if temp_str:
-            symbol_list.append(temp_str)
-        temp_str = ""
-        temp_str = temp_str + text
-        prefix = temp_str
-    elif deep > 1 and deep > flag:
-        temp_str = temp_str + "::" + text
-        flag = deep
-    else:
-        temp_str = prefix + "::" + text
-    print(temp_str)
-    # temp_str += '{} {}'.format(indent, text)
+    kind = str(node.kind)[str(node.kind).index('.') + 1:]
+    print('{} {}'.format(kind, text))
     for i in [c for c in node.get_children() if c.location.file.name == file_path]:
         if str(i.kind)[str(i.kind).index('.') + 1:] in ["NAMESPACE", "FUNCTION_DECL", "CLASS_DECL", "CONSTRUCTOR"]:
             dump_node(i, deep + 1)
@@ -59,8 +41,8 @@ def dump_node(node, deep):
 
 def find_symbol(path):
     index = clang.cindex.Index.create()
-    tu = index.parse(path, ["-x", "c++", "-IC:\\Users\\I516697\\workspace\\hana",
-                            "-IC:\\Users\\I516697\\workspace\\hana\\rte\\rtebase\\include"])
+    headers = ["-x", "c++", "-I" + args.source, "-I" + args.source + "/rtebase/include"]
+    tu = index.parse(path, headers)
     dump_node(tu.cursor, 0)
 
 
@@ -83,16 +65,14 @@ def dfs_repo(path):
             find_symbol(child_node)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    Config.set_compatibility_check(False)
+    Config.set_library_path(r"/usr/local/lib")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s", dest="source", help="source code path")
+    args = parser.parse_args()
+    repo_path = args.source
     path_map = dict()
-    symbol_map = dict()
-    symbol_list = []
-    temp_str = ""
-    flag = 0
-    prefix = ""
-    # repo_path = "/Users/hyang/workspace/hana"
-    repo_path = r"C:\Users\I516697\workspace\hana"
     # dfs_repo(repo_path)
-    file_path = r"C:\Users\I516697\workspace\hana\ptime\query\sqlscript\util\planviz_scope.h"
+    file_path = r"/Users/hyang/workspace/hana/ptime/query/sqlscript/util/planviz_scope.h"
     find_symbol(file_path)
-    print(symbol_list)
