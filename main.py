@@ -3,8 +3,8 @@
 
 import os
 import re
-import clang.cindex
 import argparse
+from clang.cindex import Index
 from clang.cindex import Config
 
 
@@ -21,7 +21,7 @@ def find_component(path):
 def long_match(target):
     match = ""
     for k in [k for k, v in path_map.items()]:
-        if target.startwith(k):
+        if target.startswith(k):
             if match:
                 if len(k) > len(match):
                     match = k
@@ -30,20 +30,40 @@ def long_match(target):
     return match
 
 
-def dump_node(node, deep):
-    text = node.spelling or node.displayname
-    kind = str(node.kind)[str(node.kind).index('.') + 1:]
-    print('{} {}'.format(kind, text))
-    for i in [c for c in node.get_children() if c.location.file.name == file_path]:
-        if str(i.kind)[str(i.kind).index('.') + 1:] in ["NAMESPACE", "FUNCTION_DECL", "CLASS_DECL", "CONSTRUCTOR"]:
-            dump_node(i, deep + 1)
+def split_str(deep, text):
+    global prefix
+    global pre_deep
+    if deep == 1:
+        prefix = text
+        symbol_list.append(prefix)
+        pre_deep = deep
+    else:
+        if deep > pre_deep:
+            symbol_list[-1] = symbol_list[-1] + "::" + text
+            pre_deep = deep
+        else:
+            symbol_list.append(prefix + "::" + text)
+            pre_deep = deep
+
+
+def dump_node(node, path, deep):
+    for child in node.get_children():
+        if child.location.file is not None and child.location.file.name == path:
+            text = child.spelling or child.displayname
+            if text:
+                kind = str(child.kind)[str(child.kind).index('.') + 1:]
+                if kind in ["NAMESPACE", "FUNCTION_DECL", "CLASS_DECL", "CONSTRUCTOR"]:
+                    split_str(deep, text)
+                    dump_node(child, path, deep + 1)
+    return symbol_list
 
 
 def find_symbol(path):
-    index = clang.cindex.Index.create()
-    headers = ["-x", "c++", "-I" + args.source, "-I" + args.source + "/rtebase/include"]
-    tu = index.parse(path, headers)
-    dump_node(tu.cursor, 0)
+    index = Index.create()
+    header = os.path.join(args.source, "rte", "rtebase", "include")
+    args_list = ["-x", "c++", "-I" + args.source, "-I" + header]
+    tu = index.parse(path, args_list)
+    return dump_node(tu.cursor, path, 1)
 
 
 def dfs_repo(path):
@@ -61,18 +81,31 @@ def dfs_repo(path):
         extension = os.path.splitext(child_node)
         if os.path.isdir(child_node):
             dfs_repo(child_node)
-        elif extension[-1] in [".cc", ".cpp"]:
-            find_symbol(child_node)
+        elif extension[-1] in [".h", ".hpp"]:
+            pass
+            # for symbol in find_symbol(child_node):
+            #     symbol_map[symbol] = path_map[long_match(child_node)]
 
 
 if __name__ == "__main__":
-    Config.set_compatibility_check(False)
-    Config.set_library_path(r"/usr/local/lib")
+    libclangPath = r"C:\Program Files\LLVM\bin"
+    if Config.loaded:
+        pass
+    else:
+        Config.set_library_path(libclangPath)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", dest="source", help="source code path")
     args = parser.parse_args()
+
     repo_path = args.source
     path_map = dict()
-    # dfs_repo(repo_path)
-    file_path = r"/Users/hyang/workspace/hana/ptime/query/sqlscript/util/planviz_scope.h"
-    find_symbol(file_path)
+    symbol_map = dict()
+    prefix = ""
+    pre_deep = 0
+    symbol_list = []
+    dfs_repo(repo_path)
+    file_path = r"C:\Users\I516697\workspace\hana\ptime\query\sqlscript\util\planviz_scope.h"
+    for symbol in find_symbol(file_path):
+        symbol_map[symbol] = path_map[long_match(file_path)]
+    print(symbol_map)
