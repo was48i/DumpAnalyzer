@@ -18,16 +18,15 @@ def find_component(path):
     return com_list_1, com_list_2
 
 
-def long_match(target):
-    match = ""
-    for k in [k for k, v in path_map.items()]:
-        if target.startswith(k):
-            if match:
-                if len(k) > len(match):
-                    match = k
-            else:
-                match = k
-    return match
+def long_match(path):
+    component = "UNKNOWN"
+    if path in path_map:
+        component = path_map[path]
+    else:
+        for i in range(1, len(path)):
+            if path[:-i] in path_map:
+                component = path_map[path[:-i]]
+    return component
 
 
 def split_str(deep, text):
@@ -74,8 +73,10 @@ def dfs_repo(path):
             path_map[path] = com
         for com in child_list:
             for node in com[1].split("\n"):
-                if re.search(r"\w", node):
-                    path_map[os.path.join(path, node.strip(")").strip())] = com[0]
+                for node_path in node.strip().split("/"):
+                    if node_path:
+                        tmp = os.path.join(path, node_path)
+                        path_map[tmp] = com[0]
     for node in os.listdir(path):
         child_node = os.path.join(path, node)
         extension = os.path.splitext(child_node)
@@ -83,6 +84,7 @@ def dfs_repo(path):
             dfs_repo(child_node)
         elif extension[-1] in [".h", ".hpp"]:
             pass
+            # print(child_node)
             # for symbol in find_symbol(child_node):
             #     symbol_map[symbol] = path_map[long_match(child_node)]
 
@@ -95,7 +97,7 @@ if __name__ == "__main__":
         Config.set_library_path(libclangPath)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s", dest="source", help="source code path")
+    parser.add_argument("-s", "--source", dest="source", help="source code path")
     args = parser.parse_args()
 
     repo_path = args.source
@@ -105,7 +107,11 @@ if __name__ == "__main__":
     pre_deep = 0
     symbol_list = []
     dfs_repo(repo_path)
-    file_path = r"C:\Users\I516697\workspace\hana\ptime\query\sqlscript\util\planviz_scope.h"
-    for symbol in find_symbol(file_path):
-        symbol_map[symbol] = path_map[long_match(file_path)]
-    print(symbol_map)
+    print(path_map)
+    # file_path = r"C:\Users\I516697\workspace\hana\ptime\query\sqlscript\util\planviz_scope.h"
+    # for symbol in find_symbol(file_path):
+    #     symbol_map[symbol] = path_map[long_match(file_path)]
+    # print(symbol_map)
+    # print(path_map)
+    # print(file_path)
+    # print(long_match(file_path))
