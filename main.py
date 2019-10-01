@@ -9,10 +9,13 @@ from clang.cindex import Config
 
 
 def find_component(path):
-    with open(path) as file:
+    # read file
+    with open(path, "r") as file:
         file_text = file.read()
+    # set patterns
     com_pattern_1 = re.compile(r"SET_COMPONENT\(\"(.+)?\"\)", re.M)
     com_pattern_2 = re.compile(r"SET_COMPONENT\(\"(.+)?\"([^)]+)\)", re.M)
+    # get matching lists
     com_list_1 = com_pattern_1.findall(file_text)
     com_list_2 = com_pattern_2.findall(file_text)
     return com_list_1, com_list_2
@@ -66,17 +69,24 @@ def find_symbol(path):
 
 
 def dfs_repo(path):
+    # check CMakeLists.txt existence
     cur_path = os.path.join(path, "CMakeLists.txt")
     if os.path.exists(cur_path):
+        # get 2 types of component
         parent_list, child_list = find_component(cur_path)
+        # save parent component
         for com in parent_list:
             path_map[path] = com
+        # save child component
         for com in child_list:
             for node in com[1].split("\n"):
-                for node_path in node.strip().split("/"):
-                    if node_path:
-                        tmp = os.path.join(path, node_path)
-                        path_map[tmp] = com[0]
+                if node.strip():
+                    # support Windows
+                    node_path = path
+                    for node_dir in node.strip().split("/"):
+                        node_path = os.path.join(node_path, node_dir)
+                    path_map[node_path] = com[0]
+    # DFS repository
     for node in os.listdir(path):
         child_node = os.path.join(path, node)
         extension = os.path.splitext(child_node)
@@ -90,12 +100,13 @@ def dfs_repo(path):
 
 
 if __name__ == "__main__":
-    libclangPath = r"C:\Program Files\LLVM\bin"
+    # load libclang.so
+    libclangPath = r"/usr/local/bin"
     if Config.loaded:
         pass
     else:
         Config.set_library_path(libclangPath)
-
+    # parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--source", dest="source", help="source code path")
     args = parser.parse_args()
@@ -108,10 +119,3 @@ if __name__ == "__main__":
     symbol_list = []
     dfs_repo(repo_path)
     print(path_map)
-    # file_path = r"C:\Users\I516697\workspace\hana\ptime\query\sqlscript\util\planviz_scope.h"
-    # for symbol in find_symbol(file_path):
-    #     symbol_map[symbol] = path_map[long_match(file_path)]
-    # print(symbol_map)
-    # print(path_map)
-    # print(file_path)
-    # print(long_match(file_path))
