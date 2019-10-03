@@ -3,6 +3,7 @@
 
 import os
 import re
+import glob
 import argparse
 from clang.cindex import Index
 from clang.cindex import Config
@@ -21,18 +22,19 @@ def find_component(path):
     return com_list_1, com_list_2
 
 
-def long_match(path):
-    component = "UNKNOWN"
+def best_match(path):
     if path in path_map:
         component = path_map[path]
     else:
-        for i in range(1, len(path)):
-            if path[:-i] in path_map:
-                component = path_map[path[:-i]]
+        while True:
+            path = path[:path.rindex("/")]
+            if path in path_map:
+                component = path_map[path]
+                break
     return component
 
 
-def split_str(deep, text):
+def merge_symbol(deep, text):
     global prefix
     global pre_deep
     if deep == 1:
@@ -48,15 +50,15 @@ def split_str(deep, text):
             pre_deep = deep
 
 
-def dump_node(node, path, deep):
+def dump_node(node, deep):
     for child in node.get_children():
-        if child.location.file is not None and child.location.file.name == path:
+        if child.location.file is not None and child.location.file.name == node.displayname:
             text = child.spelling or child.displayname
             if text:
                 kind = str(child.kind)[str(child.kind).index('.') + 1:]
                 if kind in ["NAMESPACE", "FUNCTION_DECL", "CLASS_DECL", "CONSTRUCTOR"]:
-                    split_str(deep, text)
-                    dump_node(child, path, deep + 1)
+                    merge_symbol(deep, text)
+                    dump_node(child, deep + 1)
     return symbol_list
 
 
@@ -65,7 +67,7 @@ def find_symbol(path):
     header = os.path.join(args.source, "rte", "rtebase", "include")
     args_list = ["-x", "c++", "-I" + args.source, "-I" + header]
     tu = index.parse(path, args_list)
-    return dump_node(tu.cursor, path, 1)
+    return dump_node(tu.cursor, 1)
 
 
 def dfs_repo(path):
@@ -85,7 +87,9 @@ def dfs_repo(path):
                     node_path = path
                     for node_dir in node.strip().split("/"):
                         node_path = os.path.join(node_path, node_dir)
-                    path_map[node_path] = com[0]
+                    # support "*"
+                    for wildcard in glob.iglob(node_path):
+                        path_map[wildcard] = com[0]
     # DFS repository
     for node in os.listdir(path):
         child_node = os.path.join(path, node)
@@ -94,14 +98,14 @@ def dfs_repo(path):
             dfs_repo(child_node)
         elif extension[-1] in [".h", ".hpp"]:
             pass
-            # print(child_node)
-            # for symbol in find_symbol(child_node):
-            #     symbol_map[symbol] = path_map[long_match(child_node)]
+            # if find_symbol(child_node):
+            #     for symbol in find_symbol(child_node):
+            #         symbol_map[symbol] = best_match(child_node)
 
 
 if __name__ == "__main__":
     # load libclang.so
-    libclangPath = r"/usr/local/bin"
+    libclangPath = r"/usr/local/lib"
     if Config.loaded:
         pass
     else:
@@ -114,8 +118,10 @@ if __name__ == "__main__":
     repo_path = args.source
     path_map = dict()
     symbol_map = dict()
+
     prefix = ""
     pre_deep = 0
     symbol_list = []
-    dfs_repo(repo_path)
-    print(path_map)
+
+    # dfs_repo(repo_path)
+    print(find_symbol(r"/Users/hyang/workspace/hana/ptime/query/sqlscript/util/planviz_scope.h"))
