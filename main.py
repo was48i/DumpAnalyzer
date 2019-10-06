@@ -140,10 +140,18 @@ def load_symbols():
         return sym_dict
 
 
+def csi_compare(text):
+    pass
+
+
+def ast_compare(text):
+    pass
+
+
 if __name__ == "__main__":
     src_path = r"/hana"
-    components = dict()
     symbols = dict()
+    components = dict()
     # load libclang.so
     lib_path = r"/usr/local/lib"
     if Config.loaded:
@@ -152,7 +160,12 @@ if __name__ == "__main__":
         Config.set_library_path(lib_path)
     # parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("-u", "--update", nargs="?", const=True, help="update components or not")
+    parser.add_argument("-d", "--dump", nargs=2,
+                        type=argparse.FileType("r"), help="pass crash dump files")
+    parser.add_argument("-m", "--mode", type=str,
+                        choices=["ast", "csi"], help="select the mode of analysis")
+    parser.add_argument("-u", "--update", nargs="?",
+                        const=True, type=bool, help="update components or not")
     args = parser.parse_args()
     # update components or not
     if args.update:
@@ -160,6 +173,3 @@ if __name__ == "__main__":
         dump_components(components)
     else:
         components = load_components()
-
-    update_symbols(r"/hana/ptime/query/sqlscript/util")
-
