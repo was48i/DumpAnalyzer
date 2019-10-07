@@ -1,10 +1,5 @@
 import os
-
 from clang.cindex import Index
-from component import components
-
-src_path = r"/hana"
-symbols = dict()
 
 
 def fully_qualified(child, path):
@@ -19,13 +14,12 @@ def fully_qualified(child, path):
     return child.spelling
 
 
-def find_symbol(path):
+def find_symbol(path, repo):
     symbol = []
     index = Index.create()
-    extra_header = os.path.join(src_path,
-                                "rte", "rtebase", "include")
+    header = os.path.join(repo, "rte", "rtebase", "include")
     args_list = ["-x", "c++",
-                 "-I" + src_path, "-I" + extra_header]
+                 "-I" + repo, "-I" + header]
     tu = index.parse(path, args_list)
     decl_kinds = ["FUNCTION_DECL",
                   "CXX_METHOD",
@@ -39,27 +33,3 @@ def find_symbol(path):
                 if kind in decl_kinds:
                     symbol.append(fully_qualified(child, path))
     return symbol
-
-
-def best_matched(path):
-    if path in components:
-        com = components[path]
-    else:
-        while True:
-            path = path[:path.rindex("/")]
-            if path in components:
-                com = components[path]
-                break
-    return com
-
-
-def update_symbols(path):
-    for node in os.listdir(path):
-        child = os.path.join(path, node)
-        extension = os.path.splitext(child)
-        if os.path.isdir(child):
-            update_symbols(child)
-        elif extension[-1] in [".h", ".hpp"]:
-            if find_symbol(child):
-                for sym in set(find_symbol(child)):
-                    symbols[sym] = best_matched(child)
