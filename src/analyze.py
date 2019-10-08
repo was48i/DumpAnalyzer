@@ -11,8 +11,6 @@ from symbol import find_symbol
 from component import find_component
 from persistence import dump_components, load_components
 
-import prettytable as pt
-
 
 def update_components(path):
     # check CMakeLists.txt existence
@@ -76,28 +74,16 @@ def csi_compare(paths):
         with open(path, "r") as fp:
             file_text = fp.read()
         sym_list = pattern.findall(file_text)
-        sym_list = [i for i in sym_list
-                    if not i.startswith("Trex") and not i.startswith("Execution")]
         dump_list.append(sym_list)
 
     total = len(dump_list[0]) + len(dump_list[1])
     equal = len([i for i in dump_list[0] if i in dump_list[1]]) * 2
 
     print("Similarity: {:.2%}".format(equal / total))
-    out_table(dump_list)
 
 
-def out_table(lists):
-    if len(lists[0]) > len(lists[1]):
-        lists[1] = lists[1] + [""] * (len(lists[0]) - len(lists[1]))
-    else:
-        lists[1] = lists[0] + [""] * (len(lists[1]) - len(lists[0]))
-
-    table = pt.PrettyTable()
-    table.add_column("Crash Dump 1", lists[0])
-    table.add_column("Crash Dump 2", lists[1])
-    table.align = 'l'
-    print(table)
+def format_print():
+    pass
 
 
 if __name__ == "__main__":
