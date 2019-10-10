@@ -65,15 +65,15 @@ def update_symbols(path):
 
 def pre_process(paths):
     sections = []
-    pattern = re.compile(r"[\n](\[CRASH_STACK\][\S\n ]+)\[CRASH_REGISTERS\]", re.M)
+    pattern = re.compile(r"[\n](\[CRASH_STACK\][\S\s]+)\[CRASH_REGISTERS\]", re.M)
     for path in paths:
         with open(path, "r") as fp:
             file_text = fp.read()
-        section = pattern.findall(file_text)
-        if "exception throw location" in section:
-            section = find_exception(section)
+        stack = pattern.findall(file_text)
+        if "exception throw location" in stack[0]:
+            section = find_exception(stack[0])
         else:
-            section = find_backtrace(section)
+            section = find_backtrace(stack[0])
         sections.append(section)
     return sections
 
@@ -91,10 +91,13 @@ def find_exception(text):
 
 def find_backtrace(text):
     res = []
-    function_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ](.*)", re.M)
-    source_pattern = re.compile(r"[-][\n][ ]+(\d+)[:].*Source[:][ ](.*)[:]", re.M | re.S)
+    function_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ][^\n]+[\n.]Source[:][ ](.*)[:]", re.M)
+    source_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ][^\n]+[\S\s]+?Source[:][ ](.*)[:]", re.M)
     functions = function_pattern.findall(text)
     sources = source_pattern.findall(text)
+    for func in functions:
+        
+
     for func, src in functions, sources:
         res.append(func + " at " + src)
     return res
@@ -134,4 +137,5 @@ if __name__ == "__main__":
     else:
         components = load_components()
 
-    format_print(pre_process(args.dump), args.mode)
+    # format_print(pre_process(args.dump), args.mode)
+    pre_process(args.dump)
