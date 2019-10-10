@@ -63,27 +63,48 @@ def update_symbols(path):
                     symbols[sym] = best_matched(child)
 
 
-def ast_compare():
-    pass
-
-
-def csi_compare(paths):
-    dump_list = []
-    pattern = re.compile(r"[ ]+[-]+\n[ ]+\d+[:][ ]([^(\n ]+)", re.M)
+def pre_process(paths):
+    sections = []
+    pattern = re.compile(r"[\n](\[CRASH_STACK\][\S\n ]+)\[CRASH_REGISTERS\]", re.M)
     for path in paths:
         with open(path, "r") as fp:
             file_text = fp.read()
-        sym_list = pattern.findall(file_text)
-        dump_list.append(sym_list)
+        section = pattern.findall(file_text)
+        if "exception throw location" in section:
+            section = find_exception(section)
+        else:
+            section = find_backtrace(section)
+        sections.append(section)
+    return sections
 
-    total = len(dump_list[0]) + len(dump_list[1])
-    equal = len([i for i in dump_list[0] if i in dump_list[1]]) * 2
+
+def find_exception(text):
+    res = []
+    title_pattern = re.compile(r"exception.*TID.*exception throw location:\n", re.M | re.S)
+    body_pattern = re.compile(r"\d+:[ ]0x\w+[ ]in.*[+0x].*[:]", re.M)
+    titles = title_pattern.findall(text)
+    bodies = body_pattern.findall(text)
+    for t, b in titles, bodies:
+        res.append(t + b)
+    return res
+
+
+def find_backtrace(text):
+    res = []
+    function_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ](.*)", re.M)
+    source_pattern = re.compile(r"[-][\n][ ]+(\d+)[:].*Source[:][ ](.*)[:]", re.M | re.S)
+    functions = function_pattern.findall(text)
+    sources = source_pattern.findall(text)
+    for func, src in functions, sources:
+        res.append(func + " at " + src)
+    return res
+
+
+def format_print(lists, mode):
+    total = len(lists[0]) + len(lists[1])
+    equal = len([i for i in lists[0] if i in lists[1]]) * 2
 
     print("Similarity: {:.2%}".format(equal / total))
-
-
-def format_print():
-    pass
 
 
 if __name__ == "__main__":
@@ -98,7 +119,7 @@ if __name__ == "__main__":
     # parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--dump", nargs=2,
-                        default=["./data/bt_1.dmp", "./data/bt_2.dmp"], help="pass crash dump files")
+                        default=["./data/bt_dump_1.trc", "./data/bt_dump_2.trc"], help="pass crash dump files")
     parser.add_argument("-m", "--mode", default="ast",
                         choices=["ast", "csi"], help="select the mode of analysis")
     parser.add_argument("-u", "--update", nargs="?", const=True,
@@ -112,8 +133,5 @@ if __name__ == "__main__":
         dump_components(components)
     else:
         components = load_components()
-    # analyze mode
-    if args.mode == "ast":
-        ast_compare()
-    else:
-        csi_compare(args.dump)
+
+    format_print(pre_process(args.dump), args.mode)
