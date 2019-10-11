@@ -64,28 +64,30 @@ def update_symbols(path):
 
 
 def pre_process(paths):
-    sections = []
+    dumps = []
     pattern = re.compile(r"[\n](\[CRASH_STACK\][\S\s]+)\[CRASH_REGISTERS\]", re.M)
     for path in paths:
         with open(path, "r") as fp:
             file_text = fp.read()
         stack = pattern.findall(file_text)
         if "exception throw location" in stack[0]:
-            section = find_exception(stack[0])
+            dump = find_backtrace(stack[0])
+            dump.append(find_exception(stack[0]))
         else:
-            section = find_backtrace(stack[0])
-        sections.append(section)
-    return sections
+            dump = find_backtrace(stack[0])
+        dumps.append(dump)
+    return dumps
 
 
 def find_exception(text):
     res = []
-    title_pattern = re.compile(r"exception.*TID.*exception throw location:\n", re.M | re.S)
-    body_pattern = re.compile(r"\d+:[ ]0x\w+[ ]in.*[+0x].*[:]", re.M)
+    title_pattern = re.compile(r"(exception.+)[ ]TID[^\n]([\S\s]+)?(exception[ ]throw[ ]location[:])", re.M)
+    body_pattern = re.compile(r"(\d+[:][ ])0x.+[ ]in[ ](.+)[+]0x.+([ ].+)[:]", re.M)
     titles = title_pattern.findall(text)
     bodies = body_pattern.findall(text)
     for t, b in titles, bodies:
-        res.append(t + b)
+        res.append(t[0] + t[1] + t[2] + "\n" +
+                   b[0] + b[1] + b[2])
     return res
 
 
@@ -93,20 +95,20 @@ def find_backtrace(text):
     res = []
     # extract source file
     source_dict = dict()
-    source_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ][^\n]+[\S\s]+?Source[:][ ](.*)[:]", re.M)
+    source_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ][^\n]+[\S\s]+?Source[:][ ](.+)[:]", re.M)
     sources = source_pattern.findall(text)
     for k, v in sources:
         source_dict[k] = v
-    # extract function
-    function_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ](.*)", re.M)
-    functions = function_pattern.findall(text)
-    for func in functions:
-        if " + 0x" in func[1]:
-            sym = func[1][:func[1].rindex("+") - 1]
+    # extract method
+    method_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ](.+)", re.M)
+    methods = method_pattern.findall(text)
+    for m in methods:
+        if " + 0x" in m[1]:
+            method = m[1][:m[1].rindex("+") - 1]
         else:
-            sym = func[1]
+            method = m[1]
         # merge into a line
-        res.append(sym + " at " + source_dict[func[0]])
+        res.append(m[0] + ": " + method + " at " + source_dict[m[0]])
     return res
 
 
