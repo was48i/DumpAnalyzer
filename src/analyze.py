@@ -91,15 +91,22 @@ def find_exception(text):
 
 def find_backtrace(text):
     res = []
-    function_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ][^\n]+[\n.]Source[:][ ](.*)[:]", re.M)
+    # extract source file
+    source_dict = dict()
     source_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ][^\n]+[\S\s]+?Source[:][ ](.*)[:]", re.M)
-    functions = function_pattern.findall(text)
     sources = source_pattern.findall(text)
+    for k, v in sources:
+        source_dict[k] = v
+    # extract function
+    function_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ](.*)", re.M)
+    functions = function_pattern.findall(text)
     for func in functions:
-        
-
-    for func, src in functions, sources:
-        res.append(func + " at " + src)
+        if " + 0x" in func[1]:
+            sym = func[1][:func[1].rindex("+") - 1]
+        else:
+            sym = func[1]
+        # merge into a line
+        res.append(sym + " at " + source_dict[func[0]])
     return res
 
 
