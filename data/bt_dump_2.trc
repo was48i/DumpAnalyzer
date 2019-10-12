@@ -1,8 +1,8 @@
 =========================================
-Crash protocol for PID 101645
-Rundirectory: /usr/sap/H11/HDB11/ld5743
-Process start time: 2019-10-04 06:29:30 350 Local
-Exception time: 2019-10-04 06:31:41 217 Local
+Crash protocol for PID 64351
+Rundirectory: /usr/sap/H11/HDB11/docker-ld5138
+Process start time: 2019-08-13 08:32:48 195 Local
+Exception time: 2019-08-13 08:43:14 495 Local
 SectionTimeout: 30sec
 KillTimeout: 300sec
 =========================================
@@ -31,252 +31,294 @@ Table of contents:
    [EXCEPTIONS]  Recent exceptions
    [STATISTICS]  Statistics data
    [ENVIRONMENT]  Env information
-   [DDLCONTEXTSTORE]  DdlContextStore contents
    [EXECUTOR]  executor context of current thread
+   [DDLCONTEXTSTORE]  DdlContextStore contents
    [INDEXMANAGER_STATE]  IndexManager internal state
-   [MDC]  MultiDatabaseContainer Section
-   [SERVICE_THREAD_SAMPLES]  Service Thread samples information
-   [DATABASE_HISTORY]  Database version history information
    [ENCRYPTION]  Encryption status for all data-at-rest
-   [PRE_RESTART_SWVERSION]  Software version stored in savepoint the persistency restarted from and with which it was created
+   [DATABASE_HISTORY]  Database version history information
+   [SERVICE_THREAD_SAMPLES]  Service Thread samples information
+   [MDC]  MultiDatabaseContainer Section
    [SAVEPOINT_SHAREDLOCK_OWNERS]  Owners of shared SavepointLocks
+   [PRE_RESTART_SWVERSION]  Software version stored in savepoint the persistency restarted from and with which it was created
    [CRYPTO]  Cryptography Section
-   [THREADS]  Running threads
-   [DISASSEMBLY]  Disassembly of frames in callstack
-   [REGISTER_OBJECTS]  Objects registers point to
-   [REGISTERED_STACK_OBJECTS]  Objects on stack registered to be dumped
-   [SYMBOL_CACHE]  symbol cache statistics
+   [CGROUP]  informations about the cgroups
+   [RESOURCE_CONTAINER]  Information about resource container
+   [STACK_RESERVATION_SCOPES]  Stack reservation scopes of current thread
+   [OS_MEMORY]  Operating system information about memory
+   [DBG_MEMORY_LEAKS]  Memory leak(s) which caused this crash (debug only)
+   [MEMORY_MANAGER]  Information about memory manager
+   [MEMORY_ACCOUNTING]  Memory accounting
    [IPMM_MEMORY]  IPMM information
    [IMPLICIT_MEMORY_BOOKING]  Status of implicit memory booking of the current thread
-   [MEMORY_ACCOUNTING]  Memory accounting
-   [MEMORY_MANAGER]  Information about memory manager
-   [OS_MEMORY]  Operating system information about memory
-   [STACK_RESERVATION_SCOPES]  Stack reservation scopes of current thread
-   [RESOURCE_CONTAINER]  Information about resource container
-   [CGROUP]  informations about the cgroups
+   [SYMBOL_CACHE]  symbol cache statistics
+   [REGISTERED_STACK_OBJECTS]  Objects on stack registered to be dumped
+   [DISASSEMBLY]  Disassembly of frames in callstack
+   [REGISTER_OBJECTS]  Objects registers point to
+   [THREADS]  Running threads
 
-[CRASH_STACK]  Stacktrace of crash: (2019-10-04 06:31:41 257 Local)
+[CRASH_STACK]  Stacktrace of crash: (2019-08-13 08:43:15 699 Local)
 ----> Symbolic stack backtrace <----
-   0: Configuration::DelegatingParameterMetadata::ratio() const + 0x7
-         Symbol: _ZNK13Configuration27DelegatingParameterMetadata5ratioEv
-         SFrame: IP: 0x00007ff615e19247 (0x00007ff615e19240+0x7) FP: 0x00007ff3ca6d57a0 SP: 0x00007ff3ca6d5798 RP: 0x00007ff615ddcde2
-         Params: 0x7ff61603ee10, 0x1, 0x7ff615e40350, 0x7ff5b4caf700, 0x7ff5b4cb00c8, 0x7ff5b4cb00d8
-         Regs: rax=0x7ff615e3c800, rbx=0x1, rcx=0x7ff5b4caf700, rdx=0x7ff615e40350, rsi=0x1, rdi=0x7ff61603ee10, rbp=0x7ff6162c7108, rsp=0x7ff3ca6d5798
-         Source: Basis/Configuration/impl/DelegatingParameterMetadata.cpp:38
-         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
-     -----------------------------------------
-   1: void Diagnose::StatisticsData::Value::resetCountForCounter<unsigned long, 1ul, 1ul>(Diagnose::StatisticsData&, unsigned long, unsigned long) + 0x52
+   0: void Diagnose::StatisticsData::Value::resetCountForCounter<unsigned long, 1ul, 1ul>(Diagnose::StatisticsData&, unsigned long, unsigned long) + 0x49
          Symbol: _ZN8Diagnose14StatisticsData5Value20resetCountForCounterImLm1ELm1EEEvRS0_mm
-         SFrame: IP: 0x00007ff615ddcde2 (0x00007ff615ddcd90+0x52) FP: 0x00007ff3ca6d5850 SP: 0x00007ff3ca6d57a0 RP: 0x00007ff615e51804
-         Regs: rbx=0x1, rbp=0x7ff6162c7108, rsp=0x7ff3ca6d57a0
+         SFrame: IP: 0x00007fa37737a6c9 (0x00007fa37737a680+0x49) FP: 0x00007f9af3c7d920 SP: 0x00007f9af3c7d8e0 RP: 0x00007fa3774fc15e
+         Params: 0x7f9c19b70da0, 0x1, 0x7f9c19b70da0, 0x1, 0x58ff9f4751589, 0x1
+         Regs: rax=0x772baf6000007fa3, rbx=0x7fa37773fba0, rcx=0x1, rdx=0x7f9c19b70da0, rsi=0x1, rdi=0x7f9c19b70da0, rbp=0x7f9af3c7d910, rsp=0x7f9af3c7d8e0
          Source: Basis/Diagnose/StatisticsData.hpp:1257
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-   2: Diagnose::ResettableStatisticsData::resetData(unsigned long) + 0x54
+   1: Diagnose::StatisticsData::Value::resetData(Diagnose::StatisticsData&, unsigned long) const + 0x3e
+         Symbol: _ZNK8Diagnose14StatisticsData5Value9resetDataERS0_m
+         SFrame: IP: 0x00007fa3774fc15e (0x00007fa3774fc120+0x3e) FP: 0x00007f9af3c7d950 SP: 0x00007f9af3c7d920 RP: 0x00007fa3772607e2
+         Regs: rbx=0x7fa37773fba0, rbp=0x7f9af3c7d940, rsp=0x7f9af3c7d920
+         Source: Basis/Diagnose/impl/StatisticsDataValue.cpp:457
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+   2: Diagnose::ResettableStatisticsData::resetData(unsigned long) + 0x162
          Symbol: _ZN8Diagnose24ResettableStatisticsData9resetDataEm
-         SFrame: IP: 0x00007ff615e51804 (0x00007ff615e517b0+0x54) FP: 0x00007ff3ca6d58e0 SP: 0x00007ff3ca6d5850 RP: 0x00007ff615e518ef
-         Params: ?, ?, 0x7ff6162c5268
-         Regs: rbx=0x1, rdx=0x7ff6162c5268, rbp=0x7ff6162c7108, rsp=0x7ff3ca6d5850
-         Source: Basis/Diagnose/StatisticsData.hpp:1790
+         SFrame: IP: 0x00007fa3772607e2 (0x00007fa377260680+0x162) FP: 0x00007f9af3c7da20 SP: 0x00007f9af3c7d950 RP: 0x00007fa377260517
+         Regs: rbx=0x7fa37773fba0, rbp=0x7f9af3c7da10, rsp=0x7f9af3c7d950
+         Source: Basis/Diagnose/StatisticsData.hpp:1778
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-   3: Diagnose::ResettableStatisticsData::reset(bool, unsigned long) + 0x2f
+   3: Diagnose::ResettableStatisticsData::reset(bool, unsigned long) + 0x117
          Symbol: _ZN8Diagnose24ResettableStatisticsData5resetEbm
-         SFrame: IP: 0x00007ff615e518ef (0x00007ff615e518c0+0x2f) FP: 0x00007ff3ca6d5970 SP: 0x00007ff3ca6d58e0 RP: 0x00007ff615bde733
-         Params: ?, ?, 0x7ff5b4caf700
-         Regs: rbx=0x1, rdx=0x7ff5b4caf700, rbp=0x7ff5b4e44200, rsp=0x7ff3ca6d58e0
-         Source: Basis/Diagnose/StatisticsData.hpp:1744
+         SFrame: IP: 0x00007fa377260517 (0x00007fa377260400+0x117) FP: 0x00007f9af3c7dae0 SP: 0x00007f9af3c7da20 RP: 0x00007fa377260252
+         Params: ?, ?, 0x7fa37773fba0
+         Regs: rbx=0x7fa37773fba0, rdx=0x7fa37773fba0, rbp=0x7f9af3c7dad0, rsp=0x7f9af3c7da20
+         Source: Basis/Diagnose/StatisticsData.hpp:1732
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-   4: FileAccess::FileStatistics::reset(bool, unsigned long) + 0xe3
-         Symbol: _ZN10FileAccess14FileStatistics5resetEbm
-         SFrame: IP: 0x00007ff615bde733 (0x00007ff615bde650+0xe3) FP: 0x00007ff3ca6d5a00 SP: 0x00007ff3ca6d5970 RP: 0x00007ff615cec2f7
-         Params: ?, ?, 0x7ff5b4f24300
-         Regs: rbx=0x1, rdx=0x7ff5b4f24300, rbp=0x7ff5b4e44200, rsp=0x7ff3ca6d5970
+   4: Diagnose::StatisticsData::reset(bool, unsigned long) + 0xb2
+         Symbol: _ZN8Diagnose14StatisticsData5resetEbm
+         SFrame: IP: 0x00007fa377260252 (0x00007fa3772601a0+0xb2) FP: 0x00007f9af3c7db30 SP: 0x00007f9af3c7dae0 RP: 0x00007fa377260536
+         Params: ?, ?, 0x7fa37773fba0
+         Regs: rbx=0x7fa37773fba0, rdx=0x7fa37773fba0, rbp=0x7f9af3c7db20, rsp=0x7f9af3c7dae0
          Source: Basis/Diagnose/StatisticsData.hpp:1493
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-   5: Diagnose::ResetStatisticsFunctor::execute(Diagnose::StatisticsWrapper&, Diagnose::StatisticsData&) + 0x37
-         Symbol: _ZN8Diagnose22ResetStatisticsFunctor7executeERNS_17StatisticsWrapperERNS_14StatisticsDataE
-         SFrame: IP: 0x00007ff615cec2f7 (0x00007ff615cec2c0+0x37) FP: 0x00007ff3ca6d5a10 SP: 0x00007ff3ca6d5a00 RP: 0x00007ff615cf9a40
-         Params: ?, ?, 0x7ff3ca6d68a0
-         Regs: rbx=0x1, rdx=0x7ff3ca6d68a0, rbp=0x7ff3ca6d5f10, rsp=0x7ff3ca6d5a00
-         Source: Basis/Diagnose/impl/StatisticsRegistry.cpp:1215
+   5: Diagnose::ResettableStatisticsData::reset(bool, unsigned long) + 0x136
+         Symbol: _ZN8Diagnose24ResettableStatisticsData5resetEbm
+         SFrame: IP: 0x00007fa377260536 (0x00007fa377260400+0x136) FP: 0x00007f9af3c7dbf0 SP: 0x00007f9af3c7db30 RP: 0x00007fa37773fbcb
+         Params: ?, ?, 0x7fa37773fba0
+         Regs: rbx=0x7fa37773fba0, rdx=0x7fa37773fba0, rbp=0x7f9af3c7dbe0, rsp=0x7f9af3c7db30
+         Source: Basis/Diagnose/StatisticsData.hpp:1733
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-   6: Diagnose::StatisticsWrapper::traverseNodesRecursiveImpl(Diagnose::StatisticsWrapperFunctor&, Diagnose::StatisticsData&) + 0x50
+   6: FileAccess::FileStatistics::reset(bool, unsigned long) + 0x2b
+         Symbol: _ZN10FileAccess14FileStatistics5resetEbm
+         SFrame: IP: 0x00007fa37773fbcb (0x00007fa37773fba0+0x2b) FP: 0x00007f9af3c7dc50 SP: 0x00007f9af3c7dbf0 RP: 0x00007fa377515b18
+         Params: ?, ?, 0x7fa37773fba0
+         Regs: rbx=0x7fa37773fba0, rdx=0x7fa37773fba0, rbp=0x7f9af3c7dc40, rsp=0x7f9af3c7dbf0
+         Source: Basis/IO/FileAccess/impl/FileStatistics.cpp:552
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+   7: Diagnose::ResetStatisticsFunctor::execute(Diagnose::StatisticsWrapper&, Diagnose::StatisticsData&) + 0x58
+         Symbol: _ZN8Diagnose22ResetStatisticsFunctor7executeERNS_17StatisticsWrapperERNS_14StatisticsDataE
+         SFrame: IP: 0x00007fa377515b18 (0x00007fa377515ac0+0x58) FP: 0x00007f9af3c7dc90 SP: 0x00007f9af3c7dc50 RP: 0x00007fa37751087d
+         Params: ?, ?, 0x7fa37773fba0
+         Regs: rbx=0x7fa37773fba0, rdx=0x7fa37773fba0, rbp=0x7f9af3c7dc80, rsp=0x7f9af3c7dc50
+         Source: Basis/Diagnose/impl/StatisticsRegistry.cpp:1214
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+   8: Diagnose::StatisticsWrapper::traverseNodesRecursiveImpl(Diagnose::StatisticsWrapperFunctor&, Diagnose::StatisticsData&) + 0x13d
          Symbol: _ZN8Diagnose17StatisticsWrapper26traverseNodesRecursiveImplERNS_24StatisticsWrapperFunctorERNS_14StatisticsDataE
-         SFrame: IP: 0x00007ff615cf9a40 (0x00007ff615cf99f0+0x50) FP: 0x00007ff3ca6d5e40 SP: 0x00007ff3ca6d5a10 RP: 0x00007ff615cf9bc0
-         Params: ?, ?, 0x7ff6160736e0
-         Regs: rbx=0x1, rdx=0x7ff6160736e0, rbp=0x7ff3ca6d5f10, rsp=0x7ff3ca6d5a10
+         SFrame: IP: 0x00007fa37751087d (0x00007fa377510740+0x13d) FP: 0x00007f9af3c7e0b0 SP: 0x00007f9af3c7dc90 RP: 0x00007fa377510ab1
+         Params: ?, ?, 0x7f9c363f234f
+         Regs: rbx=0x7fa37773fba0, rdx=0x7f9c363f234f, rbp=0x7f9af3c7e0a0, rsp=0x7f9af3c7dc90
          Source: Basis/Diagnose/impl/StatisticsRegistry.cpp:377
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-   7: Diagnose::StatisticsWrapper::traverseNodesRecursiveImpl(Diagnose::StatisticsWrapperFunctor&, Diagnose::StatisticsData&) + 0x1d0
+   9: Diagnose::StatisticsWrapper::traverseNodesRecursiveImpl(Diagnose::StatisticsWrapperFunctor&, Diagnose::StatisticsData&) + 0x371
          Symbol: _ZN8Diagnose17StatisticsWrapper26traverseNodesRecursiveImplERNS_24StatisticsWrapperFunctorERNS_14StatisticsDataE
-         SFrame: IP: 0x00007ff615cf9bc0 (0x00007ff615cf99f0+0x1d0) FP: 0x00007ff3ca6d6270 SP: 0x00007ff3ca6d5e40 RP: 0x00007ff615cf9f04
-         Params: ?, ?, 0x7ff5b4e44200
-         Regs: rbx=0x1, rdx=0x7ff5b4e44200, rbp=0x7ff3ca6d5f10, rsp=0x7ff3ca6d5e40
+         SFrame: IP: 0x00007fa377510ab1 (0x00007fa377510740+0x371) FP: 0x00007f9af3c7e4d0 SP: 0x00007f9af3c7e0b0 RP: 0x00007fa3775106be
+         Params: ?, ?, 0x7f9c363f234f
+         Regs: rbx=0x7fa37773fba0, rdx=0x7f9c363f234f, rbp=0x7f9af3c7e4c0, rsp=0x7f9af3c7e0b0
          Source: Basis/Diagnose/impl/StatisticsRegistry.cpp:399
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-   8: Diagnose::StatisticsWrapper::traverseNodesRecursive(Diagnose::StatisticsWrapperFunctor&, Diagnose::StatisticsData&) + 0xd4
+  10: Diagnose::StatisticsWrapper::traverseNodesRecursive(Diagnose::StatisticsWrapperFunctor&, Diagnose::StatisticsData&) + 0x21e
          Symbol: _ZN8Diagnose17StatisticsWrapper22traverseNodesRecursiveERNS_24StatisticsWrapperFunctorERNS_14StatisticsDataE
-         SFrame: IP: 0x00007ff615cf9f04 (0x00007ff615cf9e30+0xd4) FP: 0x00007ff3ca6d63e0 SP: 0x00007ff3ca6d6270 RP: 0x00007ff615e3f79f
-         Params: ?, ?, 0x7ff5f9634800
-         Regs: rbx=0x1, rdx=0x7ff5f9634800, rbp=0x7ff3ca6d68a0, rsp=0x7ff3ca6d6270
+         SFrame: IP: 0x00007fa3775106be (0x00007fa3775104a0+0x21e) FP: 0x00007f9af3c7e650 SP: 0x00007f9af3c7e4d0 RP: 0x00007fa37726c3b5
+         Params: ?, ?, 0x7f9c363f234f
+         Regs: rbx=0x7fa37773fba0, rdx=0x7f9c363f234f, rbp=0x7f9af3c7e640, rsp=0x7f9af3c7e4d0
          Source: Basis/Diagnose/impl/StatisticsRegistry.cpp:364
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-   9: TypedStatisticsWrapper__M_VOLUME_IO_TOTAL_STATISTICS_RESET::traverseNodesImpl(Diagnose::StatisticsWrapperFunctor&) + 0x4f
+  11: TypedStatisticsWrapper__M_VOLUME_IO_TOTAL_STATISTICS_RESET::traverseNodesImpl(Diagnose::StatisticsWrapperFunctor&) + 0x75
          Symbol: _ZN58TypedStatisticsWrapper__M_VOLUME_IO_TOTAL_STATISTICS_RESET17traverseNodesImplERN8Diagnose24StatisticsWrapperFunctorE
-         SFrame: IP: 0x00007ff615e3f79f (0x00007ff615e3f750+0x4f) FP: 0x00007ff3ca6d6410 SP: 0x00007ff3ca6d63e0 RP: 0x00007ff615cf747c
-         Params: ?, ?, 0x7ff3ca6d68a0
-         Regs: rbx=0x1, rdx=0x7ff3ca6d68a0, rbp=0x1, rsp=0x7ff3ca6d63e0
-         Source: Basis/impl/BasisDefines.cpp:714
+         SFrame: IP: 0x00007fa37726c3b5 (0x00007fa37726c340+0x75) FP: 0x00007f9af3c7e690 SP: 0x00007f9af3c7e650 RP: 0x00007fa377510308
+         Params: ?, ?, 0x7fa3782306e0
+         Regs: rbx=0x7fa37773fba0, rdx=0x7fa3782306e0, rbp=0x7f9af3c7e680, rsp=0x7f9af3c7e650
+         Source: Basis/impl/BasisDefines.cpp:796
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-  10: Diagnose::StatisticsWrapper::traverseNodesBase(Diagnose::StatisticsWrapperFunctor&) + 0x2c
+  12: Diagnose::StatisticsWrapper::traverseNodesBase(Diagnose::StatisticsWrapperFunctor&) + 0xe8
          Symbol: _ZN8Diagnose17StatisticsWrapper17traverseNodesBaseERNS_24StatisticsWrapperFunctorE
-         SFrame: IP: 0x00007ff615cf747c (0x00007ff615cf7450+0x2c) FP: 0x00007ff3ca6d6770 SP: 0x00007ff3ca6d6410 RP: 0x00007ff615cfa875
-         Params: ?, ?, 0x7ff6162ffc80
-         Regs: rbx=0x1, rdx=0x7ff6162ffc80, rbp=0x7ff6160736e0, rsp=0x7ff3ca6d6410
+         SFrame: IP: 0x00007fa377510308 (0x00007fa377510220+0xe8) FP: 0x00007f9af3c7e9f0 SP: 0x00007f9af3c7e690 RP: 0x00007fa377510213
+         Params: ?, ?, 0x7fa37839a8a0
+         Regs: rbx=0x7fa37773fba0, rdx=0x7fa37839a8a0, rbp=0x7f9af3c7e9e0, rsp=0x7f9af3c7e690
          Source: Basis/Diagnose/impl/StatisticsRegistry.cpp:325
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-  11: Diagnose::StatisticsRegistry::traverseHeadersOrNodes(char const*, Diagnose::StatisticsWrapperFunctor&, bool, bool) + 0x1d5
-         Symbol: _ZN8Diagnose18StatisticsRegistry22traverseHeadersOrNodesEPKcRNS_24StatisticsWrapperFunctorEbb
-         SFrame: IP: 0x00007ff615cfa875 (0x00007ff615cfa6a0+0x1d5) FP: 0x00007ff3ca6d6890 SP: 0x00007ff3ca6d6770 RP: 0x00007ff61aba1fc9
-         Params: ?, ?, 0x7ff5f8b4e640
-         Regs: rbx=0x1, rdx=0x7ff5f8b4e640, rbp=0x7ff6162ffc80, rsp=0x7ff3ca6d6770
-         Source: Basis/Diagnose/impl/StatisticsRegistry.cpp:747
+  13: Diagnose::StatisticsWrapper::traverseNodes(Diagnose::StatisticsWrapperFunctor&, bool) + 0x43
+         Symbol: _ZN8Diagnose17StatisticsWrapper13traverseNodesERNS_24StatisticsWrapperFunctorEb
+         SFrame: IP: 0x00007fa377510213 (0x00007fa3775101d0+0x43) FP: 0x00007f9af3c7ea20 SP: 0x00007f9af3c7e9f0 RP: 0x00007fa377513ae0
+         Params: ?, ?, 0x7fa37839a8a0
+         Regs: rbx=0x7fa37773fba0, rdx=0x7fa37839a8a0, rbp=0x7f9af3c7ea10, rsp=0x7f9af3c7e9f0
+         Source: Basis/Diagnose/impl/StatisticsRegistry.cpp:317
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-  12: TrexService::CoreHandler::handle_resetMonitoringView(TrexNet::Request&, TrexService::HandlerContext const&) + 0xb9
+  14: Diagnose::StatisticsRegistry::traverseHeadersOrNodes(char const*, Diagnose::StatisticsWrapperFunctor&, bool, bool) + 0x2e0
+         Symbol: _ZN8Diagnose18StatisticsRegistry22traverseHeadersOrNodesEPKcRNS_24StatisticsWrapperFunctorEbb
+         SFrame: IP: 0x00007fa377513ae0 (0x00007fa377513800+0x2e0) FP: 0x00007f9af3c7eb90 SP: 0x00007f9af3c7ea20 RP: 0x00007fa377513647
+         Regs: rbx=0x7fa37773fba0, rbp=0x7f9af3c7eb80, rsp=0x7f9af3c7ea20
+         Source: Basis/Diagnose/impl/StatisticsRegistry.cpp:748
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+  15: Diagnose::StatisticsRegistry::traverseNodes(char const*, Diagnose::StatisticsWrapperFunctor&, bool) + 0x37
+         Symbol: _ZN8Diagnose18StatisticsRegistry13traverseNodesEPKcRNS_24StatisticsWrapperFunctorEb
+         SFrame: IP: 0x00007fa377513647 (0x00007fa377513610+0x37) FP: 0x00007f9af3c7ebc0 SP: 0x00007f9af3c7eb90 RP: 0x00007fa390a31399
+         Params: ?, ?, 0x7fa37839a8a0
+         Regs: rbx=0x7fa37773fba0, rdx=0x7fa37839a8a0, rbp=0x7f9af3c7ebb0, rsp=0x7f9af3c7eb90
+         Source: Basis/Diagnose/impl/StatisticsRegistry.cpp:700
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+  16: TrexService::CoreHandler::handle_resetMonitoringView(TrexNet::Request&, TrexService::HandlerContext const&) + 0xb9
          Symbol: _ZN11TrexService11CoreHandler26handle_resetMonitoringViewERN7TrexNet7RequestERKNS_14HandlerContextE
-         SFrame: IP: 0x00007ff61aba1fc9 (0x00007ff61aba1f10+0xb9) FP: 0x00007ff3ca6d6e40 SP: 0x00007ff3ca6d6890 RP: 0x00007ff61ab8f80e
-         Params: ?, ?, 0x7ff5bba84160
-         Regs: rbx=0x1, rdx=0x7ff5bba84160, rbp=0x7ff3ca6d6900, rsp=0x7ff3ca6d6890
-         Source: TrexService/CoreHandler.cpp:798
+         SFrame: IP: 0x00007fa390a31399 (0x00007fa390a312e0+0xb9) FP: 0x00007f9af3c7f1f0 SP: 0x00007f9af3c7ebc0 RP: 0x00007fa390a41ee5
+         Regs: rbx=0x7fa37773fba0, rbp=0x7f9af3c7f1e0, rsp=0x7f9af3c7ebc0
+         Source: TrexService/CoreHandler.cpp:803
          Module: /usr/sap/H11/HDB11/exe/libhdbbasement.so
      -----------------------------------------
-  13: _ZN11TrexService21RequestHandlerWrapperIZZNS_11CoreHandlerC4ERN3rte15memory_resourceEENKUlOT_E0_clIMS1_FvRN7TrexNet7RequestERKNS_14HandlerContextEEEEDaS6_EUlRS5_RT0_E_Li2ENS_13AlwaysEnabledEE6handleESB_SE_ + 0x3e
-         SFrame: IP: 0x00007ff61ab8f80e (0x00007ff61ab8f7d0+0x3e) FP: 0x00007ff3ca6d6e70 SP: 0x00007ff3ca6d6e40 RP: 0x00007ff61ab94925
-         Params: ?, ?, 0x7ff5bba84160
-         Regs: rbx=0x1, rdx=0x7ff5bba84160, rbp=0x1, rsp=0x7ff3ca6d6e40
-         Source: TrexService/CoreHandler.cpp:214
+  17: _ZZZN11TrexService11CoreHandlerC4ERN3ltt9allocatorEENKUlOT_E_clIRKMS0_FvRN7TrexNet7RequestERKNS_14HandlerContextEEEEDaS5_ENKUlRS4_RT0_E_clIS9_SC_EEDaSI_SK_ + 0x75
+         SFrame: IP: 0x00007fa390a41ee5 (0x00007fa390a41e70+0x75) FP: 0x00007f9af3c7f220 SP: 0x00007f9af3c7f1f0 RP: 0x00007fa390a41f36
+         Params: ?, ?, 0x7f9c2fa13000
+         Regs: rbx=0x7fa37773fba0, rdx=0x7f9c2fa13000, rbp=0x7f9af3c7f210, rsp=0x7f9af3c7f1f0
+         Source: TrexService/CoreHandler.cpp:216
          Module: /usr/sap/H11/HDB11/exe/libhdbbasement.so
      -----------------------------------------
-  14: .LTHUNK18.lto_priv.7811 + 0x45
-         SFrame: IP: 0x00007ff61ab94925 (0x00007ff61ab948e0+0x45) FP: 0x00007ff3ca6d7260 SP: 0x00007ff3ca6d6e70 RP: 0x00007ff61ab94925
-         Params: ?, ?, 0x7ff3ca6d76e4
-         Regs: rbx=0x1, rdx=0x7ff3ca6d76e4, rbp=0x7ff3ca6d7de0, rsp=0x7ff3ca6d6e70
+  18: _ZZZN11TrexService11CoreHandlerC4ERN3ltt9allocatorEENKUlOT_E0_clIMS0_FvRN7TrexNet7RequestERKNS_14HandlerContextEEEEDaS5_ENKUlRS4_RT0_E_clIS9_SC_EEDaSG_SI_ + 0x46
+         SFrame: IP: 0x00007fa390a41f36 (0x00007fa390a41ef0+0x46) FP: 0x00007f9af3c7f270 SP: 0x00007f9af3c7f220 RP: 0x00007fa390a41f9a
+         Regs: rbx=0x7fa37773fba0, rbp=0x7f9af3c7f260, rsp=0x7f9af3c7f220
+         Source: TrexService/CoreHandler.cpp:221
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasement.so
+     -----------------------------------------
+  19: _ZN11TrexService21RequestHandlerWrapperIZZNS_11CoreHandlerC4ERN3ltt9allocatorEENKUlOT_E0_clIMS1_FvRN7TrexNet7RequestERKNS_14HandlerContextEEEEDaS6_EUlRS5_RT0_E_Li2ENS_13AlwaysEnabledEE6handleESB_SE_ + 0x4a
+         SFrame: IP: 0x00007fa390a41f9a (0x00007fa390a41f50+0x4a) FP: 0x00007f9af3c7f2a0 SP: 0x00007f9af3c7f270 RP: 0x00007fa390a4c9b6
+         Regs: rbx=0x7fa37773fba0, rbp=0x7f9af3c7f290, rsp=0x7f9af3c7f270
+         Source: TrexService/RequestHandlerWrapper.hpp:136
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasement.so
+     -----------------------------------------
+  20: TrexService::DispatchingRequestHandler::handle(TrexNet::Request&, TrexService::HandlerContext const&) + 0x286
+         Symbol: _ZN11TrexService25DispatchingRequestHandler6handleERN7TrexNet7RequestERKNS_14HandlerContextE
+         SFrame: IP: 0x00007fa390a4c9b6 (0x00007fa390a4c730+0x286) FP: 0x00007f9af3c7f720 SP: 0x00007f9af3c7f2a0 RP: 0x00007fa390a4c9b6
+         Regs: rbx=0x7fa37773fba0, rbp=0x7f9af3c7f710, rsp=0x7f9af3c7f2a0
          Source: TrexService/DispatchingRequestHandler.cpp:39
          Module: /usr/sap/H11/HDB11/exe/libhdbbasement.so
      -----------------------------------------
-  15: .LTHUNK18.lto_priv.7811 + 0x45
-         SFrame: IP: 0x00007ff61ab94925 (0x00007ff61ab948e0+0x45) FP: 0x00007ff3ca6d7650 SP: 0x00007ff3ca6d7260 RP: 0x00007ff61ab808aa
-         Params: ?, ?, 0x7ff3ca6d76e4
-         Regs: rbx=0x1, rdx=0x7ff3ca6d76e4, rbp=0x7ff3ca6d7de0, rsp=0x7ff3ca6d7260
+  21: TrexService::DispatchingRequestHandler::handle(TrexNet::Request&, TrexService::HandlerContext const&) + 0x286
+         Symbol: _ZN11TrexService25DispatchingRequestHandler6handleERN7TrexNet7RequestERKNS_14HandlerContextE
+         SFrame: IP: 0x00007fa390a4c9b6 (0x00007fa390a4c730+0x286) FP: 0x00007f9af3c7fba0 SP: 0x00007f9af3c7f720 RP: 0x00007fa390a7ab2c
+         Params: ?, ?, 0x7f9c2fa13000
+         Regs: rbx=0x7fa37773fba0, rdx=0x7f9c2fa13000, rbp=0x7f9af3c7fb90, rsp=0x7f9af3c7f720
          Source: TrexService/DispatchingRequestHandler.cpp:39
          Module: /usr/sap/H11/HDB11/exe/libhdbbasement.so
      -----------------------------------------
-  16: TrexService::WorkerThread::run(void*) + 0x160a
+  22: TrexService::WorkerThread::run(void*) + 0x139c
          Symbol: _ZN11TrexService12WorkerThread3runEPv
-         SFrame: IP: 0x00007ff61ab808aa (0x00007ff61ab7f2a0+0x160a) FP: 0x00007ff3ca6d8210 SP: 0x00007ff3ca6d7650 RP: 0x00007ff61ab57ac9
-         Params: ?, ?, 0x7ff3ca6d7770
-         Regs: rbx=0x1, rdx=0x7ff3ca6d7770, rbp=0x7ff3ca6d76e8, rsp=0x7ff3ca6d7650
-         Source: TrexService/TrexServiceThreads.cpp:515
+         SFrame: IP: 0x00007fa390a7ab2c (0x00007fa390a79790+0x139c) FP: 0x00007f9af3c80e00 SP: 0x00007f9af3c7fba0 RP: 0x00007fa390ad124b
+         Params: ?, ?, 0x7f9c2fa13000
+         Regs: rbx=0x7fa37773fba0, rdx=0x7f9c2fa13000, rbp=0x7f9af3c80df0, rsp=0x7f9af3c7fba0
+         Source: TrexService/TrexServiceThreads.cpp:529
          Module: /usr/sap/H11/HDB11/exe/libhdbbasement.so
      -----------------------------------------
-  17: TrexThreads::PoolThread::run() + 0x729
+  23: TrexThreads::PoolThread::run() + 0x114b
          Symbol: _ZN11TrexThreads10PoolThread3runEv
-         SFrame: IP: 0x00007ff61ab57ac9 (0x00007ff61ab573a0+0x729) FP: 0x00007ff3ca6d90b0 SP: 0x00007ff3ca6d8210 RP: 0x00007ff61ab5a4e0
-         Params: ?, ?, 0x7ff5bb7c8000
-         Regs: rbx=0x1, rdx=0x7ff5bb7c8000, rbp=0x7ff588373000, rsp=0x7ff3ca6d8210
+         SFrame: IP: 0x00007fa390ad124b (0x00007fa390ad0100+0x114b) FP: 0x00007f9af3c821b0 SP: 0x00007f9af3c80e00 RP: 0x00007fa390acfe27
+         Params: ?, ?, 0x7f9c2fa13000
+         Regs: rbx=0x7fa37773fba0, rdx=0x7f9c2fa13000, rbp=0x7f9af3c821a0, rsp=0x7f9af3c80e00
          Source: TrexThreads/PoolThread.cpp:431
          Module: /usr/sap/H11/HDB11/exe/libhdbbasement.so
      -----------------------------------------
-  18: TrexThreads::PoolThread::run(void*&) + 0x10
+  24: TrexThreads::PoolThread::run(void*&) + 0x27
          Symbol: _ZN11TrexThreads10PoolThread3runERPv
-         SFrame: IP: 0x00007ff61ab5a4e0 (0x00007ff61ab5a4d0+0x10) FP: 0x00007ff3ca6d90c0 SP: 0x00007ff3ca6d90b0 RP: 0x00007ff615c08d70
-         Params: ?, ?, 0x7ff3ca6d9140
-         Regs: rbx=0x1, rdx=0x7ff3ca6d9140, rbp=0x7ff3ca6d9550, rsp=0x7ff3ca6d90b0
-         Source: TrexThreads/PoolThread.cpp:122
+         SFrame: IP: 0x00007fa390acfe27 (0x00007fa390acfe00+0x27) FP: 0x00007f9af3c821e0 SP: 0x00007f9af3c821b0 RP: 0x00007fa3776f7068
+         Params: ?, ?, 0x7f9c10ea7010
+         Regs: rbx=0x7fa37773fba0, rdx=0x7f9c10ea7010, rbp=0x7f9af3c821d0, rsp=0x7f9af3c821b0
+         Source: TrexThreads/PoolThread.cpp:121
          Module: /usr/sap/H11/HDB11/exe/libhdbbasement.so
      -----------------------------------------
-  19: Execution::Thread::staticMainImp(Execution::Thread*) + 0x540
+  25: Execution::Thread::staticMainImp(Execution::Thread*) + 0xf58
          Symbol: _ZN9Execution6Thread13staticMainImpEPS0_
-         SFrame: IP: 0x00007ff615c08d70 (0x00007ff615c08830+0x540) FP: 0x00007ff3ca6d9560 SP: 0x00007ff3ca6d90c0 RP: 0x00007ff615bfaba8
-         Params: ?, ?, 0x7ff3ca6d91f0
-         Regs: rbx=0x1, rdx=0x7ff3ca6d91f0, rbp=0x7ff3ca6d9550, rsp=0x7ff3ca6d90c0
-         Source: Basis/Execution/impl/Thread.cpp:529
+         SFrame: IP: 0x00007fa3776f7068 (0x00007fa3776f6110+0xf58) FP: 0x00007f9af3c82800 SP: 0x00007f9af3c821e0 RP: 0x00007fa37770b8d6
+         Regs: rbx=0x7fa37773fba0, rbp=0x7f9af3c827f0, rsp=0x7f9af3c821e0
+         Source: TrexThreads/Thread.cpp:529
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-  20: Execution::pthreadFunctionWrapper(Execution::Thread*) + 0x168
+  26: Execution::pthreadFunctionWrapper(Execution::Thread*) + 0xe6
          Symbol: _ZN9Execution22pthreadFunctionWrapperEPNS_6ThreadE
-         SFrame: IP: 0x00007ff615bfaba8 (0x00007ff615bfaa40+0x168) FP: 0x00007ff3ca6d9960 SP: 0x00007ff3ca6d9560 RP: 0x00007ff61532774a
-         Params: ?, ?, 0x7ff588373000
-         Regs: rbx=0x1, rdx=0x7ff588373000, rbp=0x7ff3ca6d95a0, rsp=0x7ff3ca6d9560
-         Source: Basis/Execution/impl/ThreadInterposition.cpp:641
+         SFrame: IP: 0x00007fa37770b8d6 (0x00007fa37770b7f0+0xe6) FP: 0x00007f9af3c848e0 SP: 0x00007f9af3c82800 RP: 0x00007fa376c72724
+         Params: ?, ?, 0x0
+         Regs: rbx=0x7fa37773fba0, rdx=0x0, rbp=0x7f9af3c848d0, rsp=0x7f9af3c82800
+         Source: Basis/Execution/impl/ThreadInterposition.cpp:638
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-  21: start_thread + 0xca
-         SFrame: IP: 0x00007ff61532774a (0x00007ff615327680+0xca) FP: 0x00007ff3ca6d9a00 SP: 0x00007ff3ca6d9960 RP: 0x00007ff613b59edd
+  27: start_thread + 0xc4
+         SFrame: IP: 0x00007fa376c72724 (0x00007fa376c72660+0xc4) FP: 0x00007f9af3c84980 SP: 0x00007f9af3c848e0 RP: 0x00007fa37565de8d
          Params: ?, ?, 0x0
-         Regs: rbx=0x1, rdx=0x0, rbp=0x0, rsp=0x7ff3ca6d9960
+         Regs: rbx=0x7fa37773fba0, rdx=0x0, rbp=0x0, rsp=0x7f9af3c848e0
          Module: /lib64/libpthread.so.0
      -----------------------------------------
-  22: __clone + 0x69
-         SFrame: IP: 0x00007ff613b59edd (0x00007ff613b59e74+0x69) FP: 0x00007ff3ca6d9a08 SP: 0x00007ff3ca6d9a00
-         Params: ?, ?, 0x7ff3ca6df700
-         Regs: rbx=0x1, rdx=0x7ff3ca6df700, rbp=0x0, rsp=0x7ff3ca6d9a00
+  28: __clone + 0x69
+         SFrame: IP: 0x00007fa37565de8d (0x00007fa37565de24+0x69) FP: 0x00007f9af3c84988 SP: 0x00007f9af3c84980
+         Params: ?, ?, 0x7f9af3c8a700
+         Regs: rbx=0x7fa37773fba0, rdx=0x7f9af3c8a700, rbp=0x0, rsp=0x7f9af3c84980
          Module: /lib64/libc.so.6
 [OK]
 --
 
-[CRASH_REGISTERS]  Registers: (2019-10-04 06:31:41 263 Local)
+[CRASH_REGISTERS]  Registers: (2019-08-13 08:43:15 701 Local)
 ----> Register Dump <----
-  rax: 0x00007ff615e3c800  rbx: 0x0000000000000001
-  rcx: 0x00007ff5b4caf700  rdx: 0x00007ff615e40350
-  rsi: 0x0000000000000001  rdi: 0x00007ff61603ee10
-  rsp: 0x00007ff3ca6d5798  rbp: 0x00007ff6162c7108
-  r08: 0x00007ff5b4cb00c8  r09: 0x00007ff5b4cb00d8
-  r10: 0x00007ff5b4cad201  r11: 0x00007ff613bdfd01
-  r12: 0x00007ff5b4caf700  r13: 0x00007ff3ca6d68a0
-  r14: 0x00007ff3ca6d5ee0  r15: 0xb116b00bbabeface
-  rip: 0x00007ff615e19247 eflg: 0x0000000000010287
+  rax: 0x772baf6000007fa3  rbx: 0x00007fa37773fba0
+  rcx: 0x0000000000000001  rdx: 0x00007f9c19b70da0
+  rsi: 0x0000000000000001  rdi: 0x00007f9c19b70da0
+  rsp: 0x00007f9af3c7d8e0  rbp: 0x00007f9af3c7d910
+  r08: 0x00058ff9f4751589  r09: 0x0000000000000001
+  r10: 0x0000000000000000  r11: 0x00007fa3756e3d70
+  r12: 0x00007f9c19c0227f  r13: 0x0000000000000000
+  r14: 0x0000000000006d08  r15: 0x00007f9af3c8a700
+  rip: 0x00007fa37737a6c9 eflg: 0x0000000000010212
    cs: 0x002b               gs: 0x0000
    fs: 0x0000
- omsk: 0x0000000000001000  cr2: 0x00007f2ca5e63080
+ omsk: 0x0000000000001000  cr2: 0x0000000000000000
  trap: 0x000000000000000d  err: 0x0000000000000000
 ----> Floating-point register dump <----
-     foper: 0x0000    frip: 0x00007ff6143ea2bb  fdata: 0x0
+     foper: 0x0000    frip: 0x00007fa37561ddb4  fdata: 0x7ffd43cadad8
    control: 0x037f  status: 0x0000  tag: 0x0
-     mxcsr: 0x00001fa1  mxcr_mask: 0xffff
+     mxcsr: 0x00001fa0  mxcr_mask: 0xffff
   fp[0]: 0x0.0000 0000 0000 0000 * 2^0x0
   fp[1]: 0x0.0000 0000 0000 0000 * 2^0x0
   fp[2]: 0x0.0000 0000 0000 0000 * 2^0x0
   fp[3]: 0x0.0000 0000 0000 0000 * 2^0x0
   fp[4]: 0x0.0000 0000 0000 0000 * 2^0x0
   fp[5]: 0x0.0000 0000 0000 8800 * 2^0x4003
-  fp[6]: 0x0.0000 0000 0000 8800 * 2^0x4003
-  fp[7]: 0x0.0000 0000 0000 9400 * 2^0x4004
+  fp[6]: 0x0.0000 0000 b336 baa4 * 2^0x401d
+  fp[7]: 0x0.0000 0000 a9d4 8afa * 2^0x401c
   xmm[00]: 0x00000000.00000000.00000000.ffffff00
   xmm[01]: 0x00000000.00000000.00000000.00000000
   xmm[02]: 0x00000000.00000000.00000000.00000000
-  xmm[03]: 0x00000000.00000001.00000000.00000000
+  xmm[03]: 0x90acfe27.00007fa3.776f7068.00007fa3
   xmm[04]: 0x00000000.00000000.00000000.00000000
-  xmm[05]: 0x5a5a5a5a.5a5a5a5a.5a5a5a5a.5a5a5a5a
-  xmm[06]: 0x20202020.20202020.20202020.20202020
+  xmm[05]: 0x00000000.00000000.00000000.00000000
+  xmm[06]: 0xffffffff.ffffffff.ffffffff.ffffffff
   xmm[07]: 0x00000000.00000000.00000000.00000000
   xmm[08]: 0x00000000.00000000.00000000.00000000
   xmm[09]: 0x00000000.00000000.00000000.00000000
   xmm[10]: 0x00000000.00000000.00000000.00000000
   xmm[11]: 0x00000000.00000000.00000000.00000000
-  xmm[12]: 0x0000ff00.00000000.00ff0000.00ff0000
-  xmm[13]: 0xfefa3800.3fe62e42.00000000.00000000
-  xmm[14]: 0x66f980a2.bc6f6650.00000000.00000000
-  xmm[15]: 0xfefa3800.3fe62e42.00000000.00000000
+  xmm[12]: 0x00ff0000.00000000.00000000.00000000
+  xmm[13]: 0x7e0ddde3.6d88fd46.ebf3c11b.1ead2f7c
+  xmm[14]: 0x75f030bd.5abbf4e9.6bbaa974.f61a8a9d
+  xmm[15]: 0xd227b6df.9e700048.7f50ac12.5bfe4ed7
 [OK]
 --

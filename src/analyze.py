@@ -4,6 +4,7 @@
 import os
 import re
 import glob
+import difflib
 import argparse
 from clang.cindex import Config
 
@@ -92,10 +93,11 @@ def find_exception(text):
 
 
 def find_backtrace(text):
-    res = []
+    res = ""
     # extract source file
     source_dict = dict()
-    source_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ][^\n]+[\S\s]+?Source[:][ ](.+)[:]", re.M)
+    source_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ][\S\s]+"
+                                r"?Source[:][ ](.+)[:]", re.M)
     sources = source_pattern.findall(text)
     for k, v in sources:
         source_dict[k] = v
@@ -103,20 +105,52 @@ def find_backtrace(text):
     method_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ](.+)", re.M)
     methods = method_pattern.findall(text)
     for m in methods:
+        # processing method
         if " + 0x" in m[1]:
-            method = m[1][:m[1].rindex("+") - 1]
+            method = m[1][:m[1].rindex(" + 0x")]
         else:
             method = m[1]
         # merge into a line
-        res.append(m[0] + ": " + method + " at " + source_dict[m[0]])
+        if m[0] in source_dict:
+            res += str(m[0]) + ": " + method + " at " + source_dict[m[0]] + "\n"
+        else:
+            res += str(m[0]) + ": " + method + "\n"
     return res
 
 
 def format_print(lists, mode):
-    total = len(lists[0]) + len(lists[1])
-    equal = len([i for i in lists[0] if i in lists[1]]) * 2
-
-    print("Similarity: {:.2%}".format(equal / total))
+    if mode == "ast":
+        pass
+    else:
+        # get diff
+        stack_1 = args.dump[0][args.dump[0].rindex("/") + 1:]
+        stack_2 = args.dump[1][args.dump[1].rindex("/") + 1:]
+        diff = difflib.unified_diff(lists[0].split("\n"), lists[1].split("\n"),
+                                    fromfile=stack_1, tofile=stack_2, lineterm="")
+        # set diff format
+        for line in diff:
+            if line.startswith("-"):
+                if line.startswith("---"):
+                    print("\033[1m" + line + "\033[0m")
+                else:
+                    line = "-   " + line[line.index("-") + 1:]
+                    print("\033[0;31m" + line + "\033[0m")
+            elif line.startswith("+"):
+                if line.startswith("+++"):
+                    print("\033[1m" + line + "\033[0m")
+                else:
+                    line = "+   " + line[line.index("+") + 1:]
+                    print("\033[0;32m" + line + "\033[0m")
+            elif line.startswith("@@"):
+                print("\033[0;36m" + line + "\033[0m")
+            else:
+                print(line)
+        # output similarity
+        sim = difflib.SequenceMatcher(None, lists[0], lists[1]).ratio()
+        difflib.Differ()
+        print("+--------------------+")
+        print("| Similarity: {:.2%} |".format(sim))
+        print("+--------------------+")
 
 
 if __name__ == "__main__":
@@ -130,10 +164,10 @@ if __name__ == "__main__":
         Config.set_library_path(lib_path)
     # parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--dump", nargs=2,
-                        default=["./data/bt_dump_1.trc", "./data/bt_dump_2.trc"], help="pass crash dump files")
-    parser.add_argument("-m", "--mode", default="ast",
-                        choices=["ast", "csi"], help="select the mode of analysis")
+    parser.add_argument("-d", "--dump", nargs=2, default=["./data/bt_dump_1.trc", "./data/bt_dump_2.trc"],
+                        help="pass crash dump files")
+    parser.add_argument("-m", "--mode", default="ast", choices=["ast", "csi"],
+                        help="select the mode of analysis")
     parser.add_argument("-u", "--update", nargs="?", const=True,
                         help="update components or not")
     parser.add_argument("-s", "--source", nargs="?",
@@ -146,5 +180,4 @@ if __name__ == "__main__":
     else:
         components = load_components()
 
-    # format_print(pre_process(args.dump), args.mode)
-    pre_process(args.dump)
+    format_print(pre_process(args.dump), args.mode)
