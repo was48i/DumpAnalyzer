@@ -64,36 +64,45 @@ def update_symbols(path):
                     symbols[sym] = best_matched(child)
 
 
-def pre_process(paths):
+def pre_process(paths, mode):
     dumps = []
     pattern = re.compile(r"[\n](\[CRASH_STACK\][\S\s]+)\[CRASH_REGISTERS\]", re.M)
     for path in paths:
         with open(path, "r") as fp:
             file_text = fp.read()
         stack = pattern.findall(file_text)
-        if "exception throw location" in stack[0]:
-            dump = find_backtrace(stack[0])
-            dump.append(find_exception(stack[0]))
+        if mode == "ast":
+            trace = find_trace(stack[0])
+            pass
         else:
-            dump = find_backtrace(stack[0])
-        dumps.append(dump)
+            trace = find_trace(stack[0])
+        dumps.append(trace)
     return dumps
 
 
 def find_exception(text):
-    res = []
-    title_pattern = re.compile(r"(exception.+)[ ]TID[^\n]([\S\s]+)?(exception[ ]throw[ ]location[:])", re.M)
-    body_pattern = re.compile(r"(\d+[:][ ])0x.+[ ]in[ ](.+)[+]0x.+([ ].+)[:]", re.M)
-    titles = title_pattern.findall(text)
-    bodies = body_pattern.findall(text)
-    for t, b in titles, bodies:
-        res.append(t[0] + t[1] + t[2] + "\n" +
-                   b[0] + b[1] + b[2])
-    return res
+    ex = ""
+    titles = []
+    bodies = []
+    title_pattern = re.compile(r"(exception.+)[ ]TID.+[\n]"
+                               r"([\S\s]+?exception[ ]throw[ ]location[:])", re.M)
+    for t in title_pattern.findall(text):
+        title = t[0] + "\n" + \
+                t[1].lstrip() + "\n"
+        titles.append(title)
+    body_pattern = re.compile(r"(\d+)[:][ ]0x.+[ ]in[ ](.+)[+]0x.+"
+                              r"?([ ].+)[:]", re.M)
+    body_list = body_pattern.findall(text)
+    body = body_list[0][0] + ": " + body_list[0][1] + body_list[0][2] + "\n"
+    for b in body_list:
+        if b[0] == "0":
+            bodies.append(body)
+            body = ""
+        body += b[0] + ": " + b[1] + b[2] + "\n"
 
 
 def find_backtrace(text):
-    res = ""
+    bt = ""
     # extract source file
     source_dict = dict()
     source_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ][\S\s]+"
@@ -112,45 +121,51 @@ def find_backtrace(text):
             method = m[1]
         # merge into a line
         if m[0] in source_dict:
-            res += str(m[0]) + ": " + method + " at " + source_dict[m[0]] + "\n"
+            bt += str(m[0]) + ": " + method + " at " + source_dict[m[0]] + "\n"
         else:
-            res += str(m[0]) + ": " + method + "\n"
-    return res
+            bt += str(m[0]) + ": " + method + "\n"
+    return bt
 
 
-def format_print(lists, mode):
-    if mode == "ast":
-        pass
-    else:
-        # get diff
-        stack_1 = args.dump[0][args.dump[0].rindex("/") + 1:]
-        stack_2 = args.dump[1][args.dump[1].rindex("/") + 1:]
-        diff = difflib.unified_diff(lists[0].split("\n"), lists[1].split("\n"),
-                                    fromfile=stack_1, tofile=stack_2, lineterm="")
-        # set diff format
-        for line in diff:
-            if line.startswith("-"):
-                if line.startswith("---"):
-                    print("\033[1m" + line + "\033[0m")
-                else:
-                    line = "-   " + line[line.index("-") + 1:]
-                    print("\033[0;31m" + line + "\033[0m")
-            elif line.startswith("+"):
-                if line.startswith("+++"):
-                    print("\033[1m" + line + "\033[0m")
-                else:
-                    line = "+   " + line[line.index("+") + 1:]
-                    print("\033[0;32m" + line + "\033[0m")
-            elif line.startswith("@@"):
-                print("\033[0;36m" + line + "\033[0m")
+def find_trace(text):
+    # trace = find_backtrace(text)
+    if "exception throw location" in text:
+        body_pattern = re.compile(r"(\d+)[:][ ]0x.+[ ]in[ ](.+)[+]0x.+?([ ].+)[:]", re.M)
+        titles = body_pattern.findall(text)
+        print(titles)
+    # return trace
+
+
+def format_print(lists):
+    # get diff
+    stack_1 = args.dump[0][args.dump[0].rindex("/") + 1:]
+    stack_2 = args.dump[1][args.dump[1].rindex("/") + 1:]
+    diff = difflib.unified_diff(lists[0].split("\n"), lists[1].split("\n"),
+                                fromfile=stack_1, tofile=stack_2, lineterm="")
+    # set diff format
+    for line in diff:
+        if line.startswith("-"):
+            if line.startswith("---"):
+                print("\033[1m" + line + "\033[0m")
             else:
-                print(line)
-        # output similarity
-        sim = difflib.SequenceMatcher(None, lists[0], lists[1]).ratio()
-        difflib.Differ()
-        print("+--------------------+")
-        print("| Similarity: {:.2%} |".format(sim))
-        print("+--------------------+")
+                line = "-   " + line[line.index("-") + 1:]
+                print("\033[0;31m" + line + "\033[0m")
+        elif line.startswith("+"):
+            if line.startswith("+++"):
+                print("\033[1m" + line + "\033[0m")
+            else:
+                line = "+   " + line[line.index("+") + 1:]
+                print("\033[0;32m" + line + "\033[0m")
+        elif line.startswith("@@"):
+            print("\033[0;36m" + line + "\033[0m")
+        else:
+            print(line)
+    # output similarity
+    sim = difflib.SequenceMatcher(None, lists[0], lists[1]).ratio()
+    difflib.Differ()
+    print("+--------------------+")
+    print("| Similarity: {:.2%} |".format(sim))
+    print("+--------------------+")
 
 
 if __name__ == "__main__":
@@ -170,7 +185,7 @@ if __name__ == "__main__":
                         help="select the mode of analysis")
     parser.add_argument("-u", "--update", nargs="?", const=True,
                         help="update components or not")
-    parser.add_argument("-s", "--source", nargs="?",
+    parser.add_argument("-s", "--source", nargs="?", default="/hana",
                         help="source code path")
     args = parser.parse_args()
     # update components or not
@@ -180,4 +195,8 @@ if __name__ == "__main__":
     else:
         components = load_components()
 
-    format_print(pre_process(args.dump), args.mode)
+    # result = pre_process(args.dump, args.mode)
+    # format_print(result)
+    with open("/Users/hyang/Downloads/777_1.trc", "r") as fp:
+        file_text = fp.read()
+    find_trace(file_text)
