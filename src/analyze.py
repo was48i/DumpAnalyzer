@@ -4,12 +4,12 @@
 import os
 import re
 import glob
-import difflib
 import argparse
 from clang.cindex import Config
 
 from symbol import find_symbol
-from component import find_component
+from format import format_print
+from regex import find_component, find_trace
 from persistence import dump_components, load_components
 
 
@@ -66,6 +66,7 @@ def update_symbols(path):
 
 def pre_process(paths, mode):
     dumps = []
+    # set crash stack pattern
     pattern = re.compile(r"[\n](\[CRASH_STACK\][\S\s]+)\[CRASH_REGISTERS\]", re.M)
     for path in paths:
         with open(path, "r") as fp:
@@ -78,105 +79,6 @@ def pre_process(paths, mode):
             trace = find_trace(stack[0])
         dumps.append(trace)
     return dumps
-
-
-def find_exception(text):
-    ex = ""
-    titles = []
-    bodies = []
-    # extract titles
-    title_pattern = re.compile(r"(exception.+)[ ]TID.+[\n]"
-                               r"([\S\s]+?exception[ ]throw[ ]location[:])", re.M)
-    for t in title_pattern.findall(text):
-        title = "\n" + t[0] + "\n" + t[1].lstrip() + "\n"
-        titles.append(title)
-    # extract bodies
-    body_pattern = re.compile(r"(\d+)[:][ ]0x.+[ ]in[ ](.+)[+]0x.+"
-                              r"?([ ].+)[:]", re.M)
-    whole = body_pattern.findall(text)
-    # get break points
-    points = []
-    for i, b in enumerate(whole):
-        if b[0] == "0":
-            points.append(i)
-    points.append(len(whole) + 1)
-    # get lines of body
-    for i in range(len(points) - 1):
-        body = ""
-        for line in whole[points[i]:points[i+1]]:
-            body += line[0] + ": " + line[1] + line[2] + "\n"
-        bodies.append(body)
-    # merge titles and bodies
-    for t, b in zip(titles, bodies):
-        ex += t + b
-    return ex
-
-
-def find_backtrace(text):
-    bt = ""
-    # extract source file
-    source_dict = dict()
-    source_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ][\S\s]+"
-                                r"?Source[:][ ](.+)[:]", re.M)
-    sources = source_pattern.findall(text)
-    for k, v in sources:
-        source_dict[k] = v
-    # extract method
-    method_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ](.+)", re.M)
-    methods = method_pattern.findall(text)
-    for m in methods:
-        # processing method
-        if " + 0x" in m[1]:
-            method = m[1][:m[1].rindex(" + 0x")]
-        else:
-            method = m[1]
-        # merge into a line
-        if m[0] in source_dict:
-            bt += str(m[0]) + ": " + method + " at " + source_dict[m[0]] + "\n"
-        else:
-            bt += str(m[0]) + ": " + method + "\n"
-    return bt
-
-
-def find_trace(text):
-    trace = find_backtrace(text)
-    # merge exceptions if existing
-    if "exception throw location" in text:
-        exception = find_exception(text)
-        trace += exception
-    return trace
-
-
-def format_print(lists):
-    # get diff
-    stack_1 = args.dump[0][args.dump[0].rindex("/") + 1:]
-    stack_2 = args.dump[1][args.dump[1].rindex("/") + 1:]
-    diff = difflib.unified_diff(lists[0].split("\n"), lists[1].split("\n"),
-                                fromfile=stack_1, tofile=stack_2, lineterm="")
-    # set diff format
-    for line in diff:
-        if line.startswith("-"):
-            if line.startswith("---"):
-                print("\033[1m" + line + "\033[0m")
-            else:
-                line = "-   " + line[line.index("-") + 1:]
-                print("\033[0;31m" + line + "\033[0m")
-        elif line.startswith("+"):
-            if line.startswith("+++"):
-                print("\033[1m" + line + "\033[0m")
-            else:
-                line = "+   " + line[line.index("+") + 1:]
-                print("\033[0;32m" + line + "\033[0m")
-        elif line.startswith("@@"):
-            print("\033[0;36m" + line + "\033[0m")
-        else:
-            print(line)
-    # output similarity
-    sim = difflib.SequenceMatcher(None, lists[0], lists[1]).ratio()
-    difflib.Differ()
-    print("+--------------------+")
-    print("| Similarity: {:.2%} |".format(sim))
-    print("+--------------------+")
 
 
 if __name__ == "__main__":
@@ -207,4 +109,4 @@ if __name__ == "__main__":
         components = load_components()
 
     result = pre_process(args.dump, args.mode)
-    format_print(result)
+    format_print(args.dump, result)
