@@ -101,6 +101,7 @@ def pre_process(paths, mode):
         if mode == "ast":
             trace = find_stacktrace(stack[0])
             trace = to_component(trace)
+            print(trace)
         else:
             trace = find_stacktrace(stack[0])
         dumps.append(trace)
