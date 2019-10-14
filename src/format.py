@@ -7,6 +7,16 @@ def format_print(files, lists):
     stack_2 = files[1][files[1].rindex("/") + 1:]
     diff = difflib.unified_diff(lists[0].split("\n"), lists[1].split("\n"),
                                 fromfile=stack_1, tofile=stack_2, lineterm="")
+    # handle the same case
+    try:
+        next(diff)
+    except StopIteration:
+        print("\033[1m" + stack_1 + "\033[0m")
+        for com in lists[0].split("\n"):
+            print("\033[0;36m" + com + "\033[0m")
+        print("\033[1m" + stack_2 + "\033[0m")
+        for com in lists[1].split("\n"):
+            print("\033[0;36m" + com + "\033[0m")
     # set diff format
     for line in diff:
         if line.startswith("-"):
@@ -27,7 +37,15 @@ def format_print(files, lists):
             print(line)
     # output similarity
     sim = difflib.SequenceMatcher(None, lists[0], lists[1]).ratio()
-    difflib.Differ()
-    print("+--------------------+")
-    print("| Similarity: {:.2%} |".format(sim))
-    print("+--------------------+")
+    if sim < 0.1:
+        print("+-------------------+")
+        print("| Similarity: {:.2%} |".format(sim))
+        print("+-------------------+")
+    elif sim < 1.0:
+        print("+--------------------+")
+        print("| Similarity: {:.2%} |".format(sim))
+        print("+--------------------+")
+    else:
+        print("+---------------------+")
+        print("| Similarity: {:.2%} |".format(sim))
+        print("+---------------------+")

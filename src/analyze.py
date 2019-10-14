@@ -72,14 +72,21 @@ def to_component(trace):
     pattern = re.compile(r"\d+[:][ ](.+)[ ]at[ ](.+)", re.M)
     for symbol in symbol_list:
         if " at " in symbol:
-            path = args.source + pattern.findall(symbol)[1]
+            path = os.path.join(args.source, pattern.findall(symbol)[0][1])
             if best_matched(path) != component:
                 res += str(cnt) + ": " + best_matched(path) + "\n"
+                component = best_matched(path)
                 cnt += 1
-        if "exception throw location" in symbol:
-            cnt = 0
-            component = ""
-            res += "\n[EXCEPTION]\n"
+        # elif symbol:
+        #     path = args.source
+        #     if best_matched(path) != component:
+        #         res += str(cnt) + ": " + best_matched(path) + "\n"
+        #         component = best_matched(path)
+        #         cnt += 1
+        # if "exception throw location" in symbol:
+        #     cnt = 0
+        #     component = ""
+        #     res += "\n[EXCEPTION]\n"
     return res
 
 
