@@ -72,7 +72,7 @@ def find_exception(text):
     return ex
 
 
-def find_trace(text):
+def find_stacktrace(text):
     trace = find_backtrace(text)
     # merge exceptions if existing
     if "exception throw location" in text:

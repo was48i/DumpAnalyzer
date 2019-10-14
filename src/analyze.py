@@ -9,7 +9,7 @@ from clang.cindex import Config
 
 from symbol import find_symbol
 from format import format_print
-from regex import find_component, find_trace
+from regex import find_component, find_stacktrace
 from persistence import dump_components, load_components
 
 
@@ -64,6 +64,25 @@ def update_symbols(path):
                     symbols[sym] = best_matched(child)
 
 
+def to_component(trace):
+    cnt = 0
+    component = ""
+    res = "[BACKTRACE]\n"
+    symbol_list = trace.split("\n")
+    pattern = re.compile(r"\d+[:][ ](.+)[ ]at[ ](.+)", re.M)
+    for symbol in symbol_list:
+        if " at " in symbol:
+            path = args.source + pattern.findall(symbol)[1]
+            if best_matched(path) != component:
+                res += str(cnt) + ": " + best_matched(path) + "\n"
+                cnt += 1
+        if "exception throw location" in symbol:
+            cnt = 0
+            component = ""
+            res += "\n[EXCEPTION]\n"
+    return res
+
+
 def pre_process(paths, mode):
     dumps = []
     # set crash stack pattern
@@ -73,10 +92,10 @@ def pre_process(paths, mode):
             file_text = fp.read()
         stack = pattern.findall(file_text)
         if mode == "ast":
-            trace = find_trace(stack[0])
-            pass
+            trace = find_stacktrace(stack[0])
+            trace = to_component(trace)
         else:
-            trace = find_trace(stack[0])
+            trace = find_stacktrace(stack[0])
         dumps.append(trace)
     return dumps
 
