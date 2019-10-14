@@ -84,21 +84,32 @@ def find_exception(text):
     ex = ""
     titles = []
     bodies = []
+    # extract titles
     title_pattern = re.compile(r"(exception.+)[ ]TID.+[\n]"
                                r"([\S\s]+?exception[ ]throw[ ]location[:])", re.M)
     for t in title_pattern.findall(text):
-        title = t[0] + "\n" + \
-                t[1].lstrip() + "\n"
+        title = "\n" + t[0] + "\n" + t[1].lstrip() + "\n"
         titles.append(title)
+    # extract bodies
     body_pattern = re.compile(r"(\d+)[:][ ]0x.+[ ]in[ ](.+)[+]0x.+"
                               r"?([ ].+)[:]", re.M)
-    body_list = body_pattern.findall(text)
-    body = body_list[0][0] + ": " + body_list[0][1] + body_list[0][2] + "\n"
-    for b in body_list:
+    whole = body_pattern.findall(text)
+    # get break points
+    points = []
+    for i, b in enumerate(whole):
         if b[0] == "0":
-            bodies.append(body)
-            body = ""
-        body += b[0] + ": " + b[1] + b[2] + "\n"
+            points.append(i)
+    points.append(len(whole) + 1)
+    # get lines of body
+    for i in range(len(points) - 1):
+        body = ""
+        for line in whole[points[i]:points[i+1]]:
+            body += line[0] + ": " + line[1] + line[2] + "\n"
+        bodies.append(body)
+    # merge titles and bodies
+    for t, b in zip(titles, bodies):
+        ex += t + b
+    return ex
 
 
 def find_backtrace(text):
@@ -128,12 +139,12 @@ def find_backtrace(text):
 
 
 def find_trace(text):
-    # trace = find_backtrace(text)
+    trace = find_backtrace(text)
+    # merge exceptions if existing
     if "exception throw location" in text:
-        body_pattern = re.compile(r"(\d+)[:][ ]0x.+[ ]in[ ](.+)[+]0x.+?([ ].+)[:]", re.M)
-        titles = body_pattern.findall(text)
-        print(titles)
-    # return trace
+        exception = find_exception(text)
+        trace += exception
+    return trace
 
 
 def format_print(lists):
@@ -195,8 +206,5 @@ if __name__ == "__main__":
     else:
         components = load_components()
 
-    # result = pre_process(args.dump, args.mode)
-    # format_print(result)
-    with open("/Users/hyang/Downloads/777_1.trc", "r") as fp:
-        file_text = fp.read()
-    find_trace(file_text)
+    result = pre_process(args.dump, args.mode)
+    format_print(result)
