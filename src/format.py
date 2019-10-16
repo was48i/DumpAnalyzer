@@ -4,10 +4,7 @@ import difflib
 
 def format_print(files, lists):
     # get diff
-    if sys.platform == "win32":
-        separator = "\\"
-    else:
-        separator = "/"
+    separator = "\\" if sys.platform == "win32" else "/"
     stack_1 = files[0][files[0].rindex(separator) + 1:]
     stack_2 = files[1][files[1].rindex(separator) + 1:]
     diff = difflib.unified_diff(lists[0].split("\n"), lists[1].split("\n"),

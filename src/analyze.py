@@ -29,10 +29,7 @@ def update_components(path):
                 if node.strip():
                     # support Windows
                     node_path = path
-                    if sys.platform == "win32":
-                        separator = "\\"
-                    else:
-                        separator = "/"
+                    separator = "\\" if sys.platform == "win32" else "/"
                     for node_dir in node.strip().split(separator):
                         node_path = os.path.join(node_path, node_dir)
                     # support "*"
@@ -50,10 +47,7 @@ def best_matched(path):
         com = components[path]
     else:
         while True:
-            if sys.platform == "win32":
-                separator = "\\"
-            else:
-                separator = "/"
+            separator = "\\" if sys.platform == "win32" else "/"
             path = path[:path.rindex(separator)]
             if path in components:
                 com = components[path]
@@ -123,10 +117,7 @@ if __name__ == "__main__":
     components = dict()
     symbols = dict()
     # load libclang.so
-    if sys.platform == "win32":
-        lib_path = r"C:\ProgramFiles\LLVM\bin"
-    else:
-        lib_path = r"/usr/local/lib"
+    lib_path = r"C:\ProgramFiles\LLVM\bin" if sys.platform == "win32" else "/usr/local/lib"
     if Config.loaded:
         pass
     else:
