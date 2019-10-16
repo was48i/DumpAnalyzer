@@ -3,6 +3,7 @@
 
 import os
 import re
+import sys
 import glob
 import argparse
 from clang.cindex import Config
@@ -28,7 +29,11 @@ def update_components(path):
                 if node.strip():
                     # support Windows
                     node_path = path
-                    for node_dir in node.strip().split("/"):
+                    if sys.platform == "win32":
+                        separator = "\\"
+                    else:
+                        separator = "/"
+                    for node_dir in node.strip().split(separator):
                         node_path = os.path.join(node_path, node_dir)
                     # support "*"
                     for wildcard in glob.iglob(node_path):
@@ -45,7 +50,11 @@ def best_matched(path):
         com = components[path]
     else:
         while True:
-            path = path[:path.rindex("/")]
+            if sys.platform == "win32":
+                separator = "\\"
+            else:
+                separator = "/"
+            path = path[:path.rindex(separator)]
             if path in components:
                 com = components[path]
                 break
@@ -72,7 +81,9 @@ def to_component(trace):
     pattern = re.compile(r"\d+[:][ ](.+)[ ]at[ ](.+)", re.M)
     for symbol in symbol_list:
         if " at " in symbol:
-            path = os.path.join(args.source, pattern.findall(symbol)[0][1])
+            path = args.source
+            for path_dir in pattern.findall(symbol)[0][1].split("/"):
+                path = os.path.join(path, path_dir)
             if best_matched(path) != component:
                 res += str(cnt) + ": " + best_matched(path) + "\n"
                 component = best_matched(path)
@@ -112,21 +123,31 @@ if __name__ == "__main__":
     components = dict()
     symbols = dict()
     # load libclang.so
-    lib_path = r"/usr/local/lib"
+    if sys.platform == "win32":
+        lib_path = r"C:\ProgramFiles\LLVM\bin"
+    else:
+        lib_path = r"/usr/local/lib"
     if Config.loaded:
         pass
     else:
         Config.set_library_path(lib_path)
     # parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--dump", nargs=2, default=["./data/bt_dump_1.trc", "./data/bt_dump_2.trc"],
-                        help="pass crash dump files")
     parser.add_argument("-m", "--mode", default="ast", choices=["ast", "csi"],
                         help="select the mode of analysis")
     parser.add_argument("-u", "--update", nargs="?", const=True,
                         help="update components or not")
-    parser.add_argument("-s", "--source", nargs="?", default="/hana",
-                        help="source code path")
+    # support Windows
+    if sys.platform == "win32":
+        parser.add_argument("-d", "--dump", nargs=2, default=[r".\data\bt_dump_1.trc", r".\data\bt_dump_2.trc"],
+                            help="pass crash dump files")
+        parser.add_argument("-s", "--source", nargs="?", default=r"C:\hana",
+                            help="source code path")
+    else:
+        parser.add_argument("-d", "--dump", nargs=2, default=["./data/bt_dump_1.trc", "./data/bt_dump_2.trc"],
+                            help="pass crash dump files")
+        parser.add_argument("-s", "--source", nargs="?", default="/hana",
+                            help="source code path")
     args = parser.parse_args()
     # update components or not
     if args.update:
