@@ -18,7 +18,7 @@ def find_backtrace(text):
     bt = ""
     # extract source file
     source_dict = dict()
-    source_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ][\S\s]+"
+    source_pattern = re.compile(r"[-][\n][ ]+(\d+)[:][ ][^-]+"
                                 r"?Source[:][ ](.+)[:]", re.M)
     sources = source_pattern.findall(text)
     for k, v in sources:

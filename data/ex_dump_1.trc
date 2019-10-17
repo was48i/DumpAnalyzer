@@ -1,0 +1,423 @@
+=========================================
+Crash protocol for PID 11872
+Rundirectory: /usr/sap/H11/HDB11/docker-ld6195
+Process start time: 2019-10-14 21:23:29 624 Local
+Exception time: 2019-10-14 21:23:45 196 Local
+SectionTimeout: 30sec
+KillTimeout: 300sec
+=========================================
+
+Table of contents:
+   [BUILD]  Build information
+   [SYSTEMINFO]  System information
+   [OS_RELEASE]  OS release info
+   [CRASH_SHORTINFO]  Exception short info
+   [MODULES]  Loaded modules
+   [CRASH_EMERGENCYSTACK]  Emergency stacktrace
+   [CRASH_EXTINFO]  Extended exception info
+   [CRASH_CONTEXT]  Context info
+   [CRASH_STACK]  Stacktrace of crash
+   [CRASH_REGISTERS]  Registers
+   [CRASH_INMEMORY_TRACE]  InMemoryTrace
+   [STACK_SHORT]  Short call stacks and pending exceptions of all threads
+   [CPUINFO]  CPU info
+   [MEMMAP]  Memory map
+   [LIMITS]  Limits
+   [MOUNTINFO]  Mount information
+   [SCHEDINFO]  Scheduling information
+   [CMDLINE]  Process cmdline information
+   [PROCSTAT]  Process status information
+   [STACK_FULL]  Full call stacks of all threads
+   [EXCEPTIONS]  Recent exceptions
+   [STATISTICS]  Statistics data
+   [ENVIRONMENT]  Env information
+   [EXECUTOR]  executor context of current thread
+   [DDLCONTEXTSTORE]  DdlContextStore contents
+   [INDEXMANAGER_STATE]  IndexManager internal state
+   [ENCRYPTION]  Encryption status for all data-at-rest
+   [DATABASE_HISTORY]  Database version history information
+   [SERVICE_THREAD_SAMPLES]  Service Thread samples information
+   [MDC]  MultiDatabaseContainer Section
+   [SAVEPOINT_SHAREDLOCK_OWNERS]  Owners of shared SavepointLocks
+   [PRE_RESTART_SWVERSION]  Software version stored in savepoint the persistency restarted from and with which it was created
+   [CRYPTO]  Cryptography Section
+   [CGROUP]  informations about the cgroups
+   [RESOURCE_CONTAINER]  Information about resource container
+   [STACK_RESERVATION_SCOPES]  Stack reservation scopes of current thread
+   [OS_MEMORY]  Operating system information about memory
+   [DBG_MEMORY_LEAKS]  Memory leak(s) which caused this crash (debug only)
+   [MEMORY_MANAGER]  Information about memory manager
+   [MEMORY_ACCOUNTING]  Memory accounting
+   [IMPLICIT_MEMORY_BOOKING]  Status of implicit memory booking of the current thread
+   [IPMM_MEMORY]  IPMM information
+   [SYMBOL_CACHE]  symbol cache statistics
+   [REGISTERED_STACK_OBJECTS]  Objects on stack registered to be dumped
+   [DISASSEMBLY]  Disassembly of frames in callstack
+   [REGISTER_OBJECTS]  Objects registers point to
+   [THREADS]  Running threads
+
+[CRASH_STACK]  Stacktrace of crash: (2019-10-14 21:23:45 199 Local)
+----> Pending exceptions (possible root cause) <----
+--- Pending assertion:
+exception  1: no.1000000  (Basis/MemoryManager/impl/mmMemorySource.cpp:407) TID: 12169
+    numa expected: 129 received 1; $condition$=numaPolicy == pBlock->m_NumaPolicy
+exception throw location:
+   0: 0x00007f77c01edf74 in MemoryManager::MemorySource::pushFreeMemoryCacheBlockList(MemoryManager::MemoryChangeScope&, MemoryManager::FreeMemoryCacheBlock&, MemoryManager::FreeMemoryCacheBlock&, System::NUMAPolicy)+0x2a0 at Basis/MemoryManager/impl/mmMemorySource.cpp:407 (libhdbbasis.so)
+   1: 0x00007f77c01f091f in MemoryManager::MemorySource::reserveMemory(MemoryManager::Precharge&, unsigned long, bool, char const*, unsigned long)+0x8ab at Basis/MemoryManager/impl/mmMemorySource.cpp:1346 (libhdbbasis.so)
+   2: 0x00007f77c01750d5 in MemoryManager::HugeAlignmentPool::getFreeBlock() [clone .part.41]+0x1f1 at Basis/MemoryManager/impl/mmHugeAlignmentAllocator.cpp:1206 (libhdbbasis.so)
+   3: 0x00007f77c0176048 in MemoryManager::HugeAlignmentPool::getFreeBlock()+0x34 at Basis/MemoryManager/impl/mmHugeAlignmentAllocator.cpp:1463 (libhdbbasis.so)
+   4: 0x00007f77c01763f6 in MemoryManager::HugeAlignmentPool::doAllocation(MemoryManager::MemoryPool**, ltt::allocator_statistics&, unsigned long, unsigned long, void const*)+0x52 at Basis/MemoryManager/impl/mmHugeAlignmentAllocator.cpp:872 (libhdbbasis.so)
+   5: 0x00007f77c0177f42 in MemoryManager::HugeAlignmentPool::allocateHugeAlignedNoThrowImpl(MemoryManager::MemoryPool**, ltt::allocator_statistics&, unsigned long, unsigned long, void const*)+0x60 at Basis/MemoryManager/impl/mmHugeAlignmentAllocator.cpp:845 (libhdbbasis.so)
+   6: 0x00007f77c01e608f in MemoryManager::MemoryPool::allocateAligned(unsigned long, unsigned long, unsigned short, ltt::allocator_statistics&, bool&, bool, void const*)+0x34b at Basis/MemoryManager/impl/mmMemoryPool.cpp:1648 (libhdbbasis.so)
+   7: 0x00007f77c02199f0 in MemoryManager::PoolAllocator::allocateAlignedNoThrowImpl(unsigned long, unsigned long, void const*)+0x180 at Basis/MemoryManager/impl/mmPoolAllocator.cpp:1669 (libhdbbasis.so)
+   8: 0x00007f77f31a72e3 in ltt::allocator::allocateAligned(unsigned long, unsigned long, void const*)+0xb0 at ltt/impl/memory.cpp:277 (libhdbrskernel.so)
+   9: 0x00007f77f1ea881d in ptime::MemoryMgr::allocateHeapPage()+0x39 at ptime/common/pcc/pcc_MonitorAlloc.h:83 (libhdbrskernel.so)
+  10: 0x00007f77f1ea8fe4 in ptime::MemoryMgr::getFreePage(RowSegment::SEG_STATE, int, int, bool)+0x280 at ptime/storage/mm/mm_allocate.cc:757 (libhdbrskernel.so)
+  11: 0x00007f77f1eb6f50 in ptime::MemoryMgr::allocatePage(RowEngine::RSContext&, int, int, bool, unsigned long, bool, bool)+0x2e0 at ptime/storage/mm/mm_allocate.cc:1048 (libhdbrskernel.so)
+  12: 0x00007f77f1eb9a6b in ptime::MemoryMgr::getPageForAlloc(RowEngine::RSContext&, int, bool, unsigned long, bool)+0x477 at ptime/storage/mm/mm_allocate.cc:1402 (libhdbrskernel.so)
+  13: 0x00007f77f20f111f in RowEngine::RowTableManagerImpl::getFixedPage(RowEngine::RSContext&, int, bool, unsigned long)+0x4b at RowEngine/Impl/RowTableManagerImpl.cc:6158 (libhdbrskernel.so)
+  14: 0x00007f77f21130b4 in RowEngine::RowTableManagerImpl::createRecord(RowEngine::RSContext&, long, int, bool, RowEngine::RSContainerID const&, RowEngine::MemorySlotStorageInterface const&, ltt::vector<RowEngine::MemorySlotStorageInterface::FieldDescription> const&, ptime::IndexUpdate const&, RowEngine::RowTableConsistentChangeScope&)+0x5b0 at RowEngine/Impl/RowTableManagerImpl.cc:3444 (libhdbrskernel.so)
+  15: 0x00007f77f20e78db in RowEngine::RowTableManagerImpl::createRecord(RowEngine::TransactionContext&, long, int, bool, RowEngine::RSContainerID const&, RowEngine::MemorySlotStorageInterface const&, ltt::vector<RowEngine::MemorySlotStorageInterface::FieldDescription> const&, ptime::IndexUpdate const&, RowEngine::RowTableConsistentChangeScope&)+0x57 at RowEngine/Impl/RowTableManagerImpl.cc:3814 (libhdbrskernel.so)
+  16: 0x00007f77f21b8c3b in unsigned long RowEngine::RowTableInsert::flushMemorySlots<RowEngine::EmbeddedMemorySlotArray<RowEngine::AnnotatedMemorySlot> >(RowEngine::StorageContext&, RowEngine::RSInternalTable&, RowEngine::EmbeddedMemorySlotArray<RowEngine::AnnotatedMemorySlot>&, RowEngine::RowTableInsert::RuntimeModifier const&)+0xbe7 at RowEngine/Operator/Impl/RowTableInsert.cc:522 (libhdbrskernel.so)
+  17: 0x00007f77f21b17ed in RowEngine::RowTableInsert::perform(RowEngine::StorageContext&, RowEngine::RSInternalTable&, bool)+0x459 at RowEngine/Operator/Impl/RowTableInsert.cc:241 (libhdbrskernel.so)
+  18: 0x00007f77f135d53f in ptime::Proc_insert::operator()(ptime::Env&, ptime::Buffer&, unsigned long, unsigned long, ptime::fastvector<void*, 16ul>&) const+0x40b at ptime/query/plan_executor/dml/proc/qe_proc.cc:1386 (libhdbrskernel.so)
+  19: 0x00007f77f137859f in ptime::RowInsertReproducibleJobNode::process(Execution::JobObject&)+0x16b at ptime/query/plan_executor/dml/proc/qe_proc_insert_parallel.h:347 (libhdbrskernel.so)
+  20: 0x00007f77f1378aba in ptime::RowInsertReproducibleJobNode::run(Execution::Context&, Execution::JobObject&)+0x86 at ptime/query/plan_executor/dml/proc/qe_proc_insert_parallel.h:398 (libhdbrskernel.so)
+  21: 0x00007f77bfea3199 in Execution::JobObjectImpl::run(Execution::JobWorker*)+0x1d45 at Basis/Execution/impl/JobExecutorImpl.cpp:1214 (libhdbbasis.so)
+  22: 0x00007f77bfebe6de in Execution::JobWorker::runJob(ltt::smartptr_handle<Execution::JobObjectForHandle>&)+0x49a at Basis/Execution/impl/JobExecutorThreads.cpp:385 (libhdbbasis.so)
+  23: 0x00007f77bfec1ec9 in Execution::JobWorker::runAsJobWorker()+0x125 at Basis/Execution/impl/JobExecutorThreads.cpp:1364 (libhdbbasis.so)
+  24: 0x00007f77bfec2488 in Execution::JobWorker::run(void*&)+0x1e4 at Basis/Execution/impl/JobExecutorThreads.cpp:1427 (libhdbbasis.so)
+
+exception type information:
+ - 0: public Diagnose::AssertError@0x7f77c066c5f8 SI
+   - 0: public ltt::logic_error@0x7f77bf4f9118 SI
+     - 0: public ltt::exception@0x7f77bf4f8108
+----> Symbolic stack backtrace <----
+   0: raise + 0x2b
+         SFrame: IP: 0x00007f77bf59dadb (0x00007f77bf59dab0+0x2b) FP: 0x00007f76bf644150 SP: 0x00007f76bf644148 RP: 0x00007f77bfb948c2
+         Params: 0x2e60, 0x2f89, 0x6, 0x7f77bf59dadb, 0x0, 0x0
+         Regs: rax=0x0, rbx=0x7f76bf644800, rcx=0x7f77bf59dadb, rdx=0x6, rsi=0x2f89, rdi=0x2e60, rbp=0x7f76bf644210, rsp=0x7f76bf644148
+         Module: /lib64/libpthread.so.0
+     -----------------------------------------
+   1: raiseSIGABRT_SEGV() + 0x12
+         Symbol: _Z17raiseSIGABRT_SEGVv
+         SFrame: IP: 0x00007f77bfb948c2 (0x00007f77bfb948b0+0x12) FP: 0x00007f76bf644160 SP: 0x00007f76bf644150 RP: 0x00007f77bfb9cdb3
+         Regs: rbx=0x7f76bf644800, rbp=0x7f76bf644210, rsp=0x7f76bf644150
+         Source: Basis/impl/Crash.cpp:726
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+   2: _crashImpl(char const*, int, char const*, rte::const_exception_ptr) + 0x173
+         Symbol: _Z10_crashImplPKciS0_N3rte19const_exception_ptrE
+         SFrame: IP: 0x00007f77bfb9cdb3 (0x00007f77bfb9cc40+0x173) FP: 0x00007f76bf644720 SP: 0x00007f76bf644160 RP: 0x00007f77bfb92df0
+         Regs: rbx=0x7f76bf644800, rbp=0x7f76bf644210, rsp=0x7f76bf644160
+         Source: Basis/impl/Crash.cpp:780
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+   3: Basis::crashImpl(char const*, int, ltt::exception const&) + 0x10
+         Symbol: _ZN5Basis9crashImplEPKciRKN3ltt9exceptionE
+         SFrame: IP: 0x00007f77bfb92df0 (0x00007f77bfb92de0+0x10) FP: 0x00007f76bf644730 SP: 0x00007f76bf644720 RP: 0x00007f77bfb92dfe
+         Params: ?, ?, 0x7f76bf644800
+         Regs: rbx=0x7f76bf644800, rdx=0x7f76bf644800, rbp=0x197, rsp=0x7f76bf644720
+         Source: Basis/impl/Crash.cpp:818
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+   4: Basis::crashImpl(char const*, int, char const*, ltt::exception const&)
+         Symbol: _ZN5Basis9crashImplEPKciS1_RKN3ltt9exceptionE
+         Source: Basis/impl/Crash.cpp:885
+         NOTE: Inlined Function
+     -----------------------------------------
+   5: Basis::crashImpl(char const*, int, ltt::exception const&) + 0xe
+         Symbol: _ZN5Basis9crashImplEPKciRKN3ltt9exceptionE
+         SFrame: IP: 0x00007f77bfb92dfe (0x00007f77bfb92df0+0xe) FP: 0x00007f76bf644740 SP: 0x00007f76bf644730 RP: 0x00007f77bfc36f0b
+         Regs: rbx=0x7f76bf644800, rbp=0x197, rsp=0x7f76bf644730
+         Source: Basis/impl/Crash.cpp:819
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+   6: Diagnose::AssertError::do_throw() + 0x5b
+         Symbol: _ZN8Diagnose11AssertError8do_throwEv
+         SFrame: IP: 0x00007f77bfc36f0b (0x00007f77bfc36eb0+0x5b) FP: 0x00007f76bf644770 SP: 0x00007f76bf644740 RP: 0x00007f77bfb855ea
+         Regs: rbx=0x7f76bf644800, rbp=0x197, rsp=0x7f76bf644740
+         Source: Basis/Diagnose/impl/Assert.cpp:155
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+   7: void ltt::tThrow<Diagnose::AssertError>(Diagnose::AssertError const&) + 0xa
+         Symbol: _ZN3ltt6tThrowIN8Diagnose11AssertErrorEEEvRKT_
+         SFrame: IP: 0x00007f77bfb855ea (0x00007f77bfb855e0+0xa) FP: 0x00007f76bf644780 SP: 0x00007f76bf644770 RP: 0x00007f77c01edfe4
+         Params: ?, ?, 0x7f76bf644800
+         Regs: rbx=0x7f76bf644800, rdx=0x7f76bf644800, rbp=0x7f76bf6447b4, rsp=0x7f76bf644770
+         Source: exception.hpp:1433
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+   8: MemoryManager::MemorySource::pushFreeMemoryCacheBlockList(MemoryManager::MemoryChangeScope&, MemoryManager::FreeMemoryCacheBlock&, MemoryManager::FreeMemoryCacheBlock&, System::NUMAPolicy) + 0x314
+         Symbol: _ZN13MemoryManager12MemorySource28pushFreeMemoryCacheBlockListERNS_17MemoryChangeScopeERNS_20FreeMemoryCacheBlockES4_N6System10NUMAPolicyE
+         SFrame: IP: 0x00007f77c01edfe4 (0x00007f77c01edcd0+0x314) FP: 0x00007f76bf644c00 SP: 0x00007f76bf644780 RP: 0x00007f77c01f091f
+         Regs: rbx=0x7f76bf644800, rbp=0x7f76bf6447b4, rsp=0x7f76bf644780
+         Source: Basis/MemoryManager/impl/mmMemorySource.cpp:408
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+   9: MemoryManager::MemorySource::reserveMemory(MemoryManager::Precharge&, unsigned long, bool, char const*, unsigned long) + 0x8af
+         Symbol: _ZN13MemoryManager12MemorySource13reserveMemoryERNS_9PrechargeEmbPKcm
+         SFrame: IP: 0x00007f77c01f091f (0x00007f77c01f0070+0x8af) FP: 0x00007f76bf644e20 SP: 0x00007f76bf644c00 RP: 0x00007f77c01750d5
+         Params: ?, ?, 0x7f76bf644ca0
+         Regs: rbx=0x7f76bf644800, rdx=0x7f76bf644ca0, rbp=0x7f77a402d040, rsp=0x7f76bf644c00
+         Source: Basis/MemoryManager/impl/mmMemorySource.cpp:1346
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+  10: MemoryManager::HugeAlignmentPool::getFreeBlock() [clone .part.41] + 0x1f5
+         Symbol: _ZN13MemoryManager17HugeAlignmentPool12getFreeBlockEv.part.41
+         SFrame: IP: 0x00007f77c01750d5 (0x00007f77c0174ee0+0x1f5) FP: 0x00007f76bf645050 SP: 0x00007f76bf644e20 RP: 0x00007f77c0176048
+         Params: ?, ?, 0x104000
+         Regs: rbx=0x7f76bf644800, rdx=0x104000, rbp=0x7f77c086f898, rsp=0x7f76bf644e20
+         Source: Basis/MemoryManager/impl/mmHugeAlignmentAllocator.cpp:1206
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+  11: MemoryManager::HugeAlignmentPool::getFreeBlock() + 0x38
+         Symbol: _ZN13MemoryManager17HugeAlignmentPool12getFreeBlockEv
+         SFrame: IP: 0x00007f77c0176048 (0x00007f77c0176010+0x38) FP: 0x00007f76bf645070 SP: 0x00007f76bf645050 RP: 0x00007f77c01763f6
+         Params: ?, ?, 0x7f77c086f898
+         Regs: rbx=0x7f76bf644800, rdx=0x7f77c086f898, rbp=0x7f76bf6451f0, rsp=0x7f76bf645050
+         Source: Basis/MemoryManager/impl/mmHugeAlignmentAllocator.cpp:1463
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+  12: MemoryManager::HugeAlignmentPool::doAllocation(MemoryManager::MemoryPool**, ltt::allocator_statistics&, unsigned long, unsigned long, void const*) + 0x56
+         Symbol: _ZN13MemoryManager17HugeAlignmentPool12doAllocationEPPNS_10MemoryPoolERN3ltt20allocator_statisticsEmmPKv
+         SFrame: IP: 0x00007f77c01763f6 (0x00007f77c01763a0+0x56) FP: 0x00007f76bf645200 SP: 0x00007f76bf645070 RP: 0x00007f77c0177f42
+         Params: ?, ?, 0x7f77c086f898
+         Regs: rbx=0x7f76bf644800, rdx=0x7f77c086f898, rbp=0x7f76bf6451f0, rsp=0x7f76bf645070
+         Source: Basis/MemoryManager/impl/mmHugeAlignmentAllocator.cpp:872
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+  13: MemoryManager::HugeAlignmentPool::allocateHugeAlignedNoThrowImpl(MemoryManager::MemoryPool**, ltt::allocator_statistics&, unsigned long, unsigned long, void const*) + 0x62
+         Symbol: _ZN13MemoryManager17HugeAlignmentPool30allocateHugeAlignedNoThrowImplEPPNS_10MemoryPoolERN3ltt20allocator_statisticsEmmPKv
+         SFrame: IP: 0x00007f77c0177f42 (0x00007f77c0177ee0+0x62) FP: 0x00007f76bf6452b0 SP: 0x00007f76bf645200 RP: 0x00007f77c01e608f
+         Params: ?, ?, 0x4000
+         Regs: rbx=0x7f76bf644800, rdx=0x4000, rbp=0x7f77a402f540, rsp=0x7f76bf645200
+         Source: Basis/MemoryManager/impl/mmHugeAlignmentAllocator.cpp:845
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+  14: MemoryManager::MemoryPool::allocateAligned(unsigned long, unsigned long, unsigned short, ltt::allocator_statistics&, bool&, bool, void const*) + 0x34f
+         Symbol: _ZN13MemoryManager10MemoryPool15allocateAlignedEmmtRN3ltt20allocator_statisticsERbbPKv
+         SFrame: IP: 0x00007f77c01e608f (0x00007f77c01e5d40+0x34f) FP: 0x00007f76bf645480 SP: 0x00007f76bf6452b0 RP: 0x00007f77c02199f0
+         Params: ?, ?, 0x4000
+         Regs: rbx=0x7f76bf644800, rdx=0x4000, rbp=0x7f76bf645470, rsp=0x7f76bf6452b0
+         Source: Basis/MemoryManager/impl/mmMemoryPool.cpp:1648
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+  15: MemoryManager::PoolAllocator::allocateAlignedNoThrowImpl(unsigned long, unsigned long, void const*) + 0x180
+         Symbol: _ZN13MemoryManager13PoolAllocator26allocateAlignedNoThrowImplEmmPKv
+         SFrame: IP: 0x00007f77c02199f0 (0x00007f77c0219870+0x180) FP: 0x00007f76bf645530 SP: 0x00007f76bf645480 RP: 0x00007f77f31a72e3
+         Params: ?, ?, 0x7f77a1a16a70
+         Regs: rbx=0x7f76bf644800, rdx=0x7f77a1a16a70, rbp=0x7f77f1ea8fe4, rsp=0x7f76bf645480
+         Source: Basis/MemoryManager/impl/mmPoolAllocator.cpp:1669
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+  16: ltt::allocator::allocateAligned(unsigned long, unsigned long, void const*) + 0xb3
+         Symbol: _ZN3ltt9allocator15allocateAlignedEmmPKv
+         SFrame: IP: 0x00007f77f31a72e3 (0x00007f77f31a7230+0xb3) FP: 0x00007f76bf6455b0 SP: 0x00007f76bf645530 RP: 0x00007f77f1ea881d
+         Params: ?, ?, 0x4000
+         Regs: rbx=0x7f76bf644800, rdx=0x4000, rbp=0x7f77f1ea8fe4, rsp=0x7f76bf645530
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
+     -----------------------------------------
+  17: ptime::MemoryMgr::allocateHeapPage() + 0x3d
+         Symbol: _ZN5ptime9MemoryMgr16allocateHeapPageEv
+         SFrame: IP: 0x00007f77f1ea881d (0x00007f77f1ea87e0+0x3d) FP: 0x00007f76bf645910 SP: 0x00007f76bf6455b0 RP: 0x00007f77f1ea8fe4
+         Params: ?, ?, 0x40000001
+         Regs: rbx=0x7f76bf644800, rdx=0x40000001, rbp=0x7f76bf646400, rsp=0x7f76bf6455b0
+         Source: ptime/common/pcc/pcc_MonitorAlloc.h:83
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
+     -----------------------------------------
+  18: ptime::MemoryMgr::getFreePage(RowSegment::SEG_STATE, int, int, bool) + 0x284
+         Symbol: _ZN5ptime9MemoryMgr11getFreePageEN10RowSegment9SEG_STATEEiib
+         SFrame: IP: 0x00007f77f1ea8fe4 (0x00007f77f1ea8d60+0x284) FP: 0x00007f76bf645e40 SP: 0x00007f76bf645910 RP: 0x00007f77f1eb6f50
+         Params: ?, ?, 0x40000001
+         Regs: rbx=0x7f76bf644800, rdx=0x40000001, rbp=0x7f76bf646400, rsp=0x7f76bf645910
+         Source: ptime/storage/mm/mm_allocate.cc:757
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
+     -----------------------------------------
+  19: ptime::MemoryMgr::allocatePage(RowEngine::RSContext&, int, int, bool, unsigned long, bool, bool) + 0x2e0
+         Symbol: _ZN5ptime9MemoryMgr12allocatePageERN9RowEngine9RSContextEiibmbb
+         SFrame: IP: 0x00007f77f1eb6f50 (0x00007f77f1eb6c70+0x2e0) FP: 0x00007f76bf646410 SP: 0x00007f76bf645e40 RP: 0x00007f77f1eb9a6b
+         Params: ?, ?, 0x40000001
+         Regs: rbx=0x7f76bf644800, rdx=0x40000001, rbp=0x7f76bf646400, rsp=0x7f76bf645e40
+         Source: ptime/storage/mm/mm_allocate.cc:1048
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
+     -----------------------------------------
+  20: ptime::MemoryMgr::getPageForAlloc(RowEngine::RSContext&, int, bool, unsigned long, bool) + 0x47b
+         Symbol: _ZN5ptime9MemoryMgr15getPageForAllocERN9RowEngine9RSContextEibmb
+         SFrame: IP: 0x00007f77f1eb9a6b (0x00007f77f1eb95f0+0x47b) FP: 0x00007f76bf6469e0 SP: 0x00007f76bf646410 RP: 0x00007f77f20f111f
+         Params: ?, ?, 0x40000001
+         Regs: rbx=0x7f76bf644800, rdx=0x40000001, rbp=0x7f76bf6469d0, rsp=0x7f76bf646410
+         Source: ptime/storage/mm/mm_allocate.cc:1402
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
+     -----------------------------------------
+  21: RowEngine::RowTableManagerImpl::getFixedPage(RowEngine::RSContext&, int, bool, unsigned long) + 0x4f
+         Symbol: _ZN9RowEngine19RowTableManagerImpl12getFixedPageERNS_9RSContextEibm
+         SFrame: IP: 0x00007f77f20f111f (0x00007f77f20f10d0+0x4f) FP: 0x00007f76bf646aa0 SP: 0x00007f76bf6469e0 RP: 0x00007f77f21130b4
+         Params: ?, ?, 0x1
+         Regs: rbx=0x7f76bf644800, rdx=0x1, rbp=0x40000001, rsp=0x7f76bf6469e0
+         Source: RowEngine/Impl/RowTableManagerImpl.cc:6158
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
+     -----------------------------------------
+  22: RowEngine::RowTableManagerImpl::createRecord(RowEngine::RSContext&, long, int, bool, RowEngine::RSContainerID const&, RowEngine::MemorySlotStorageInterface const&, ltt::vector<RowEngine::MemorySlotStorageInterface::FieldDescription> const&, ptime::IndexUpdate const&, RowEngine::RowTableConsistentChangeScope&) + 0x5b4
+         Symbol: _ZN9RowEngine19RowTableManagerImpl12createRecordERNS_9RSContextElibRKNS_13RSContainerIDERKNS_26MemorySlotStorageInterfaceERKN3ltt6vectorINS6_16FieldDescriptionEEERKN5ptime11IndexUpdateERNS_29RowTableConsistentChangeScopeE
+         SFrame: IP: 0x00007f77f21130b4 (0x00007f77f2112b00+0x5b4) FP: 0x00007f76bf647010 SP: 0x00007f76bf646aa0 RP: 0x00007f77f20e78db
+         Params: ?, ?, 0x7f76d344b980
+         Regs: rbx=0x7f76bf644800, rdx=0x7f76d344b980, rbp=0x7f76bf647000, rsp=0x7f76bf646aa0
+         Source: RowEngine/Impl/RowTableManagerImpl.cc:3444
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
+     -----------------------------------------
+  23: RowEngine::RowTableManagerImpl::createRecord(RowEngine::TransactionContext&, long, int, bool, RowEngine::RSContainerID const&, RowEngine::MemorySlotStorageInterface const&, ltt::vector<RowEngine::MemorySlotStorageInterface::FieldDescription> const&, ptime::IndexUpdate const&, RowEngine::RowTableConsistentChangeScope&) + 0x5b
+         Symbol: _ZN9RowEngine19RowTableManagerImpl12createRecordERNS_18TransactionContextElibRKNS_13RSContainerIDERKNS_26MemorySlotStorageInterfaceERKN3ltt6vectorINS6_16FieldDescriptionEEERKN5ptime11IndexUpdateERNS_29RowTableConsistentChangeScopeE
+         SFrame: IP: 0x00007f77f20e78db (0x00007f77f20e7880+0x5b) FP: 0x00007f76bf647080 SP: 0x00007f76bf647010 RP: 0x00007f77f21b8c3b
+         Params: ?, ?, 0x7f77f432ba00
+         Regs: rbx=0x7f76bf644800, rdx=0x7f77f432ba00, rbp=0x247e2, rsp=0x7f76bf647010
+         Source: RowEngine/Impl/RowTableManagerImpl.cc:3814
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
+     -----------------------------------------
+  24: unsigned long RowEngine::RowTableInsert::flushMemorySlots<RowEngine::EmbeddedMemorySlotArray<RowEngine::AnnotatedMemorySlot> >(RowEngine::StorageContext&, RowEngine::RSInternalTable&, RowEngine::EmbeddedMemorySlotArray<RowEngine::AnnotatedMemorySlot>&, RowEngine::RowTableInsert::RuntimeModifier const&) + 0xbeb
+         Symbol: _ZN9RowEngine14RowTableInsert16flushMemorySlotsINS_23EmbeddedMemorySlotArrayINS_19AnnotatedMemorySlotEEEEEmRNS_14StorageContextERNS_15RSInternalTableERT_RKNS0_15RuntimeModifierE
+         SFrame: IP: 0x00007f77f21b8c3b (0x00007f77f21b8050+0xbeb) FP: 0x00007f76bf6476d0 SP: 0x00007f76bf647080 RP: 0x00007f77f21b17ed
+         Params: ?, ?, 0x7f76c78c8d50
+         Regs: rbx=0x7f76bf644800, rdx=0x7f76c78c8d50, rbp=0x7f76bf6476c0, rsp=0x7f76bf647080
+         Source: RowEngine/Operator/Impl/RowTableInsert.cc:522
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
+     -----------------------------------------
+  25: RowEngine::RowTableInsert::perform(RowEngine::StorageContext&, RowEngine::RSInternalTable&, bool) + 0x45d
+         Symbol: _ZN9RowEngine14RowTableInsert7performERNS_14StorageContextERNS_15RSInternalTableEb
+         SFrame: IP: 0x00007f77f21b17ed (0x00007f77f21b1390+0x45d) FP: 0x00007f76bf647ae0 SP: 0x00007f76bf6476d0 RP: 0x00007f77f135d53f
+         Params: ?, ?, 0x0
+         Regs: rbx=0x7f76bf644800, rdx=0x0, rbp=0x7f76bf647ad0, rsp=0x7f76bf6476d0
+         Source: RowEngine/Operator/Impl/RowTableInsert.cc:241
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
+     -----------------------------------------
+  26: ptime::Proc_insert::operator()(ptime::Env&, ptime::Buffer&, unsigned long, unsigned long, ptime::fastvector<void*, 16ul>&) const + 0x40f
+         Symbol: _ZNK5ptime11Proc_insertclERNS_3EnvERNS_6BufferEmmRNS_10fastvectorIPvLm16EEE
+         SFrame: IP: 0x00007f77f135d53f (0x00007f77f135d130+0x40f) FP: 0x00007f76bf647f80 SP: 0x00007f76bf647ae0 RP: 0x00007f77f137859f
+         Params: ?, ?, 0x7f76d363d810
+         Regs: rbx=0x7f76bf644800, rdx=0x7f76d363d810, rbp=0x7f76bf647f70, rsp=0x7f76bf647ae0
+         Source: ptime/query/plan_executor/dml/proc/qe_proc.cc:1386
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
+     -----------------------------------------
+  27: ptime::RowInsertReproducibleJobNode::process(Execution::JobObject&) + 0x16f
+         Symbol: _ZN5ptime28RowInsertReproducibleJobNode7processERN9Execution9JobObjectE
+         SFrame: IP: 0x00007f77f137859f (0x00007f77f1378430+0x16f) FP: 0x00007f76bf648150 SP: 0x00007f76bf647f80 RP: 0x00007f77f1378aba
+         Params: ?, ?, 0x7f76c7110010
+         Regs: rbx=0x7f76bf644800, rdx=0x7f76c7110010, rbp=0x4000, rsp=0x7f76bf647f80
+         Source: ptime/query/plan_executor/dml/proc/qe_proc_insert_parallel.h:347
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
+     -----------------------------------------
+  28: ptime::RowInsertReproducibleJobNode::run(Execution::Context&, Execution::JobObject&) + 0x8a
+         Symbol: _ZN5ptime28RowInsertReproducibleJobNode3runERN9Execution7ContextERNS1_9JobObjectE
+         SFrame: IP: 0x00007f77f1378aba (0x00007f77f1378a30+0x8a) FP: 0x00007f76bf6481a0 SP: 0x00007f76bf648150 RP: 0x00007f77bfea3199
+         Params: ?, ?, 0x7f76c7110010
+         Regs: rbx=0x7f76bf644800, rdx=0x7f76c7110010, rbp=0x7f76c7114028, rsp=0x7f76bf648150
+         Source: ptime/query/plan_executor/dml/proc/qe_proc_insert_parallel.h:398
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
+     -----------------------------------------
+  29: Execution::JobObjectImpl::run(Execution::JobWorker*) + 0x1d49
+         Symbol: _ZN9Execution13JobObjectImpl3runEPNS_9JobWorkerE
+         SFrame: IP: 0x00007f77bfea3199 (0x00007f77bfea1450+0x1d49) FP: 0x00007f76bf648730 SP: 0x00007f76bf6481a0 RP: 0x00007f77bfebe6de
+         Params: ?, ?, 0x7f76c7114010
+         Regs: rbx=0x7f76bf644800, rdx=0x7f76c7114010, rbp=0x7f76cb297010, rsp=0x7f76bf6481a0
+         Source: Basis/Execution/impl/JobExecutorImpl.cpp:1214
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+  30: Execution::JobWorker::runJob(ltt::smartptr_handle<Execution::JobObjectForHandle>&) + 0x49e
+         Symbol: _ZN9Execution9JobWorker6runJobERN3ltt15smartptr_handleINS_18JobObjectForHandleEEE
+         SFrame: IP: 0x00007f77bfebe6de (0x00007f77bfebe240+0x49e) FP: 0x00007f76bf648b90 SP: 0x00007f76bf648730 RP: 0x00007f77bfec1ec9
+         Params: ?, ?, 0x7f76cb297010
+         Regs: rbx=0x7f76bf644800, rdx=0x7f76cb297010, rbp=0x7f76c745a210, rsp=0x7f76bf648730
+         Source: Basis/Execution/impl/JobExecutorThreads.cpp:385
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+  31: Execution::JobWorker::runAsJobWorker() + 0x129
+         Symbol: _ZN9Execution9JobWorker14runAsJobWorkerEv
+         SFrame: IP: 0x00007f77bfec1ec9 (0x00007f77bfec1da0+0x129) FP: 0x00007f76bf648c20 SP: 0x00007f76bf648b90 RP: 0x00007f77bfec2488
+         Params: ?, ?, 0x7f76cb297010
+         Regs: rbx=0x7f76bf644800, rdx=0x7f76cb297010, rbp=0x7f76c7114028, rsp=0x7f76bf648b90
+         Source: Basis/Execution/impl/JobExecutorThreads.cpp:1364
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+  32: Execution::JobWorker::run(void*&) + 0x1e8
+         Symbol: _ZN9Execution9JobWorker3runERPv
+         SFrame: IP: 0x00007f77bfec2488 (0x00007f77bfec22a0+0x1e8) FP: 0x00007f76bf648f90 SP: 0x00007f76bf648c20 RP: 0x00007f77bff1c100
+         Params: ?, ?, 0x7f76cb297010
+         Regs: rbx=0x7f76bf644800, rdx=0x7f76cb297010, rbp=0x7f76bf648f80, rsp=0x7f76bf648c20
+         Source: Basis/Execution/impl/JobExecutorThreads.cpp:1427
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+  33: Execution::Thread::staticMainImp(Execution::Thread*) + 0x5d0
+         Symbol: _ZN9Execution6Thread13staticMainImpEPS0_
+         SFrame: IP: 0x00007f77bff1c100 (0x00007f77bff1bb30+0x5d0) FP: 0x00007f76bf6494a0 SP: 0x00007f76bf648f90 RP: 0x00007f77bff280d6
+         Params: ?, ?, 0x7f76bf649130
+         Regs: rbx=0x7f76bf644800, rdx=0x7f76bf649130, rbp=0x7f76bf649490, rsp=0x7f76bf648f90
+         Source: Basis/Execution/impl/Thread.cpp:529
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+  34: Execution::pthreadFunctionWrapper(Execution::Thread*) + 0x176
+         Symbol: _ZN9Execution22pthreadFunctionWrapperEPNS_6ThreadE
+         SFrame: IP: 0x00007f77bff280d6 (0x00007f77bff27f60+0x176) FP: 0x00007f76bf64b8e0 SP: 0x00007f76bf6494a0 RP: 0x00007f77bf595724
+         Params: ?, ?, 0x7f76cb297010
+         Regs: rbx=0x7f76bf644800, rdx=0x7f76cb297010, rbp=0x7f76bf64b8d0, rsp=0x7f76bf6494a0
+         Source: Basis/Execution/impl/ThreadInterposition.cpp:641
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+  35: start_thread + 0xc4
+         SFrame: IP: 0x00007f77bf595724 (0x00007f77bf595660+0xc4) FP: 0x00007f76bf64b980 SP: 0x00007f76bf64b8e0 RP: 0x00007f77be038e8d
+         Params: ?, ?, 0x0
+         Regs: rbx=0x7f76bf644800, rdx=0x0, rbp=0x0, rsp=0x7f76bf64b8e0
+         Module: /lib64/libpthread.so.0
+     -----------------------------------------
+  36: __clone + 0x69
+         SFrame: IP: 0x00007f77be038e8d (0x00007f77be038e24+0x69) FP: 0x00007f76bf64b988 SP: 0x00007f76bf64b980
+         Params: ?, ?, 0x7f76bf651700
+         Regs: rbx=0x7f76bf644800, rdx=0x7f76bf651700, rbp=0x0, rsp=0x7f76bf64b980
+         Module: /lib64/libc.so.6
+[OK]
+--
+
+[CRASH_REGISTERS]  Registers: (2019-10-14 21:23:45 251 Local)
+----> Register Dump <----
+  rax: 0x0000000000000000  rbx: 0x00007f76bf644800
+  rcx: 0x00007f77bf59dadb  rdx: 0x0000000000000006
+  rsi: 0x0000000000002f89  rdi: 0x0000000000002e60
+  rsp: 0x00007f76bf644148  rbp: 0x00007f76bf644210
+  r08: 0x0000000000000000  r09: 0x0000000000000000
+  r10: 0x00007f76d376f4d0  r11: 0x0000000000000206
+  r12: 0x00007f77bf4f8108  r13: 0x00007f77c0450542
+  r14: 0x0000000000000197  r15: 0x0000000000000000
+  rip: 0x00007f77bf59dadb eflg: 0x0000000000000206
+   cs: 0x002b               gs: 0x0000
+   fs: 0x0000
+ omsk: 0x0000000000001000  cr2: 0x0000000000000000
+ trap: 0x0000000000000000  err: 0x0000000000000000
+----> Floating-point register dump <----
+     foper: 0x0000    frip: 0x00007f77be8c92bb  fdata: 0x0
+   control: 0x037f  status: 0x0000  tag: 0x0
+     mxcsr: 0x00001fa0  mxcr_mask: 0xffff
+  fp[0]: 0x0.0000 0000 0000 0000 * 2^0x0
+  fp[1]: 0x0.0000 0000 0000 0000 * 2^0x0
+  fp[2]: 0x0.0000 0000 0000 0000 * 2^0x0
+  fp[3]: 0x0.0000 0000 0000 0000 * 2^0x0
+  fp[4]: 0x0.0000 0000 0000 0000 * 2^0x0
+  fp[5]: 0x0.0000 0000 0000 8800 * 2^0x4003
+  fp[6]: 0x0.0000 0000 0000 8800 * 2^0x4003
+  fp[7]: 0x0.0000 0000 0000 9400 * 2^0x4004
+  xmm[00]: 0x00000000.00000000.00000002.00000000
+  xmm[01]: 0xffffffff.ffffffff.ffffffff.ffffffff
+  xmm[02]: 0xffffffff.ffffffff.ffffffff.ffffffff
+  xmm[03]: 0x00000000.00000000.00000000.00000000
+  xmm[04]: 0x00000000.00000000.00000000.00000000
+  xmm[05]: 0x00000000.ffffff00.ffffffff.ffffffff
+  xmm[06]: 0xffffffff.ffffff00.ffffffff.ffffffff
+  xmm[07]: 0x00000000.00000000.00000000.00000000
+  xmm[08]: 0x20002020.20202020.00002020.00000000
+  xmm[09]: 0x00000000.00000000.00000000.00000000
+  xmm[10]: 0x00002020.20202020.00202020.20202020
+  xmm[11]: 0x99caac00.bcaa256f.00000000.00000000
+  xmm[12]: 0xbc5ca07e.3d635816.000000ff.00000000
+  xmm[13]: 0xbeb8c600.401bb9d3.00000000.00000000
+  xmm[14]: 0xace3a510.bc35b602.00000000.00000000
+  xmm[15]: 0xbeb8c600.401bb9d3.00000000.00000000
+[OK]
+--
