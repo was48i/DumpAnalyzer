@@ -71,27 +71,38 @@ def to_component(trace):
     cnt = 0
     component = ""
     res = "[BACKTRACE]\n"
-    symbol_list = trace.split("\n")
-    pattern = re.compile(r"\d+[:][ ](.+)[ ]at[ ](.+)", re.M)
-    for symbol in symbol_list:
-        if " at " in symbol:
-            path = args.source
-            for path_dir in pattern.findall(symbol)[0][1].split("/"):
-                path = os.path.join(path, path_dir)
-            if best_matched(path) != component:
-                res += str(cnt) + ": " + best_matched(path) + "\n"
-                component = best_matched(path)
+    # string to list
+    trace_list = trace.split("\n")
+    # set patterns
+    trace_pattern = re.compile(r"\d+[:][ ](.+)")
+    path_pattern = re.compile(r"[ ]at[ ](.+)")
+    func_pattern = re.compile(r"\d+[:][\w ]*[ ](.+[^ ])\(")
+    for trace in trace_list:
+        # extract backtrace
+        if trace_pattern.match(trace):
+            # get component
+            if " at " in trace and "/" in trace:
+                path = args.source
+                for path_dir in path_pattern.findall(trace)[0].split("/"):
+                    path = os.path.join(path, path_dir)
+                com = best_matched(path)
+            elif "(" in trace:
+                symbol = func_pattern.findall(trace)[0]
+                if "<" in symbol:
+                    symbol = symbol[:symbol.index("<")]
+                com = symbols[symbol]
+            else:
+                com = trace_pattern.findall(trace)[0]
+            # update component and cnt
+            if com != component:
+                res += str(cnt) + ": " + com + "\n"
+                component = com
                 cnt += 1
-        # elif symbol:
-        #     path = args.source
-        #     if best_matched(path) != component:
-        #         res += str(cnt) + ": " + best_matched(path) + "\n"
-        #         component = best_matched(path)
-        #         cnt += 1
-        # if "exception throw location" in symbol:
-        #     cnt = 0
-        #     component = ""
-        #     res += "\n[EXCEPTION]\n"
+        # extract exception
+        elif trace.startswith("exception throw location"):
+            cnt = 0
+            component = ""
+            res += "\n[EXCEPTION]\n"
     return res
 
 
@@ -115,9 +126,10 @@ def pre_process(paths, mode):
 
 if __name__ == "__main__":
     components = dict()
-    symbols = dict()
+    # symbols = dict()
+    symbols = {"ltt::tThrow": "hehe", "ltt::allocator::allocateAligned": "hehe"}
     # load libclang.so
-    lib_path = r"C:\ProgramFiles\LLVM\bin" if sys.platform == "win32" else "/usr/local/lib"
+    lib_path = r"C:\LLVM\bin" if sys.platform == "win32" else "/usr/local/lib"
     if Config.loaded:
         pass
     else:
@@ -130,12 +142,12 @@ if __name__ == "__main__":
                         help="update components or not")
     # support Windows
     if sys.platform == "win32":
-        parser.add_argument("-d", "--dump", nargs=2, default=[r".\data\bt_dump_1.trc", r".\data\bt_dump_2.trc"],
+        parser.add_argument("-d", "--dump", nargs=2, default=[r"data\bt_dump_1.trc", r"data\bt_dump_2.trc"],
                             help="pass crash dump files")
         parser.add_argument("-s", "--source", nargs="?", default=r"C:\hana",
                             help="source code path")
     else:
-        parser.add_argument("-d", "--dump", nargs=2, default=["./data/bt_dump_1.trc", "./data/bt_dump_2.trc"],
+        parser.add_argument("-d", "--dump", nargs=2, default=["data/bt_dump_1.trc", "data/bt_dump_2.trc"],
                             help="pass crash dump files")
         parser.add_argument("-s", "--source", nargs="?", default="/hana",
                             help="source code path")
@@ -146,6 +158,6 @@ if __name__ == "__main__":
         dump_components(components)
     else:
         components = load_components()
-
+    # output similarity result
     result = pre_process(args.dump, args.mode)
     format_print(args.dump, result)

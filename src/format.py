@@ -1,12 +1,11 @@
-import sys
+import os
 import difflib
 
 
 def format_print(files, lists):
     # get diff
-    separator = "\\" if sys.platform == "win32" else "/"
-    stack_1 = files[0][files[0].rindex(separator) + 1:]
-    stack_2 = files[1][files[1].rindex(separator) + 1:]
+    stack_1 = os.path.basename(files[0])
+    stack_2 = os.path.basename(files[1])
     diff = difflib.unified_diff(lists[0].split("\n"), lists[1].split("\n"),
                                 fromfile=stack_1, tofile=stack_2, lineterm="")
     # handle the same case
