@@ -27,14 +27,13 @@ def update_components(path):
         for com in child_list:
             for node in com[1].split("\n"):
                 if node.strip():
-                    # support Windows
                     node_path = path
                     separator = "\\" if sys.platform == "win32" else "/"
                     for node_dir in node.strip().split(separator):
                         node_path = os.path.join(node_path, node_dir)
-                    # support "*"
-                    for wildcard in glob.iglob(node_path):
-                        components[wildcard] = com[0]
+                    # support wild character
+                    for wild in glob.iglob(node_path):
+                        components[wild] = com[0]
     # DFS repository
     for node in os.listdir(path):
         child = os.path.join(path, node)
@@ -80,19 +79,19 @@ def to_component(trace):
     for trace in trace_list:
         # extract backtrace
         if trace_pattern.match(trace):
-            # get component
+            # match component
             if " at " in trace and "/" in trace:
                 path = args.source
-                for path_dir in path_pattern.findall(trace)[0].split("/"):
+                for path_dir in path_pattern.search(trace).group(1).split("/"):
                     path = os.path.join(path, path_dir)
                 com = best_matched(path)
             elif "(" in trace:
-                symbol = func_pattern.findall(trace)[0]
-                if "<" in symbol:
-                    symbol = symbol[:symbol.index("<")]
-                com = symbols[symbol]
+                key = func_pattern.match(trace).group(1)
+                if "<" in key:
+                    key = key[:key.index("<")]
+                com = symbols[key]
             else:
-                com = trace_pattern.findall(trace)[0]
+                com = trace_pattern.match(trace).group(1)
             # update component and cnt
             if com != component:
                 res += str(cnt) + ": " + com + "\n"
@@ -117,7 +116,6 @@ def pre_process(paths, mode):
         if mode == "ast":
             trace = find_stacktrace(stack[0])
             trace = to_component(trace)
-            print(trace)
         else:
             trace = find_stacktrace(stack[0])
         dumps.append(trace)

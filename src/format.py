@@ -9,29 +9,23 @@ def format_print(files, lists):
     diff = difflib.unified_diff(lists[0].split("\n"), lists[1].split("\n"),
                                 fromfile=stack_1, tofile=stack_2, lineterm="")
     # handle the same case
-    # try:
-    #     next(diff)
-    # except StopIteration:
-    #     print("\033[1m" + stack_1 + "\033[0m")
-    #     for com in lists[0].split("\n"):
-    #         print("\033[0;36m" + com + "\033[0m")
-    #     print("\033[1m" + stack_2 + "\033[0m")
-    #     for com in lists[1].split("\n"):
-    #         print("\033[0;36m" + com + "\033[0m")
+    if lists[0] == lists[1]:
+        print("\033[1m" + stack_1 + "\033[0m")
+        for com in lists[0].split("\n"):
+            print("\033[0;36m" + com + "\033[0m")
+        print("\033[1m" + stack_2 + "\033[0m")
+        for com in lists[1].split("\n"):
+            print("\033[0;36m" + com + "\033[0m")
     # set diff format
     for line in diff:
-        if line.startswith("-"):
-            if line.startswith("---"):
-                print("\033[1m" + line + "\033[0m")
-            else:
-                line = "-   " + line[line.index("-") + 1:]
-                print("\033[0;31m" + line + "\033[0m")
+        if line.startswith("---") or line.startswith("+++"):
+            print("\033[1m" + line + "\033[0m")
+        elif line.startswith("-"):
+            line = "-   " + line[line.index("-") + 1:]
+            print("\033[0;31m" + line + "\033[0m")
         elif line.startswith("+"):
-            if line.startswith("+++"):
-                print("\033[1m" + line + "\033[0m")
-            else:
-                line = "+   " + line[line.index("+") + 1:]
-                print("\033[0;32m" + line + "\033[0m")
+            line = "+   " + line[line.index("+") + 1:]
+            print("\033[0;32m" + line + "\033[0m")
         elif line.startswith("@@"):
             print("\033[0;36m" + line + "\033[0m")
         else:
