@@ -11,37 +11,42 @@ from clang.cindex import Config
 from symbol import find_symbol
 from format import format_print
 from regex import find_component, find_stacktrace
-from persistence import dump_components, load_components
+from persistence import *
 
 
 def update_components(path):
-    # check CMakeLists.txt existence
-    cmk_path = os.path.join(path, "CMakeLists.txt")
-    if os.path.exists(cmk_path):
-        # get 2 types of component
-        parent_list, child_list = find_component(cmk_path)
-        # save parent component
-        for com in parent_list:
-            components[path] = com
-        # save child component
-        for com in child_list:
-            for node in com[1].split("\n"):
-                if node.strip():
-                    node_path = path
-                    separator = "\\" if sys.platform == "win32" else "/"
-                    for node_dir in node.strip().split(separator):
-                        node_path = os.path.join(node_path, node_dir)
-                    # support wild character
-                    for wild in glob.iglob(node_path):
-                        components[wild] = com[0]
-    # DFS repository
-    for node in os.listdir(path):
-        child = os.path.join(path, node)
-        if os.path.isdir(child):
-            update_components(child)
+    stack = []
+    components = dict()
+    stack.append(path)
+    while len(stack) > 0:
+        tmp = stack.pop(len(stack) - 1)
+        if os.path.isdir(tmp):
+            cmk_path = os.path.join(tmp, "CMakeLists.txt")
+            if os.path.exists(cmk_path):
+                # get 2 types of component
+                parent_list, child_list = find_component(cmk_path)
+                # save parent component
+                for com in parent_list:
+                    components[tmp] = com
+                # save child component
+                for com in child_list:
+                    for node in com[1].split("\n"):
+                        if node.strip():
+                            node_path = tmp
+                            separator = "\\" if sys.platform == "win32" else "/"
+                            for node_dir in node.strip().split(separator):
+                                node_path = os.path.join(node_path, node_dir)
+                            # support wild character
+                            for wild in glob.iglob(node_path):
+                                components[wild] = com[0]
+            for item in os.listdir(tmp):
+                if os.path.isdir(os.path.join(tmp, item)):
+                    stack.append(os.path.join(tmp, item))
+    return components
 
 
 def best_matched(path):
+    components = load_components()
     if path in components:
         com = components[path]
     else:
@@ -55,15 +60,21 @@ def best_matched(path):
 
 
 def update_symbols(path):
-    for node in os.listdir(path):
-        child = os.path.join(path, node)
-        extension = os.path.splitext(child)
-        if os.path.isdir(child):
-            update_symbols(child)
-        elif extension[-1] in [".h", ".hpp"]:
-            if find_symbol(child, args.source):
-                for sym in set(find_symbol(child, args.source)):
-                    symbols[sym] = best_matched(child)
+    stack = []
+    symbols = dict()
+    stack.append(path)
+    while len(stack) > 0:
+        tmp = stack.pop(len(stack) - 1)
+        if os.path.isdir(tmp):
+            extension = os.path.splitext(tmp)
+            if extension[-1] in [".h", ".hpp"]:
+                if find_symbol(tmp, args.source):
+                    for symbol in set(find_symbol(tmp, args.source)):
+                        symbols[symbol] = best_matched(tmp)
+            for item in os.listdir(tmp):
+                if os.path.isdir(os.path.join(tmp, item)):
+                    stack.append(os.path.join(tmp, item))
+    return symbols
 
 
 def to_component(trace):
@@ -86,6 +97,7 @@ def to_component(trace):
                     path = os.path.join(path, path_dir)
                 com = best_matched(path)
             elif "(" in trace:
+                symbols = load_symbols()
                 key = func_pattern.match(trace).group(1)
                 if "<" in key:
                     key = key[:key.index("<")]
@@ -123,9 +135,7 @@ def pre_process(paths, mode):
 
 
 if __name__ == "__main__":
-    components = dict()
-    # symbols = dict()
-    symbols = {"ltt::tThrow": "hehe", "ltt::allocator::allocateAligned": "hehe"}
+    # symbols = {"ltt::tThrow": "hehe", "ltt::allocator::allocateAligned": "hehe"}
     # load libclang.so
     lib_path = r"C:\LLVM\bin" if sys.platform == "win32" else "/usr/local/lib"
     if Config.loaded:
@@ -152,10 +162,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     # update components or not
     if args.update:
-        update_components(args.source)
-        dump_components(components)
-    else:
-        components = load_components()
+        com_dict = update_components(args.source)
+        sym_dict = update_symbols(args.source)
+        dump_symbols(sym_dict)
+        dump_components(com_dict)
     # output similarity result
     result = pre_process(args.dump, args.mode)
     format_print(args.dump, result)
