@@ -44,8 +44,8 @@ def best_matched(path):
         com = components[path]
     else:
         while True:
-            separator = "\\" if sys.platform == "win32" else "/"
-            path = path[:path.rindex(separator)]
+            slash = "\\" if sys.platform == "win32" else "/"
+            path = path[:path.rindex(slash)]
             if path in components:
                 com = components[path]
                 break

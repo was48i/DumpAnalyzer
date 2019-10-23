@@ -51,7 +51,7 @@ def find_exception(text):
         if b[0] == "0":
             points.append(i)
     points.append(len(whole) + 1)
-    # get lines of body
+    # processing body
     for i in range(len(points) - 1):
         body = ""
         for line in whole[points[i]:points[i+1]]:
@@ -72,6 +72,28 @@ def find_stack(text):
     return trace
 
 
+def match_component(trace, root):
+    path_pattern = re.compile(r"[ ]at[ ](.+)")
+    func_pattern = re.compile(r"\d+[:][\w ]*[ ](.+[^ ])\(")
+    # match using source
+    if " at " in trace and "/" in trace:
+        path = root
+        for path_dir in path_pattern.search(trace).group(1).split("/"):
+            path = os.path.join(path, path_dir)
+        component = best_matched(path)
+    # match using symbol
+    elif "(" in trace:
+        symbols = load_symbols()
+        key = func_pattern.match(trace).group(1)
+        if "<" in key:
+            key = key[:key.index("<")]
+        component = symbols[key]
+    # unrecognizable component
+    else:
+        component = re.match(r"\d+[:][ ](.+)", trace).group(1)
+    return component
+
+
 def to_component(trace, root):
     cnt = 0
     component = ""
@@ -79,26 +101,11 @@ def to_component(trace, root):
     # string to list
     trace_list = trace.split("\n")
     # set patterns
-    trace_pattern = re.compile(r"\d+[:][ ](.+)")
-    path_pattern = re.compile(r"[ ]at[ ](.+)")
-    func_pattern = re.compile(r"\d+[:][\w ]*[ ](.+[^ ])\(")
+    trace_pattern = re.compile(r"\d+[:][ ].+")
     for trace in trace_list:
         # extract backtrace
         if trace_pattern.match(trace):
-            # match component
-            if " at " in trace and "/" in trace:
-                path = root
-                for path_dir in path_pattern.search(trace).group(1).split("/"):
-                    path = os.path.join(path, path_dir)
-                com = best_matched(path)
-            elif "(" in trace:
-                symbols = load_symbols()
-                key = func_pattern.match(trace).group(1)
-                if "<" in key:
-                    key = key[:key.index("<")]
-                com = symbols[key]
-            else:
-                com = trace_pattern.match(trace).group(1)
+            com = match_component(trace, root)
             # update component and cnt
             if com != component:
                 res += str(cnt) + ": " + com + "\n"
