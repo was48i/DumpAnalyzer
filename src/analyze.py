@@ -4,117 +4,31 @@
 import os
 import re
 import sys
-import glob
 import argparse
 from clang.cindex import Config
 
-from symbol import find_symbol
-from format import format_print
-from regex import find_component, find_stacktrace
-from persistence import *
+from output import format_print
+from component import update_components
+from crash_stack import find_stack, to_component
+from persistence import dump_components, dump_symbols
 
 
-def update_components(path):
+def dfs_repo(root):
     stack = []
     components = dict()
-    stack.append(path)
+    # symbols = dict()
+    symbols = {"ltt::tThrow": "hehe", "ltt::allocator::allocateAligned": "hehe"}
+    stack.append(root)
     while len(stack) > 0:
-        tmp = stack.pop(len(stack) - 1)
-        if os.path.isdir(tmp):
-            cmk_path = os.path.join(tmp, "CMakeLists.txt")
-            if os.path.exists(cmk_path):
-                # get 2 types of component
-                parent_list, child_list = find_component(cmk_path)
-                # save parent component
-                for com in parent_list:
-                    components[tmp] = com
-                # save child component
-                for com in child_list:
-                    for node in com[1].split("\n"):
-                        if node.strip():
-                            node_path = tmp
-                            separator = "\\" if sys.platform == "win32" else "/"
-                            for node_dir in node.strip().split(separator):
-                                node_path = os.path.join(node_path, node_dir)
-                            # support wild character
-                            for wild in glob.iglob(node_path):
-                                components[wild] = com[0]
-            for item in os.listdir(tmp):
-                if os.path.isdir(os.path.join(tmp, item)):
-                    stack.append(os.path.join(tmp, item))
-    return components
-
-
-def best_matched(path):
-    components = load_components()
-    if path in components:
-        com = components[path]
-    else:
-        while True:
-            separator = "\\" if sys.platform == "win32" else "/"
-            path = path[:path.rindex(separator)]
-            if path in components:
-                com = components[path]
-                break
-    return com
-
-
-def update_symbols(path):
-    stack = []
-    symbols = dict()
-    stack.append(path)
-    while len(stack) > 0:
-        tmp = stack.pop(len(stack) - 1)
-        if os.path.isdir(tmp):
-            extension = os.path.splitext(tmp)
-            if extension[-1] in [".h", ".hpp"]:
-                if find_symbol(tmp, args.source):
-                    for symbol in set(find_symbol(tmp, args.source)):
-                        symbols[symbol] = best_matched(tmp)
-            for item in os.listdir(tmp):
-                if os.path.isdir(os.path.join(tmp, item)):
-                    stack.append(os.path.join(tmp, item))
-    return symbols
-
-
-def to_component(trace):
-    cnt = 0
-    component = ""
-    res = "[BACKTRACE]\n"
-    # string to list
-    trace_list = trace.split("\n")
-    # set patterns
-    trace_pattern = re.compile(r"\d+[:][ ](.+)")
-    path_pattern = re.compile(r"[ ]at[ ](.+)")
-    func_pattern = re.compile(r"\d+[:][\w ]*[ ](.+[^ ])\(")
-    for trace in trace_list:
-        # extract backtrace
-        if trace_pattern.match(trace):
-            # match component
-            if " at " in trace and "/" in trace:
-                path = args.source
-                for path_dir in path_pattern.search(trace).group(1).split("/"):
-                    path = os.path.join(path, path_dir)
-                com = best_matched(path)
-            elif "(" in trace:
-                symbols = load_symbols()
-                key = func_pattern.match(trace).group(1)
-                if "<" in key:
-                    key = key[:key.index("<")]
-                com = symbols[key]
-            else:
-                com = trace_pattern.match(trace).group(1)
-            # update component and cnt
-            if com != component:
-                res += str(cnt) + ": " + com + "\n"
-                component = com
-                cnt += 1
-        # extract exception
-        elif trace.startswith("exception throw location"):
-            cnt = 0
-            component = ""
-            res += "\n[EXCEPTION]\n"
-    return res
+        prefix = stack.pop(len(stack) - 1)
+        if os.path.isdir(prefix):
+            update_components(prefix, components)
+            # update_symbols(prefix, symbols, root=args.source)
+            for node in os.listdir(prefix):
+                child = os.path.join(prefix, node)
+                if os.path.isdir(child):
+                    stack.append(child)
+    return components, symbols
 
 
 def pre_process(paths, mode):
@@ -126,16 +40,15 @@ def pre_process(paths, mode):
             file_text = fp.read()
         stack = pattern.findall(file_text)
         if mode == "ast":
-            trace = find_stacktrace(stack[0])
-            trace = to_component(trace)
+            trace = find_stack(stack[0])
+            trace = to_component(trace, root=args.source)
         else:
-            trace = find_stacktrace(stack[0])
+            trace = find_stack(stack[0])
         dumps.append(trace)
     return dumps
 
 
 if __name__ == "__main__":
-    # symbols = {"ltt::tThrow": "hehe", "ltt::allocator::allocateAligned": "hehe"}
     # load libclang.so
     lib_path = r"C:\LLVM\bin" if sys.platform == "win32" else "/usr/local/lib"
     if Config.loaded:
@@ -162,10 +75,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     # update components or not
     if args.update:
-        com_dict = update_components(args.source)
-        sym_dict = update_symbols(args.source)
-        dump_symbols(sym_dict)
+        com_dict, sym_dict = dfs_repo(args.source)
         dump_components(com_dict)
+        # dump_symbols(sym_dict)
     # output similarity result
     result = pre_process(args.dump, args.mode)
     format_print(args.dump, result)

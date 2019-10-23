@@ -1,17 +1,8 @@
+import os
 import re
 
-
-def find_component(path):
-    # read CMakeLists.txt
-    with open(path, "r") as fp:
-        file_text = fp.read()
-    # set patterns
-    pattern_1 = re.compile(r"SET_COMPONENT\(\"(.+)?\"\)", re.M)
-    pattern_2 = re.compile(r"SET_COMPONENT\(\"(.+)?\"([^)]+)\)", re.M)
-    # get matching lists
-    list_1 = pattern_1.findall(file_text)
-    list_2 = pattern_2.findall(file_text)
-    return list_1, list_2
+from symbol import best_matched
+from persistence import load_symbols
 
 
 def find_backtrace(text):
@@ -72,10 +63,50 @@ def find_exception(text):
     return ex
 
 
-def find_stacktrace(text):
+def find_stack(text):
     trace = find_backtrace(text)
     # merge exceptions if existing
     if "exception throw location" in text:
         exception = find_exception(text)
         trace += exception
     return trace
+
+
+def to_component(trace, root):
+    cnt = 0
+    component = ""
+    res = "[BACKTRACE]\n"
+    # string to list
+    trace_list = trace.split("\n")
+    # set patterns
+    trace_pattern = re.compile(r"\d+[:][ ](.+)")
+    path_pattern = re.compile(r"[ ]at[ ](.+)")
+    func_pattern = re.compile(r"\d+[:][\w ]*[ ](.+[^ ])\(")
+    for trace in trace_list:
+        # extract backtrace
+        if trace_pattern.match(trace):
+            # match component
+            if " at " in trace and "/" in trace:
+                path = root
+                for path_dir in path_pattern.search(trace).group(1).split("/"):
+                    path = os.path.join(path, path_dir)
+                com = best_matched(path)
+            elif "(" in trace:
+                symbols = load_symbols()
+                key = func_pattern.match(trace).group(1)
+                if "<" in key:
+                    key = key[:key.index("<")]
+                com = symbols[key]
+            else:
+                com = trace_pattern.match(trace).group(1)
+            # update component and cnt
+            if com != component:
+                res += str(cnt) + ": " + com + "\n"
+                component = com
+                cnt += 1
+        # extract exception
+        elif trace.startswith("exception throw location"):
+            cnt = 0
+            component = ""
+            res += "\n[EXCEPTION]\n"
+    return res
