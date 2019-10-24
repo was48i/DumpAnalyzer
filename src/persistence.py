@@ -10,7 +10,7 @@ def dump_components(com_dict):
 
 def dump_symbols(sym_dict):
     dump_path = os.path.join(os.getcwd(), "json", "symbols.json")
-    with open(dump_path, "a") as fp:
+    with open(dump_path, "w") as fp:
         json.dump(sym_dict, fp, indent=4, sort_keys=True)
 
 

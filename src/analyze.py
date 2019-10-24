@@ -8,6 +8,7 @@ import argparse
 from clang.cindex import Config
 
 from output import format_print
+from symbol import update_symbols
 from component import update_components
 from crash_stack import find_stack, to_component
 from persistence import dump_components, dump_symbols
@@ -23,7 +24,7 @@ def dfs_repo(root):
         prefix = stack.pop(len(stack) - 1)
         if os.path.isdir(prefix):
             update_components(prefix, components)
-            # update_symbols(prefix, symbols, root=args.source)
+            # update_symbols([prefix, args.source], symbols)
             for node in os.listdir(prefix):
                 child = os.path.join(prefix, node)
                 if os.path.isdir(child):
@@ -77,7 +78,7 @@ if __name__ == "__main__":
     if args.update:
         com_dict, sym_dict = dfs_repo(args.source)
         dump_components(com_dict)
-        # dump_symbols(sym_dict)
+        dump_symbols(sym_dict)
     # output similarity result
     result = pre_process(args.dump, args.mode)
     format_print(args.dump, result)

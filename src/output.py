@@ -2,22 +2,17 @@ import os
 import difflib
 
 
-def format_print(files, lists):
-    # get diff
-    stack_1 = os.path.basename(files[0])
-    stack_2 = os.path.basename(files[1])
-    diff = difflib.unified_diff(lists[0].split("\n"), lists[1].split("\n"),
-                                fromfile=stack_1, tofile=stack_2, lineterm="")
-    # handle the same case
-    if lists[0] == lists[1]:
-        print("\033[1m" + stack_1 + "\033[0m")
-        for com in lists[0].split("\n"):
+def same_print(text):
+    for stack in text:
+        # print title
+        print("\033[1m" + stack[0] + "\033[0m")
+        # print body
+        for com in stack[1].split("\n"):
             print("\033[0;36m" + com + "\033[0m")
-        print("\033[1m" + stack_2 + "\033[0m")
-        for com in lists[1].split("\n"):
-            print("\033[0;36m" + com + "\033[0m")
-    # set diff format
-    for line in diff:
+
+
+def diff_print(text):
+    for line in text:
         if line.startswith("---") or line.startswith("+++"):
             print("\033[1m" + line + "\033[0m")
         elif line.startswith("-"):
@@ -30,8 +25,11 @@ def format_print(files, lists):
             print("\033[0;36m" + line + "\033[0m")
         else:
             print(line)
-    # output similarity
-    sim = difflib.SequenceMatcher(None, lists[0], lists[1]).ratio()
+
+
+def sim_print(text_1, text_2):
+    sim = difflib.SequenceMatcher(None, text_1, text_2).ratio()
+    # do alignment
     if sim < 0.1:
         print("+-------------------+")
         print("| Similarity: {:.2%} |".format(sim))
@@ -44,3 +42,17 @@ def format_print(files, lists):
         print("+---------------------+")
         print("| Similarity: {:.2%} |".format(sim))
         print("+---------------------+")
+
+
+def format_print(files, lists):
+    # get diff
+    stack_1 = os.path.basename(files[0])
+    stack_2 = os.path.basename(files[1])
+    diff = difflib.unified_diff(lists[0].split("\n"), lists[1].split("\n"),
+                                fromfile=stack_1, tofile=stack_2, lineterm="")
+    # handle the same situation
+    if lists[0] == lists[1]:
+        same_print([(stack_1, lists[0]), (stack_2, lists[1])])
+    # formatted print
+    diff_print(diff)
+    sim_print(lists[0], lists[1])

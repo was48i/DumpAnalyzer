@@ -52,9 +52,9 @@ def best_matched(path):
     return com
 
 
-def update_symbols(path, symbols, root):
-    extension = os.path.splitext(path)
+def update_symbols(path, symbols):
+    extension = os.path.splitext(path[0])
     if extension[-1] in [".h", ".hpp"]:
-        if find_symbol(path, root):
-            for symbol in set(find_symbol(path, root)):
-                symbols[symbol] = best_matched(path)
+        symbol_set = set(find_symbol(path[0], path[1]))
+        for symbol in symbol_set:
+            symbols[symbol] = best_matched(path[0])

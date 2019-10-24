@@ -30,8 +30,7 @@ def update_components(path, components):
             for node in com[1].split("\n"):
                 if node.strip():
                     node_path = path
-                    slash = "\\" if sys.platform == "win32" else "/"
-                    for node_dir in node.strip().split(slash):
+                    for node_dir in node.strip().split("/"):
                         node_path = os.path.join(node_path, node_dir)
                     # support wild character
                     for wild in glob.iglob(node_path):
