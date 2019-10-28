@@ -17,6 +17,22 @@ def find_component(path):
     return parents, children
 
 
+def get_child(children, prefix):
+    child_list = []
+    component = ""
+    for com in children:
+        for node in com[1].split("\n"):
+            if node.strip():
+                node_path = prefix
+                for node_dir in node.strip().split("/"):
+                    node_path = os.path.join(node_path, node_dir)
+                # support wild character
+                for wild in glob.iglob(node_path):
+                    child_list.append(wild)
+                component = com[0]
+    return child_list, component
+
+
 def update_components(path, components):
     cmk_path = os.path.join(path, "CMakeLists.txt")
     if os.path.exists(cmk_path):
@@ -26,12 +42,6 @@ def update_components(path, components):
         for com in parents:
             components[path] = com
         # save child component
-        for com in children:
-            for node in com[1].split("\n"):
-                if node.strip():
-                    node_path = path
-                    for node_dir in node.strip().split("/"):
-                        node_path = os.path.join(node_path, node_dir)
-                    # support wild character
-                    for wild in glob.iglob(node_path):
-                        components[wild] = com[0]
+        child_list, com = get_child(children, path)
+        for child in child_list:
+            components[child] = com
