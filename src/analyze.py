@@ -22,13 +22,12 @@ def dfs_repo(root):
     stack.append(root)
     while len(stack) > 0:
         prefix = stack.pop(len(stack) - 1)
-        if os.path.isdir(prefix):
-            update_components(prefix, components)
-            # update_symbols([prefix, args.source], symbols)
-            for node in os.listdir(prefix):
-                child = os.path.join(prefix, node)
-                if os.path.isdir(child):
-                    stack.append(child)
+        update_components(prefix, components)
+        # update_symbols([prefix, args.source], symbols)
+        for node in os.listdir(prefix):
+            child = os.path.join(prefix, node)
+            if os.path.isdir(child):
+                stack.append(child)
     return components, symbols
 
 
@@ -77,6 +76,11 @@ if __name__ == "__main__":
     # update components or not
     if args.update:
         com_dict, sym_dict = dfs_repo(args.source)
+        # create json directory
+        json_path = os.path.join(os.getcwd(), "json")
+        if not os.path.exists(json_path):
+            os.makedirs(json_path)
+        # do persistence
         dump_components(com_dict)
         dump_symbols(sym_dict)
     # output similarity result
