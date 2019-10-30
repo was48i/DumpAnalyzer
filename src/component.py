@@ -18,8 +18,7 @@ def find_component(path):
 
 
 def get_child(children, prefix):
-    child_list = []
-    component = ""
+    child_dict = dict()
     for com in children:
         for node in com[1].split("\n"):
             if node.strip():
@@ -28,9 +27,8 @@ def get_child(children, prefix):
                     node_path = os.path.join(node_path, node_dir)
                 # support wild character
                 for wild in glob.iglob(node_path):
-                    child_list.append(wild)
-                component = com[0]
-    return child_list, component
+                    child_dict[wild] = com[0]
+    return child_dict
 
 
 def update_components(path, components):
@@ -42,6 +40,6 @@ def update_components(path, components):
         for com in parents:
             components[path] = com
         # save child component
-        child_list, com = get_child(children, path)
-        for child in child_list:
-            components[child] = com
+        child_dict = get_child(children, path)
+        for child in child_dict:
+            components[child] = child_dict[child]
