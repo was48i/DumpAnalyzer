@@ -42,8 +42,8 @@ def find_exception(text):
         title = "\n" + t[0] + "\n" + t[1].lstrip() + "\n"
         titles.append(title)
     # extract bodies
-    body_pattern = re.compile(r"(\d+)[:][ ]0x.+[ ]in[ ](.+)[+]0x.+"
-                              r"?([ ].+)[:]", re.M)
+    body_pattern = re.compile(r"(\d+)[:][ ]0x.+[ ]"
+                              r"in[ ](.+)[+]0x.+?([ ].+)[:]", re.M)
     whole = body_pattern.findall(text)
     # get break points
     points = []
@@ -117,3 +117,9 @@ def to_component(trace, root):
             component = ""
             res += "\n[EXCEPTION]\n"
     return res
+
+
+__all__ = [
+    "find_stack",
+    "to_component"
+]

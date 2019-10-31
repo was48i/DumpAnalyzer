@@ -36,3 +36,11 @@ def load_symbols():
         return dict()
     else:
         return sym_dict
+
+
+__all__ = [
+    "dump_components",
+    "dump_symbols",
+    "load_components",
+    "load_symbols"
+]

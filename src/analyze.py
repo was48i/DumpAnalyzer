@@ -51,26 +51,29 @@ def pre_process(paths, mode):
 if __name__ == "__main__":
     # load libclang.so
     lib_path = r"C:\LLVM\bin" if sys.platform == "win32" else "/usr/local/lib"
-    if Config.loaded:
-        pass
-    else:
+    if not Config.loaded:
         Config.set_library_path(lib_path)
     # parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--mode", default="ast", choices=["ast", "csi"],
+    parser.add_argument("-m", "--mode", default="ast",
+                        choices=["ast", "csi"],
                         help="select the mode of analysis")
     parser.add_argument("-u", "--update", nargs="?", const=True,
-                        help="update components or not")
+                        help="update components/symbols or not")
     # support Windows
     if sys.platform == "win32":
-        parser.add_argument("-d", "--dump", nargs=2, default=[r"data\bt_dump_1.trc", r"data\bt_dump_2.trc"],
+        parser.add_argument("-d", "--dump", nargs=2,
+                            default=[r"data\bt_dump_1.trc", r"data\bt_dump_2.trc"],
                             help="pass crash dump files")
-        parser.add_argument("-s", "--source", nargs="?", default=r"C:\hana",
+        parser.add_argument("-s", "--source", nargs="?",
+                            default=r"C:\hana",
                             help="source code path")
     else:
-        parser.add_argument("-d", "--dump", nargs=2, default=["data/bt_dump_1.trc", "data/bt_dump_2.trc"],
+        parser.add_argument("-d", "--dump", nargs=2,
+                            default=["data/bt_dump_1.trc", "data/bt_dump_2.trc"],
                             help="pass crash dump files")
-        parser.add_argument("-s", "--source", nargs="?", default="/hana",
+        parser.add_argument("-s", "--source", nargs="?",
+                            default="/hana",
                             help="source code path")
     args = parser.parse_args()
     # update components or not

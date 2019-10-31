@@ -56,3 +56,8 @@ def format_print(files, lists):
     # formatted print
     diff_print(diff)
     sim_print(lists[0], lists[1])
+
+
+__all__ = [
+    "format_print"
+]
