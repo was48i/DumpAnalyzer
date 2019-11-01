@@ -24,10 +24,9 @@ def dfs_repo(root):
         prefix = stack.pop(len(stack) - 1)
         update_components(prefix, components)
         # update_symbols([prefix, args.source], symbols)
-        for node in os.listdir(prefix):
+        for node in [i for i in os.listdir(prefix) if not os.path.isfile(i)]:
             child = os.path.join(prefix, node)
-            if os.path.isdir(child):
-                stack.append(child)
+            stack.append(child)
     return components, symbols
 
 

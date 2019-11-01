@@ -32,10 +32,11 @@ def find_symbol(path, root):
     ]
     for child in tu.cursor.walk_preorder():
         if child.location.file is not None and child.location.file.name == path:
-            # text = child.spelling or child.displayname
-            kind = str(child.kind)[str(child.kind).index('.') + 1:]
-            if kind in decl_kinds:
-                symbol.append(fully_qualified(child, path))
+            text = child.spelling or child.displayname
+            if text:
+                kind = str(child.kind)[str(child.kind).index('.') + 1:]
+                if kind in decl_kinds:
+                    symbol.append(fully_qualified(child, path))
     return symbol
 
 
@@ -55,12 +56,12 @@ def best_matched(path):
 
 def update_symbols(path, symbols):
     # get file path and root
-    file_path, root = path
-    extension = os.path.splitext(file_path)
-    if extension[-1] in [".h", ".hpp"]:
-        symbol_set = set(find_symbol(file_path, root))
+    prefix, root = path
+    for node in [i for i in os.listdir(prefix) if os.path.splitext(i)[-1] in [".h", ".hpp"]]:
+        child = os.path.join(prefix, node)
+        symbol_set = set(find_symbol(child, root))
         for symbol in symbol_set:
-            symbols[symbol] = best_matched(file_path)
+            symbols[symbol] = best_matched(child)
 
 
 __all__ = [
