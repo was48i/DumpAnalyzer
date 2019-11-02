@@ -4,9 +4,7 @@ import difflib
 
 def same_print(text):
     for stack in text:
-        # print title
         print("\033[1m" + stack[0] + "\033[0m")
-        # print body
         for com in stack[1].split("\n"):
             print("\033[0;36m" + com + "\033[0m")
 

@@ -5,6 +5,22 @@ from clang.cindex import Index
 from persistence import load_components
 
 
+def get_paths(root):
+    stack = []
+    paths = []
+    stack.append(root)
+    while len(stack) > 0:
+        prefix = stack.pop(len(stack) - 1)
+        for node in os.listdir(prefix):
+            child = os.path.join(prefix, node)
+            extension = os.path.splitext(child)[-1]
+            if os.path.isdir(child):
+                stack.append(child)
+            elif extension in [".h", ".hpp"]:
+                paths.append(child)
+    return paths
+
+
 def fully_qualified(child, path):
     if child.location.file is None:
         return ""
@@ -15,29 +31,6 @@ def fully_qualified(child, path):
         if res != "":
             return res + "::" + child.spelling
     return child.spelling
-
-
-def find_symbol(path, root):
-    symbol = []
-    index = Index.create()
-    header = os.path.join(root, "rte", "rtebase", "include")
-    args_list = ["-x", "c++",
-                 "-I" + root, "-I" + header]
-    tu = index.parse(path, args_list)
-    decl_kinds = [
-        "FUNCTION_DECL",
-        "CXX_METHOD",
-        "CONSTRUCTOR",
-        "CONVERSION_FUNCTION"
-    ]
-    for child in tu.cursor.walk_preorder():
-        if child.location.file is not None and child.location.file.name == path:
-            text = child.spelling or child.displayname
-            if text:
-                kind = str(child.kind)[str(child.kind).index('.') + 1:]
-                if kind in decl_kinds:
-                    symbol.append(fully_qualified(child, path))
-    return symbol
 
 
 def best_matched(path):
@@ -54,18 +47,31 @@ def best_matched(path):
     return com
 
 
-def update_symbols(path, symbols):
-    # get file path and root
-    prefix, root = path
-    for node in [i for i in os.listdir(prefix) if os.path.splitext(i)[-1] in [".h", ".hpp"]]:
-        child = os.path.join(prefix, node)
-        symbol_set = set(find_symbol(child, root))
-        for symbol in symbol_set:
-            symbols[symbol] = best_matched(child)
+def find_symbol(path, root):
+    symbol = dict()
+    index = Index.create()
+    header = os.path.join(root, "rte", "rtebase", "include")
+    args_list = ["-x", "c++",
+                 "-I" + root, "-I" + header]
+    tu = index.parse(path, args_list)
+    decl_kinds = [
+        "FUNCTION_DECL",
+        "CXX_METHOD",
+        "CONSTRUCTOR",
+        "CONVERSION_FUNCTION"
+    ]
+    for child in tu.cursor.walk_preorder():
+        if child.location.file is not None and child.location.file.name == path and \
+                (child.spelling or child.displayname):
+            kind = str(child.kind)[str(child.kind).index('.') + 1:]
+            if kind in decl_kinds:
+                symbol[fully_qualified(child, path)] = best_matched(path)
+
+    return symbol
 
 
 __all__ = [
-    "find_symbol",
+    "get_paths",
     "best_matched",
-    "update_symbols"
+    "find_symbol"
 ]

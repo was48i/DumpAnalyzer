@@ -87,7 +87,10 @@ def match_component(trace, root):
         key = func_pattern.match(trace).group(1)
         if "<" in key:
             key = key[:key.index("<")]
-        component = symbols[key]
+        try:
+            component = symbols[key]
+        except KeyError:
+            component = key
     # unrecognizable component
     else:
         component = re.match(r"\d+[:][ ](.+)", trace).group(1)
