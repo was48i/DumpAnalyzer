@@ -49,6 +49,10 @@ def update_symbols(root):
     results = pool.map(find_symbol, paths)
     for res in [i for i in results if i]:
         for k in res:
+            if "::::" in k:
+                k = k[:k.rindex("::::")] + \
+                    "::(anonymous namespace)::" + \
+                    k[k.rindex("::::")+4:]
             symbols[k] = res[k]
     pool.close()
     pool.join()
@@ -81,7 +85,7 @@ if __name__ == "__main__":
     # parse arguments
     args = parser.parse_args()
     if args.update:
-        # create json directory
+        # create json directory if not exist
         json_path = os.path.join(os.getcwd(), "json")
         if not os.path.exists(json_path):
             os.makedirs(json_path)

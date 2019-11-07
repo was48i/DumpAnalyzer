@@ -41,5 +41,7 @@ $ ./src/analyze.py --mode [ast/csi]
 We love contributions! Before submitting a Pull Request, it's always good to start with a new issue first.
 ### Contributors
 [@ICHIGOI7E](https://github.com/ICHIGOI7E)
+
+[@Pal1998](https://github.com/Pal1998)
 ## License
 This library is licensed under Apache 2.0. Full license text is available in [LICENSE](https://github.com/ICHIGOI7E/DumpAnalyzer/blob/master/LICENSE).

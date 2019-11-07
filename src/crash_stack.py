@@ -66,7 +66,7 @@ def find_exception(text):
 
 def find_stack(text):
     trace = find_backtrace(text)
-    # merge exceptions if existing
+    # merge exceptions if exist
     if "exception throw location" in text:
         exception = find_exception(text)
         trace += exception
