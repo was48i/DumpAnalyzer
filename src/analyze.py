@@ -4,14 +4,15 @@
 import os
 import re
 import sys
-import argparse
 
 from clang.cindex import Config
-from multiprocessing.dummy import Pool as ThreadPool
+from multiprocessing import Pool
 
 from symbol import *
 from component import *
 from crash_stack import *
+
+from argument import parser
 from output import format_print
 from persistence import dump_components, dump_symbols
 
@@ -42,16 +43,13 @@ def update_components(root):
 
 def update_symbols(root):
     symbols = dict()
-    # zip arguments
+    # update symbols using multi-process
     paths = get_paths(root)
-    roots = [root] * len(paths)
-    zip_args = list(zip(paths, roots))
-    # update symbols using multi-thread
-    pool = ThreadPool(400)
-    results = pool.starmap(find_symbol, zip_args)
+    pool = Pool(4)
+    results = pool.map(find_symbol, paths)
     for res in [i for i in results if i]:
-        for key in res:
-            symbols[key] = res[key]
+        for k in res:
+            symbols[k] = res[k]
     pool.close()
     pool.join()
     return symbols
@@ -68,7 +66,7 @@ def pre_process(paths, mode):
         stack = pattern.findall(file_text)
         if mode == "ast":
             trace = find_stack(stack[0])
-            trace = to_component(trace, root=args.source)
+            trace = to_component(trace)
         else:
             trace = find_stack(stack[0])
         dumps.append(trace)
@@ -81,29 +79,7 @@ if __name__ == "__main__":
     if not Config.loaded:
         Config.set_library_path(lib_path)
     # parse arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--mode", default="ast",
-                        choices=["ast", "csi"],
-                        help="select the mode of analysis")
-    parser.add_argument("-u", "--update", nargs="?", const=True,
-                        help="update components/symbols or not")
-    # support Windows
-    if sys.platform == "win32":
-        parser.add_argument("-d", "--dump", nargs=2,
-                            default=[r"data\bt_dump_1.trc", r"data\bt_dump_2.trc"],
-                            help="pass crash dump files")
-        parser.add_argument("-s", "--source", nargs="?",
-                            default=r"C:\hana",
-                            help="source code path")
-    else:
-        parser.add_argument("-d", "--dump", nargs=2,
-                            default=["data/bt_dump_1.trc", "data/bt_dump_2.trc"],
-                            help="pass crash dump files")
-        parser.add_argument("-s", "--source", nargs="?",
-                            default="/hana",
-                            help="source code path")
     args = parser.parse_args()
-    # update components or not
     if args.update:
         # create json directory
         json_path = os.path.join(os.getcwd(), "json")

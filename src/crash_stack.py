@@ -1,6 +1,7 @@
 import os
 import re
 
+from argument import parser
 from symbol import best_matched
 from persistence import load_symbols
 
@@ -72,14 +73,15 @@ def find_stack(text):
     return trace
 
 
-def match_component(trace, root):
+def match_component(trace):
     path_pattern = re.compile(r"[ ]at[ ](.+)")
     func_pattern = re.compile(r"\d+[:][\w ]*[ ](.+[^ ])\(")
     # match using source
     if " at " in trace and "/" in trace:
-        path = root
-        for path_dir in path_pattern.search(trace).group(1).split("/"):
-            path = os.path.join(path, path_dir)
+        args = parser.parse_args()
+        path = args.source
+        for layer in path_pattern.search(trace).group(1).split("/"):
+            path = os.path.join(path, layer)
         component = best_matched(path)
     # match using symbol
     elif "(" in trace:
@@ -97,7 +99,7 @@ def match_component(trace, root):
     return component
 
 
-def to_component(trace, root):
+def to_component(trace):
     cnt = 0
     component = ""
     res = "[BACKTRACE]\n"
@@ -108,7 +110,7 @@ def to_component(trace, root):
     for trace in trace_list:
         # extract backtrace
         if trace_pattern.match(trace):
-            com = match_component(trace, root)
+            com = match_component(trace)
             # update component and cnt
             if com != component:
                 res += str(cnt) + ": " + com + "\n"

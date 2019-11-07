@@ -1,6 +1,7 @@
 import os
 import sys
 
+from argument import parser
 from clang.cindex import Index
 from persistence import load_components
 
@@ -47,12 +48,15 @@ def best_matched(path):
     return com
 
 
-def find_symbol(path, root):
+def find_symbol(path):
     symbol = dict()
     index = Index.create()
-    header = os.path.join(root, "rte", "rtebase", "include")
-    args_list = ["-x", "c++",
-                 "-I" + root, "-I" + header]
+    args = parser.parse_args()
+    header = os.path.join(args.source, "rte", "rtebase", "include")
+    args_list = [
+        "-x", "c++",
+        "-I" + args.source, "-I" + header
+    ]
     tu = index.parse(path, args_list)
     decl_kinds = [
         "FUNCTION_DECL",
