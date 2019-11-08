@@ -38,7 +38,7 @@ def find_exception(text):
     bodies = []
     # extract titles
     title_pattern = re.compile(r"(exception.+)[ ]TID.+[\n]"
-                               r"([\S\s]+?exception[ ]throw[ ]location[:])", re.M)
+                               r"([\S\s]+?throw[ ]location[:])", re.M)
     for t in title_pattern.findall(text):
         title = "\n" + t[0] + "\n" + t[1].lstrip() + "\n"
         titles.append(title)

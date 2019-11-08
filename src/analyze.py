@@ -47,12 +47,11 @@ def update_symbols(root):
     paths = get_paths(root)
     pool = Pool(4)
     results = pool.map(find_symbol, paths)
-    for res in [i for i in results if i]:
-        for k in res:
-            if "::::" in k:
-                k = k[:k.rindex("::::")] + \
-                    "::(anonymous namespace)::" + \
-                    k[k.rindex("::::")+4:]
+    for res in filter(lambda x: x is not None, results):
+        for k in [i for i in res if "::::" in i]:
+            k = k[:k.rindex("::::")] + \
+                "::(anonymous namespace)::" + \
+                k[k.rindex("::::")+4:]
             symbols[k] = res[k]
     pool.close()
     pool.join()

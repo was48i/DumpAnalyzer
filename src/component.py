@@ -19,7 +19,7 @@ def find_component(path):
 def get_child(children, prefix):
     child = dict()
     for com in children:
-        for node in [i for i in com[1].split("\n") if i.strip()]:
+        for node in filter(lambda x: x.strip() is not None, com[1].split("\n")):
             path = prefix
             for layer in node.strip().split("/"):
                 path = os.path.join(path, layer)

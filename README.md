@@ -40,7 +40,7 @@ $ ./src/analyze.py --mode [ast/csi]
 ## Contributing
 We love contributions! Before submitting a Pull Request, it's always good to start with a new issue first.
 ### Contributors
-[@ICHIGOI7E](https://github.com/ICHIGOI7E)
+[@was48i](https://github.com/was48i)
 
 [@Pal1998](https://github.com/Pal1998)
 ## License

@@ -65,12 +65,12 @@ def find_symbol(path):
         "CONVERSION_FUNCTION"
     ]
     for child in tu.cursor.walk_preorder():
-        if child.location.file is not None and child.location.file.name == path and \
+        if child.location.file is not None and \
+                child.location.file.name == path and \
                 (child.spelling or child.displayname):
             kind = str(child.kind)[str(child.kind).index('.') + 1:]
             if kind in decl_kinds:
                 symbol[fully_qualified(child, path)] = best_matched(path)
-
     return symbol
 
 
