@@ -1,5 +1,8 @@
 import os
 import difflib
+import prettytable as pt
+
+from argument import parser
 
 
 def same_print(text):
@@ -14,10 +17,8 @@ def diff_print(text):
         if line.startswith("---") or line.startswith("+++"):
             print("\033[1m" + line + "\033[0m")
         elif line.startswith("-"):
-            line = "-   " + line[line.index("-") + 1:]
             print("\033[0;31m" + line + "\033[0m")
         elif line.startswith("+"):
-            line = "+   " + line[line.index("+") + 1:]
             print("\033[0;32m" + line + "\033[0m")
         elif line.startswith("@@"):
             print("\033[0;36m" + line + "\033[0m")
@@ -42,10 +43,11 @@ def sim_print(text_1, text_2):
         print("+---------------------+")
 
 
-def format_print(files, lists):
+def format_print(lists):
     # get diff
-    stack_1 = os.path.basename(files[0])
-    stack_2 = os.path.basename(files[1])
+    args = parser.parse_args()
+    stack_1 = os.path.basename(args.dump[0])
+    stack_2 = os.path.basename(args.dump[1])
     diff = difflib.unified_diff(lists[0].split("\n"), lists[1].split("\n"),
                                 fromfile=stack_1, tofile=stack_2, lineterm="")
     # handle the same situation
@@ -56,6 +58,16 @@ def format_print(files, lists):
     sim_print(lists[0], lists[1])
 
 
+def stats_print(metrics):
+    tb = pt.PrettyTable()
+    precision, recall, f1 = metrics
+    tb.add_column("Precision", precision)
+    tb.add_column("Recall", recall)
+    tb.add_column("F1 Score", f1)
+    print(tb)
+
+
 __all__ = [
-    "format_print"
+    "format_print",
+    "stats_print"
 ]

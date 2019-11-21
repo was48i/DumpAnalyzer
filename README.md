@@ -16,13 +16,13 @@ We parsing C++ in Python with Clang:
 
 ![](https://raw.githubusercontent.com/ICHIGOI7E/mdpics/master/DumpAnalyzer/python_clang.jpg)
 ### Source Code
-Put the prepared source code in the specified directory.
+Put prepared source code in specified directory.
 ## Usage
 View help information:
 ```
 $ ./src/analyze.py --help
 ```
-If source code is updated, we need to update the database:
+If source code is updated, we need to update database:
 ```
 $ ./src/analyze.py --update
 ```
@@ -36,6 +36,17 @@ $ ./src/analyze.py --dump [dump files]
 Change the mode of analysis:
 ```
 $ ./src/analyze.py --mode [ast/csi]
+```
+## Validation
+We validate our classifier based on [confusion matrix](https://en.wikipedia.org/wiki/Confusion_matrix).
+
+Our data set is cleaned and reshaped:
+
+![](https://raw.githubusercontent.com/ICHIGOI7E/mdpics/master/DumpAnalyzer/validation.jpg)
+
+Use the stats mode:
+```
+$ ./src/analyze.py --stats
 ```
 ## Contributing
 We love contributions! Before submitting a Pull Request, it's always good to start with a new issue first.
