@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import json
+import hashlib
 
 from clang.cindex import Config
 from multiprocessing import Pool
@@ -96,7 +97,10 @@ def find_key(text):
                 "::" in method:
             key = method
             break
-    return key
+    md5 = hashlib.md5()
+    message = key
+    md5.update(message.encode("utf-8"))
+    return md5.hexdigest()
 
 
 def stats_process(paths, mode):
@@ -115,8 +119,8 @@ def stats_process(paths, mode):
 if __name__ == "__main__":
     stop_words_path = os.path.join(os.getcwd(), "json", "stop_words.json")
     try:
-        with open(stop_words_path, "r") as fp:
-            stop_words = json.load(fp)
+        with open(stop_words_path, "r") as f:
+            stop_words = json.load(f)
     except FileNotFoundError:
         print("Can't find stop_words, please check!")
     # load libclang.so
@@ -138,8 +142,8 @@ if __name__ == "__main__":
     # output similarity result
     data_sets_path = os.path.join(os.getcwd(), "json", "data_sets.json")
     try:
-        with open(data_sets_path, "r") as fp:
-            data_sets = json.load(fp)
+        with open(data_sets_path, "r") as f:
+            data_sets = json.load(f)
     except FileNotFoundError:
         print("Can't find data_sets, please check!")
     if not args.stats:

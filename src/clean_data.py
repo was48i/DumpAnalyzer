@@ -29,8 +29,8 @@ def data_storage(dump_list):
 if __name__ == "__main__":
     dump_unions_path = os.path.join(os.getcwd(), "json", "dump_unions.json")
     try:
-        with open(dump_unions_path, "r") as fp:
-            dump_unions = json.load(fp)
+        with open(dump_unions_path, "r") as f:
+            dump_unions = json.load(f)
     except FileNotFoundError:
         print("Can't find dump_unions, please check!")
     data_storage(dump_unions)

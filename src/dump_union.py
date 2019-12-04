@@ -58,8 +58,8 @@ def group_dumps(bugs):
 if __name__ == "__main__":
     dup_bug_lists_path = os.path.join(os.getcwd(), "json", "dup_bug_lists.json")
     try:
-        with open(dup_bug_lists_path, "r") as fp:
-            dup_bug_lists = json.load(fp)
+        with open(dup_bug_lists_path, "r") as f:
+            dup_bug_lists = json.load(f)
     except FileNotFoundError:
         print("Can't find dup_bug_lists, please check!")
     group_dumps(dup_bug_lists)

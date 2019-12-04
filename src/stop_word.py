@@ -64,8 +64,8 @@ def read_dumps(bugs):
 if __name__ == "__main__":
     api_bug_lists_path = os.path.join(os.getcwd(), "json", "api_bug_lists.json")
     try:
-        with open(api_bug_lists_path, "r") as fp:
-            api_bug_lists = json.load(fp)
+        with open(api_bug_lists_path, "r") as f:
+            api_bug_lists = json.load(f)
     except FileNotFoundError:
         print("Can't find api_bug_lists, please check!")
     prefix = "/area51/bugzilla"
