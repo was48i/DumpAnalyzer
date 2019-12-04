@@ -85,18 +85,24 @@ def find_key(text):
     bt_pattern = re.compile(r"[-][\n][ ]+\d+[:][ ](.+)", re.M)
     bt_methods = bt_pattern.findall(text)
     for m in bt_methods:
+        # remove address information
         if " + 0x" in m:
             method = m[:m.rindex(" + 0x")]
         else:
             method = m
+        # remove parameter variable and return type
         if "(" in method:
             method = method[:method.index("(")]
+        if " " in method:
+            method = method[method.index(" ")+1:]
+        # apply rules
         if method not in stop_words and \
                 "ltt" not in method and \
                 "std" not in method and \
                 "::" in method:
             key = method
             break
+    # compare by MD5
     md5 = hashlib.md5()
     message = key
     md5.update(message.encode("utf-8"))
@@ -158,14 +164,17 @@ if __name__ == "__main__":
             single_list = []
             p_list = []
             n_list = []
+            # get positives hash code
             for p_paths in single_set[0]:
                 p_texts = stats_process(p_paths, args.mode)
                 p_list.append(p_texts)
             single_list.append(p_list)
+            # get negatives hash code
             for n_paths in single_set[1]:
                 n_texts = stats_process(n_paths, args.mode)
                 n_list.append(n_texts)
             single_list.append(n_list)
+            # calculate metrics
             precision, recall, f1 = cal_metrics(single_list)
             precisions.append(precision)
             recalls.append(recall)
