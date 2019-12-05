@@ -17,12 +17,12 @@ from crash_stack import *
 from argument import parser
 from statistics import cal_metrics
 from output import format_print, stats_print
-from persistence import dump_components, dump_symbols
+from persistence import dump_components, dump_symbols, load_symbols
 
 
 def update_components(root):
     queue = []
-    components = dict()
+    component_dict = dict()
     queue.append(root)
     while len(queue) > 0:
         prefix = queue.pop(0)
@@ -32,20 +32,20 @@ def update_components(root):
             parents, children = find_component(cmk_path)
             # save parent component
             for com in parents:
-                components[prefix] = com
+                component_dict[prefix] = com
             # save child component
             child_dict = get_child(children, prefix)
             for child in child_dict:
-                components[child] = child_dict[child]
+                component_dict[child] = child_dict[child]
         for node in os.listdir(prefix):
             child = os.path.join(prefix, node)
             if os.path.isdir(child):
                 queue.append(child)
-    return components
+    return component_dict
 
 
 def update_symbols(root):
-    symbols = dict()
+    symbol_dict = dict()
     # update symbols using multi-process
     paths = get_paths(root)
     pool = Pool(4)
@@ -56,10 +56,10 @@ def update_symbols(root):
                 k = k[:k.rindex("::::")] + \
                     "::(anonymous namespace)::" + \
                     k[k.rindex("::::")+4:]
-            symbols[k] = res[k]
+            symbol_dict[k] = res[k]
     pool.close()
     pool.join()
-    return symbols
+    return symbol_dict
 
 
 def pre_process(paths, mode):
@@ -80,28 +80,56 @@ def pre_process(paths, mode):
     return dumps
 
 
+def first_component(m_list):
+    method, source = m_list
+    # get component by source
+    if "/" in source:
+        path = args.source
+        for layer in m_list[1].split("/"):
+            path = os.path.join(path, layer)
+        component = best_matched(path)
+    # get component by symbol
+    else:
+        try:
+            component = symbols[method]
+        except KeyError:
+            component = method
+    return component
+
+
 def find_key(text):
     key = ""
-    bt_pattern = re.compile(r"[-][\n][ ]+\d+[:][ ](.+)", re.M)
+    component = ""
+    bt_pattern = re.compile(r"[-][\n][ ]+\d+[:][ ](.+)"
+                            r"([^-]+?Source[:][ ].+[:])*", re.M)
     bt_methods = bt_pattern.findall(text)
-    for m in bt_methods:
+    for m_tuple in bt_methods:
+        # convert tuple to list
+        m = list(m_tuple)
+        if m[1]:
+            m[1] = m[1][m[1].index("Source: ")+8:-1]
         # remove address information
-        if " + 0x" in m:
-            method = m[:m.rindex(" + 0x")]
+        if " + 0x" in m[0]:
+            method = m[0][:m[0].rindex(" + 0x")]
         else:
-            method = m
+            method = m[0]
         # remove parameter variable and return type
         if "(" in method:
             method = method[:method.index("(")]
         if " " in method:
             method = method[method.index(" ")+1:]
-        # apply rules
+        m[0] = method
+        # apply stop words
         if method not in stop_words and \
                 "ltt" not in method and \
                 "std" not in method and \
                 "::" in method:
-            key = method
-            break
+            # first component rule
+            if component != "" and first_component(m) != component:
+                break
+            else:
+                component = first_component(m)
+                key += method + "\n"
     # compare by MD5
     md5 = hashlib.md5()
     message = key
@@ -123,6 +151,7 @@ def stats_process(paths, mode):
 
 
 if __name__ == "__main__":
+    symbols = load_symbols()
     stop_words_path = os.path.join(os.getcwd(), "json", "stop_words.json")
     try:
         with open(stop_words_path, "r") as f:
@@ -152,11 +181,8 @@ if __name__ == "__main__":
             data_sets = json.load(f)
     except FileNotFoundError:
         print("Can't find data_sets, please check!")
-    if not args.stats:
-        result = pre_process(args.dump, args.mode)
-        format_print(result)
     # do data analysis
-    else:
+    if args.stats:
         precisions = []
         recalls = []
         f1s = []
@@ -180,3 +206,6 @@ if __name__ == "__main__":
             recalls.append(recall)
             f1s.append(f1)
         stats_print([precisions, recalls, f1s])
+    else:
+        result = pre_process(args.dump, args.mode)
+        format_print(result)

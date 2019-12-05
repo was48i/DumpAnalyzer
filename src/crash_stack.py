@@ -87,8 +87,6 @@ def match_component(trace):
     elif "(" in trace:
         symbols = load_symbols()
         key = func_pattern.match(trace).group(1)
-        if "<" in key:
-            key = key[:key.index("<")]
         try:
             component = symbols[key]
         except KeyError:

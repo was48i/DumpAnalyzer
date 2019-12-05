@@ -6,6 +6,10 @@ from clang.cindex import Index
 from persistence import load_components
 
 
+args = parser.parse_args()
+components = load_components()
+
+
 def get_paths(root):
     stack = []
     paths = []
@@ -35,7 +39,6 @@ def fully_qualified(child, path):
 
 
 def best_matched(path):
-    components = load_components()
     if path in components:
         com = components[path]
     else:
@@ -51,7 +54,6 @@ def best_matched(path):
 def find_symbol(path):
     symbol = dict()
     index = Index.create()
-    args = parser.parse_args()
     header = os.path.join(args.source, "rte", "rtebase", "include")
     args_list = [
         "-x", "c++",
