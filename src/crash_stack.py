@@ -6,6 +6,9 @@ from symbol import best_matched
 from persistence import load_symbols
 
 
+symbols = load_symbols()
+
+
 def find_backtrace(text):
     bt = ""
     # extract source file
@@ -85,7 +88,6 @@ def match_component(trace):
         component = best_matched(path)
     # match using symbol
     elif "(" in trace:
-        symbols = load_symbols()
         key = func_pattern.match(trace).group(1)
         try:
             component = symbols[key]

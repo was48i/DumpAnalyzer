@@ -1,6 +1,8 @@
 import os
 import difflib
+import Levenshtein
 import prettytable as pt
+
 
 from argument import parser
 
@@ -27,7 +29,7 @@ def diff_print(text):
 
 
 def sim_print(text_1, text_2):
-    sim = difflib.SequenceMatcher(None, text_1, text_2).ratio()
+    sim = Levenshtein.ratio(text_1, text_2)
     # do alignment
     if sim < 0.1:
         print("+-------------------+")
