@@ -3,15 +3,14 @@ import difflib
 import Levenshtein
 import prettytable as pt
 
-
 from argument import parser
 
 
 def same_print(text):
     for stack in text:
-        print("\033[1m" + stack[0] + "\033[0m")
+        print("\033[0;36m" + stack[0] + "\033[0m")
         for com in stack[1].split("\n"):
-            print("\033[0;36m" + com + "\033[0m")
+            print(com)
 
 
 def diff_print(text):
@@ -62,6 +61,7 @@ def format_print(lists):
 
 def stats_print(metrics):
     tb = pt.PrettyTable()
+    # insert metrics
     precision, recall, f1 = metrics
     tb.add_column("Precision", precision)
     tb.add_column("Recall", recall)
@@ -69,7 +69,21 @@ def stats_print(metrics):
     print(tb)
 
 
+def flow_print(results):
+    format_res, filter_res, rule_res, hash_res = results
+    # follow 4 steps to output
+    print("\033[0;36m" + "I. Format Dump File" + "\033[0m")
+    print(format_res)
+    print("\033[0;36m" + "II. Filter Stop Words" + "\033[0m")
+    print(filter_res)
+    print("\033[0;36m" + "III. Infuse HANA Knowledge" + "\033[0m")
+    print(rule_res)
+    print("\033[0;36m" + "IV. Covert to Hash Code" + "\033[0m")
+    print(hash_res)
+
+
 __all__ = [
     "format_print",
-    "stats_print"
+    "stats_print",
+    "flow_print"
 ]

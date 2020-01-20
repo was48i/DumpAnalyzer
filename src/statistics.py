@@ -1,15 +1,45 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+import os
+import json
+
+from argument import parser
+from regex import find_stack
+from workflow import find_key
+
+args = parser.parse_args()
+# load dataset
+data_set_path = os.path.join(os.getcwd(), "json", "data_set.json")
+try:
+    with open(data_set_path, "r") as f:
+        data_set = json.load(f)
+except FileNotFoundError:
+    print("Can't find data_set, please check!")
 
 
-def matrix_stats(single_set):
+def get_pair(paths):
+    pair = []
+    # convert paths to pair
+    for path in paths:
+        with open(path, "r", encoding="ISO-8859-1") as fp:
+            file_text = fp.read()
+        if args.mode == "ast":
+            item = find_key(file_text)
+        else:
+            item = find_stack(file_text)
+        pair.append(item)
+    return pair
+
+
+def matrix_stats(group):
+    positives, negatives = group
     tp, fp, fn, tn = [0, 0, 0, 0]
-    for p_pair in single_set[0]:
+    # count positive samples
+    for p_pair in positives:
         if p_pair[0] == p_pair[1]:
             tp += 1
         else:
             fn += 1
-    for n_pair in single_set[1]:
+    # count negative samples
+    for n_pair in negatives:
         if n_pair[0] == n_pair[1]:
             fp += 1
         else:
@@ -17,8 +47,8 @@ def matrix_stats(single_set):
     return tp, fp, fn, tn
 
 
-def cal_metrics(single_set):
-    tp, fp, fn, tn = matrix_stats(single_set)
+def cal_metrics(group):
+    tp, fp, fn, tn = matrix_stats(group)
     # calculate precision
     if tp + fp == 0:
         precision = 0
@@ -37,15 +67,32 @@ def cal_metrics(single_set):
     return tuple(map(lambda x: "{:.1%}".format(x), (precision, recall, f1)))
 
 
-def draw_roc(single_set):
-    tp, fp, fn, tn = matrix_stats(single_set)
-    # calculate TPR
-    tpr = tp / (tp + fn)
-    # calculate FPR
-    fpr = fp / (tn + fp)
-    return tpr, fpr
+def validate():
+    precisions = []
+    recalls = []
+    f1s = []
+    for group in data_set:
+        trans_group = []
+        positives = []
+        negatives = []
+        # get positives' pair
+        for p_paths in group[0]:
+            p_pair = get_pair(p_paths)
+            positives.append(p_pair)
+        trans_group.append(positives)
+        # get negatives' pair
+        for n_paths in group[1]:
+            n_pair = get_pair(n_paths)
+            negatives.append(n_pair)
+        trans_group.append(negatives)
+        # calculate metrics
+        precision, recall, f1 = cal_metrics(trans_group)
+        precisions.append(precision)
+        recalls.append(recall)
+        f1s.append(f1)
+    return precisions, recalls, f1s
 
 
 __all__ = [
-    "cal_metrics"
+    "validate"
 ]

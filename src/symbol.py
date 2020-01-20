@@ -3,8 +3,8 @@ import sys
 
 from argument import parser
 from clang.cindex import Index
+from multiprocessing import Pool
 from persistence import load_components
-
 
 args = parser.parse_args()
 components = load_components()
@@ -14,6 +14,7 @@ def get_paths(root):
     stack = []
     paths = []
     stack.append(root)
+    # do DFS
     while len(stack) > 0:
         prefix = stack.pop(len(stack) - 1)
         for node in os.listdir(prefix):
@@ -51,7 +52,7 @@ def best_matched(path):
     return com
 
 
-def find_symbol(path):
+def find_symbols(path):
     symbol = dict()
     index = Index.create()
     header = os.path.join(args.source, "rte", "rtebase", "include")
@@ -76,8 +77,27 @@ def find_symbol(path):
     return symbol
 
 
+def update_symbols(root):
+    symbol_dict = dict()
+    # update symbols using multi-process
+    paths = get_paths(root)
+    pool = Pool(4)
+    results = pool.map(find_symbols, paths)
+    for res in filter(lambda x: x is not None, results):
+        for k in res:
+            if "::::" in k:
+                k = k[:k.rindex("::::")] + \
+                    "::(anonymous namespace)::" + \
+                    k[k.rindex("::::")+4:]
+            symbol_dict[k] = res[k]
+    pool.close()
+    pool.join()
+    return symbol_dict
+
+
 __all__ = [
     "get_paths",
     "best_matched",
-    "find_symbol"
+    "find_symbols",
+    "update_symbols"
 ]

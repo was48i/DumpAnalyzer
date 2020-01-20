@@ -1,8 +1,8 @@
 =========================================
-Crash protocol for PID 44361
-Rundirectory: /usr/sap/H11/HDB11/docker-ld5711
-Process start time: 2019-10-30 09:50:14 819 Local
-Exception time: 2019-10-30 09:50:18 748 Local
+Crash protocol for PID 10888
+Rundirectory: /usr/sap/H11/HDB11/ld7962
+Process start time: 2019-01-23 03:56:06 595 Local
+Exception time: 2019-01-23 04:03:35 717 Local
 SectionTimeout: 30sec
 KillTimeout: 300sec
 =========================================
@@ -10,7 +10,6 @@ KillTimeout: 300sec
 Table of contents:
    [BUILD]  Build information
    [SYSTEMINFO]  System information
-   [OS_RELEASE]  OS release info
    [CRASH_SHORTINFO]  Exception short info
    [MODULES]  Loaded modules
    [CRASH_EMERGENCYSTACK]  Emergency stacktrace
@@ -18,7 +17,6 @@ Table of contents:
    [CRASH_CONTEXT]  Context info
    [CRASH_STACK]  Stacktrace of crash
    [CRASH_REGISTERS]  Registers
-   [DEVDUMP_STACK]  Stacktrace of dev dump
    [CRASH_INMEMORY_TRACE]  InMemoryTrace
    [STACK_SHORT]  Short call stacks and pending exceptions of all threads
    [CPUINFO]  CPU info
@@ -31,7 +29,10 @@ Table of contents:
    [STACK_FULL]  Full call stacks of all threads
    [EXCEPTIONS]  Recent exceptions
    [STATISTICS]  Statistics data
-   [ENVIRONMENT]  Env information
+   [XSENGINE]  XS Engine
+   [JAVASCRIPT]  JavaScript stack
+   [EXECUTOR]  executor context of current thread
+   [DDLCONTEXTSTORE]  DdlContextStore contents
    [INDEXMANAGER_STATE]  IndexManager internal state
    [ENCRYPTION]  Encryption status for all data-at-rest
    [DATABASE_HISTORY]  Database version history information
@@ -41,12 +42,13 @@ Table of contents:
    [PRE_RESTART_SWVERSION]  Software version stored in savepoint the persistency restarted from and with which it was created
    [CRYPTO]  Cryptography Section
    [CGROUP]  informations about the cgroups
+   [RESOURCE_CONTAINER]  Information about resource container
    [STACK_RESERVATION_SCOPES]  Stack reservation scopes of current thread
    [OS_MEMORY]  Operating system information about memory
    [DBG_MEMORY_LEAKS]  Memory leak(s) which caused this crash (debug only)
+   [IMPLICIT_MEMORY_BOOKING]  Status of implicit memory booking of the current thread
    [MEMORY_MANAGER]  Information about memory manager
    [MEMORY_ACCOUNTING]  Memory accounting
-   [IMPLICIT_MEMORY_BOOKING]  Status of implicit memory booking of the current thread
    [IPMM_MEMORY]  IPMM information
    [SYMBOL_CACHE]  symbol cache statistics
    [REGISTERED_STACK_OBJECTS]  Objects on stack registered to be dumped
@@ -54,256 +56,368 @@ Table of contents:
    [REGISTER_OBJECTS]  Objects registers point to
    [THREADS]  Running threads
 
-[CRASH_STACK]  Stacktrace of crash: (2019-10-30 09:50:18 750 Local)
+[CRASH_STACK]  Stacktrace of crash: (2019-01-23 04:03:35 724 Local)
 ----> Pending exceptions (possible root cause) <----
---- Pending assertion:
-exception  1: no.1000000  (DataAccess/DataContainer/impl/ContainerImpl.hpp:131) TID: 44361
-    Assertion failed: !m_ContainerID.isUndoID()
+exception  1: no.1000000  (ptime/common/monitor/CSColumnMonitor.cc:405) TID: 18064
+    Assertion failed: (temp_impl_flags & UnifiedTable::COLUMN_FLAG_FORCE_POSITIONAL_INDEX) != 0
 exception throw location:
-   0: 0x00007ffb61526f24 in UnifiedTable::TableContainer::getContainerID() const+0x50 at DataAccess/DataContainer/impl/ContainerImpl.hpp:131 (libhdbunifiedtable.so)
-   1: 0x00007ffb61fa07e5 in NDS::Primitives::PagedVector<UnifiedTable::UTLogicalPointer>::load()+0x191 at NDS/Primitives/impl/PagedVector.cpp:59 (libhdbndsprimitives.so)
-   2: 0x00007ffb6a00ace6 in AttributeEngine::GSPagedStorageReader::GSPagedStorageReader(ltt::allocator&, ltt::shared_ptr<AttributeEngine::GSPagedStorageWriter, ltt::default_deleter>)+0x112 at AttributeEngine/NDS/GSPagedStorage.cpp:75 (libhdbcs.so)
-   3: 0x000055b41e3d59bd in UnitIdAttribute::IdBlockValues::GSPagedStorageProvider::getGSPagedStorageReader(ltt::shared_ptr<AttributeEngine::GSPagedStorageWriter, ltt::default_deleter>)+0xb9 at AttributeEngine/NDS/test/TestGSPagedStorage.cpp:82 (UnitGSPagedStorage)
-   4: 0x000055b41e3d90a4 in UnitIdAttribute::IdBlockValues::TestGSPagedStorage_testGeoSUseCase_Test::TestBody()+0x3d0 at AttributeEngine/NDS/test/TestGSPagedStorage.cpp:334 (UnitGSPagedStorage)
-   5: 0x00007ffb6cf8b5da in void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*)+0x36 at gmock/fused_src/gmock_gtest_all.cc:3869 (libgmock.so)
-   6: 0x00007ffb6cf7e0ea in testing::Test::Run()+0xb6 at gmock/fused_src/gmock_gtest_all.cc:3945 (libgmock.so)
-   7: 0x00007ffb6cf7e248 in testing::TestInfo::Run()+0x124 at gmock/fused_src/gmock_gtest_all.cc:4127 (libgmock.so)
-   8: 0x00007ffb6cf7e315 in testing::TestCase::Run()+0xb1 at gmock/fused_src/gmock_gtest_all.cc:4247 (libgmock.so)
-   9: 0x00007ffb6cf7e7c0 in testing::internal::UnitTestImpl::RunAllTests()+0x420 at gmock/fused_src/gmock_gtest_all.cc:6131 (libgmock.so)
-  10: 0x00007ffb6cf8bb4a in bool testing::internal::HandleExceptionsInMethodIfSupported<testing::internal::UnitTestImpl, bool>(testing::internal::UnitTestImpl*, bool (testing::internal::UnitTestImpl::*)(), char const*)+0x36 at gmock/fused_src/gmock_gtest_all.cc:3869 (libgmock.so)
-  11: 0x00007ffb6cf7e932 in testing::UnitTest::Run()+0x50 at gmock/fused_src/gmock_gtest_all.cc:5746 (libgmock.so)
-  12: 0x000055b41e3c86b9 in main+0x35 at gmock/fused_src/gtest/gtest.h:21154 (UnitGSPagedStorage)
-  13: 0x00007ffb4872e574 in System::mainWrapper(int, char**, char**)+0x20 at Basis/System/impl/IsInMain.cpp:340 (libhdbbasis.so)
-  14: 0x00007ffb46265725 in __libc_start_main+0xf1 (libc.so.6)
-  15: 0x000055b41e3c94de in _GLOBAL__sub_I_ProcessorInfoLocal.cpp+0x2a at start.S:112 (UnitGSPagedStorage)
+ 1: 0x00007f832d2728d6 in ptime::CSColumnMonitor::collect_info(ptime::Transaction*, Metadata::CSFieldInfo*, int, ptime::fastvector<bool, 16ul> const&, bool)+0xcc2 at CSColumnMonitor.cc:405 (libhdbrskernel.so)
+ 2: 0x00007f832daaf1b7 in ptime::Monitor_scan::fetch_cs_column(ptime::MonitorHandle*, ptime::OperatorEnv&, ptime::Buffer&, unsigned long, unsigned long&, ptime::Monitor*, void*, Metadata::CSFieldInfo*) const+0xd3 at qe_monitor_scan.cc:351 (libhdbrskernel.so)
+ 3: 0x00007f832dab05b2 in ptime::Monitor_scan::fetch_cs_columns(ptime::MonitorHandle*, ptime::OperatorEnv&, ptime::Buffer&, unsigned long, unsigned long&, ptime::Monitor*, void*) const+0x260 at qe_monitor_scan.cc:320 (libhdbrskernel.so)
+ 4: 0x00007f832dab1958 in ptime::Monitor_scan::do_fetch(ptime::OperatorEnv&, ptime::Buffer&, unsigned long) const+0x894 at qe_monitor_scan.cc:202 (libhdbrskernel.so)
+ 5: 0x00007f832d9a9209 in ptime::Table::fetch(ptime::Env&, ptime::Buffer&, unsigned long) const+0x325 at qe_table.cc:139 (libhdbrskernel.so)
+ 6: 0x00007f832d9fde80 in ptime::Materialize::do_fetch(ptime::OperatorEnv&, ptime::Buffer&, unsigned long) const+0xb0 at qe_project.cc:1079 (libhdbrskernel.so)
+ 7: 0x00007f832d9a9209 in ptime::Table::fetch(ptime::Env&, ptime::Buffer&, unsigned long) const+0x325 at qe_table.cc:139 (libhdbrskernel.so)
+ 8: 0x00007f832da6d04f in ptime::Union::do_fetch(ptime::OperatorEnv&, ptime::Buffer&, unsigned long) const+0x2bb at qe_union.cc:143 (libhdbrskernel.so)
+ 9: 0x00007f832d9a9209 in ptime::Table::fetch(ptime::Env&, ptime::Buffer&, unsigned long) const+0x325 at qe_table.cc:139 (libhdbrskernel.so)
+10: 0x00007f832da03e26 in ptime::Project_copy::do_fetch(ptime::OperatorEnv&, ptime::Buffer&, unsigned long) const+0x182 at qe_project.cc:246 (libhdbrskernel.so)
+11: 0x00007f832d9a9209 in ptime::Table::fetch(ptime::Env&, ptime::Buffer&, unsigned long) const+0x325 at qe_table.cc:139 (libhdbrskernel.so)
+12: 0x00007f832e36986b in ptime::Query::result_t::fetch(ptime::Query::Plan*, unsigned long, bool)+0x497 at query_result.cc:1313 (libhdbrskernel.so)
+13: 0x00007f832e6441cf in ptime::ResultSet::fetch_(Execution::Context&, ptime::Query::result_t*, unsigned long, bool, bool, bool, bool)+0x51b at ResultSet.cc:1043 (libhdbrskernel.so)
+14: 0x00007f832e6417cd in ptime::ResultSet::fetch_(Execution::Context&, unsigned long, bool, bool, bool)+0xd9 at ResultSet.cc:952 (libhdbrskernel.so)
+15: 0x00007f8333c89ee0 in ptime::SessionCodecNewdb::eResultSet(Execution::Context&, ptime::SessionEvent*, ptime::Action*, int, Communication::Protocol::ReplyPacket&, Communication::Protocol::ReplySegment&, ptime::ResultSet*, bool)+0x660 at sm_eapi_manager.h:60 (libhdbsqlsession.so)
+16: 0x00007f8333c701a8 in ptime::SessionCodecNewdb::eResultSet(Execution::Context&, ptime::SessionEvent*, int, Communication::Protocol::ReplyPacket&, Communication::Protocol::ReplySegment&, ptime::ResultSet*, bool)+0x64 at sm_codec_newdb.cc:8283 (libhdbsqlsession.so)
+17: 0x00007f8333c76639 in ptime::SessionCodecNewdb::eCursorCreated(Execution::Context&, ptime::SessionEvent*)+0x745 at sm_codec_newdb.cc:7954 (libhdbsqlsession.so)
+18: 0x00007f8333c70e74 in ptime::SessionCodecNewdb::eExecuteString(Execution::Context&, ptime::SessionEvent*, bool&)+0xd0 at sm_codec_newdb.cc:7524 (libhdbsqlsession.so)
+19: 0x00007f8333c979fe in ptime::SessionCodecNewdb::eVendorMessage(Execution::Context&, ptime::SessionEvent*)+0x32a at sm_codec_newdb.cc:5967 (libhdbsqlsession.so)
+20: 0x00007f8333c6d390 in ptime::SessionCodec::encodeMessage(Execution::Context&, ptime::SessionEvent*)+0x20 at sm_codec.cc:296 (libhdbsqlsession.so)
+21: 0x00007f8333cf1a63 in ptime::SessionHandler::handleEvent(Execution::Context&, SessionLayer::SessionEvent*)+0x340 at sm_handler.cc:2114 (libhdbsqlsession.so)
+22: 0x00007f8333cf62c5 in ptime::SessionHandler::receiveMessage_(Execution::Context&, ptime::ThreadStatusCallbackBase&, SessionLayer::CommEvent*, bool)+0x801 at sm_handler.cc:1737 (libhdbsqlsession.so)
+23: 0x00007f8333cf6dc1 in ptime::SessionHandler::receiveMessage(Execution::Context&, SessionLayer::CommEvent*, bool)+0x40 at sm_handler.cc:1585 (libhdbsqlsession.so)
 
-exception type information:
- - 0: public Diagnose::AssertError@0x7ffb48a39618 SI
-   - 0: public ltt::logic_error@0x7ffb478b90b8 SI
-     - 0: public ltt::exception@0x7ffb478b8048
+Unknown pending exception
+Throw location of the exception unknown
 ----> Symbolic stack backtrace <----
-   0: raise + 0x2b
-         SFrame: IP: 0x00007ffb4795cadb (0x00007ffb4795cab0+0x2b) FP: 0x00007ffd607cd7d0 SP: 0x00007ffd607cd7c8 RP: 0x00007ffb47f55992
-         Params: 0xad49, 0xad49, 0x6, 0x7ffb4795cadb, 0x0, 0x0
-         Regs: rax=0x0, rbx=0x7ffd607cddf0, rcx=0x7ffb4795cadb, rdx=0x6, rsi=0xad49, rdi=0xad49, rbp=0x7ffd607cd890, rsp=0x7ffd607cd7c8
+  0: raise + 0x2b
+         SFrame: IP: 0x00007f82f143aadb (0x00007f82f143aab0+0x2b) FP: 0x00007f80dffd2e60 SP: 0x00007f80dffd2e58 RP: 0x00007f82f19f6d92
+         Params: 0x2a88, 0x4690, 0x6, 0x7f82f143aadb, 0x0, 0x7f810f8940b0
+         Regs: rax=0x0, rbx=0x7f80dffd3490, rcx=0x7f82f143aadb, rdx=0x6, rsi=0x4690, rdi=0x2a88, rbp=0x7f80dffd3430, rsp=0x7f80dffd2e58
          Module: /lib64/libpthread.so.0
      -----------------------------------------
-   1: raiseSIGABRT_SEGV() + 0x12
+  1: raiseSIGABRT_SEGV() + 0x12
          Symbol: _Z17raiseSIGABRT_SEGVv
-         SFrame: IP: 0x00007ffb47f55992 (0x00007ffb47f55980+0x12) FP: 0x00007ffd607cd7e0 SP: 0x00007ffd607cd7d0 RP: 0x00007ffb47f5ddd8
-         Regs: rbx=0x7ffd607cddf0, rbp=0x7ffd607cd890, rsp=0x7ffd607cd7d0
-         Source: Basis/impl/Crash.cpp:726
+         SFrame: IP: 0x00007f82f19f6d92 (0x00007f82f19f6d80+0x12) FP: 0x00007f80dffd2e70 SP: 0x00007f80dffd2e60 RP: 0x00007f82f19f970b
+         Regs: rbx=0x7f80dffd3490, rbp=0x7f80dffd3430, rsp=0x7f80dffd2e60
+         Source: Crash.cpp:708
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-   2: _crashImpl(char const*, int, char const*, rte::const_exception_ptr) + 0x168
-         Symbol: _Z10_crashImplPKciS0_N3rte19const_exception_ptrE
-         SFrame: IP: 0x00007ffb47f5ddd8 (0x00007ffb47f5dc70+0x168) FP: 0x00007ffd607cdda0 SP: 0x00007ffd607cd7e0 RP: 0x00007ffb47f53ec0
-         Regs: rbx=0x7ffd607cddf0, rbp=0x7ffd607cd890, rsp=0x7ffd607cd7e0
-         Source: Basis/impl/Crash.cpp:780
+  2: _crashImpl(char const*, int, char const*, ltt::exception const*) + 0x19b
+         Symbol: _Z10_crashImplPKciS0_PKN3ltt9exceptionE
+         SFrame: IP: 0x00007f82f19f970b (0x00007f82f19f9570+0x19b) FP: 0x00007f80dffd3450 SP: 0x00007f80dffd2e70 RP: 0x00007f82f19f604e
+         Regs: rbx=0x7f80dffd3490, rbp=0x7f80dffd3430, rsp=0x7f80dffd2e70
+         Source: Crash.cpp:776
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-   3: Basis::crashImpl(char const*, int, ltt::exception const&) + 0x10
+  3: Basis::crashImpl(char const*, int, ltt::exception const&) + 0xe
          Symbol: _ZN5Basis9crashImplEPKciRKN3ltt9exceptionE
-         SFrame: IP: 0x00007ffb47f53ec0 (0x00007ffb47f53eb0+0x10) FP: 0x00007ffd607cddb0 SP: 0x00007ffd607cdda0 RP: 0x00007ffb47f53ece
-         Params: ?, ?, 0x7ffd607cddf0
-         Regs: rbx=0x7ffd607cddf0, rdx=0x7ffd607cddf0, rbp=0x83, rsp=0x7ffd607cdda0
-         Source: Basis/impl/Crash.cpp:818
+         SFrame: IP: 0x00007f82f19f604e (0x00007f82f19f6040+0xe) FP: 0x00007f80dffd3460 SP: 0x00007f80dffd3450 RP: 0x00007f82f1a79064
+         Params: ?, ?, 0x7f80dffd3490
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f80dffd3490, rbp=0x195, rsp=0x7f80dffd3450
+         Source: Crash.cpp:872
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-   4: Basis::crashImpl(char const*, int, char const*, ltt::exception const&)
-         Symbol: _ZN5Basis9crashImplEPKciS1_RKN3ltt9exceptionE
-         Source: Basis/impl/Crash.cpp:885
-         NOTE: Inlined Function
-     -----------------------------------------
-   5: Basis::crashImpl(char const*, int, ltt::exception const&) + 0xe
-         Symbol: _ZN5Basis9crashImplEPKciRKN3ltt9exceptionE
-         SFrame: IP: 0x00007ffb47f53ece (0x00007ffb47f53ec0+0xe) FP: 0x00007ffd607cddc0 SP: 0x00007ffd607cddb0 RP: 0x00007ffb47ff90fb
-         Regs: rbx=0x7ffd607cddf0, rbp=0x83, rsp=0x7ffd607cddb0
-         Source: Basis/impl/Crash.cpp:819
-         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
-     -----------------------------------------
-   6: Diagnose::AssertError::do_throw() + 0x5b
+  4: Diagnose::AssertError::do_throw() + 0x54
          Symbol: _ZN8Diagnose11AssertError8do_throwEv
-         SFrame: IP: 0x00007ffb47ff90fb (0x00007ffb47ff90a0+0x5b) FP: 0x00007ffd607cddf0 SP: 0x00007ffd607cddc0 RP: 0x00007ffb47ff94fe
-         Regs: rbx=0x7ffd607cddf0, rbp=0x83, rsp=0x7ffd607cddc0
-         Source: Basis/Diagnose/impl/Assert.cpp:156
+         SFrame: IP: 0x00007f82f1a79064 (0x00007f82f1a79010+0x54) FP: 0x00007f80dffd3490 SP: 0x00007f80dffd3460 RP: 0x00007f82f1a795b2
+         Regs: rbx=0x7f80dffd3490, rbp=0x195, rsp=0x7f80dffd3460
+         Source: Assert.cpp:157
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-   7: Diagnose::AssertError::triggerAssert(char const*, char const*, int) + 0x5e
+  5: Diagnose::AssertError::triggerAssert(char const*, char const*, int) + 0x72
          Symbol: _ZN8Diagnose11AssertError13triggerAssertEPKcS2_i
-         SFrame: IP: 0x00007ffb47ff94fe (0x00007ffb47ff94a0+0x5e) FP: 0x00007ffd607cde60 SP: 0x00007ffd607cddf0 RP: 0x00007ffb61526f24
-         Params: ?, ?, 0x7ffd607cddf0
-         Regs: rbx=0x7ffd607cddf0, rdx=0x7ffd607cddf0, rbp=0x7ffb61838300, rsp=0x7ffd607cddf0
-         Source: Basis/Diagnose/impl/Assert.cpp:169
+         SFrame: IP: 0x00007f82f1a795b2 (0x00007f82f1a79540+0x72) FP: 0x00007f80dffd3520 SP: 0x00007f80dffd3490 RP: 0x00007f832d2728d6
+         Params: ?, ?, 0x7f80dffd3490
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f80dffd3490, rbp=0x7f80dffd3500, rsp=0x7f80dffd3490
+         Source: Assert.cpp:170
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-   8: UnifiedTable::TableContainer::getContainerID() const + 0x54
-         Symbol: _ZNK12UnifiedTable14TableContainer14getContainerIDEv
-         SFrame: IP: 0x00007ffb61526f24 (0x00007ffb61526ed0+0x54) FP: 0x00007ffd607cde80 SP: 0x00007ffd607cde60 RP: 0x00007ffb61fa07e5
-         Params: ?, ?, 0x7ffaa3ff1870
-         Regs: rbx=0x7ffd607cddf0, rdx=0x7ffaa3ff1870, rbp=0x7ffd607cdf40, rsp=0x7ffd607cde60
-         Source: DataAccess/DataContainer/impl/ContainerImpl.hpp:131
-         Module: /usr/sap/H11/HDB11/exe/libhdbunifiedtable.so
+  6: ptime::CSColumnMonitor::collect_info(ptime::Transaction*, Metadata::CSFieldInfo*, int, ptime::fastvector<bool, 16ul> const&, bool) + 0xcc6
+         Symbol: _ZN5ptime15CSColumnMonitor12collect_infoEPNS_11TransactionEPN8Metadata11CSFieldInfoEiRKNS_10fastvectorIbLm16EEEb
+         SFrame: IP: 0x00007f832d2728d6 (0x00007f832d271c10+0xcc6) FP: 0x00007f80dffd3810 SP: 0x00007f80dffd3520 RP: 0x00007f832daaf1b7
+         Params: ?, ?, 0x7f80dffd3688
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f80dffd3688, rbp=0x7f80dffd37f0, rsp=0x7f80dffd3520
+         Source: CSColumnMonitor.cc:405
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
      -----------------------------------------
-   9: NDS::Primitives::PagedVector<UnifiedTable::UTLogicalPointer>::load() + 0x195
-         Symbol: _ZN3NDS10Primitives11PagedVectorIN12UnifiedTable16UTLogicalPointerEE4loadEv
-         SFrame: IP: 0x00007ffb61fa07e5 (0x00007ffb61fa0650+0x195) FP: 0x00007ffd607ce2b0 SP: 0x00007ffd607cde80 RP: 0x00007ffb6a00ace6
-         Regs: rbx=0x7ffd607cddf0, rbp=0x7ffd607cdf40, rsp=0x7ffd607cde80
-         Source: NDS/Primitives/impl/PagedVector.cpp:59
-         Module: /usr/sap/H11/HDB11/exe/libhdbndsprimitives.so
+  7: ptime::Monitor_scan::fetch_cs_column(ptime::MonitorHandle*, ptime::OperatorEnv&, ptime::Buffer&, unsigned long, unsigned long&, ptime::Monitor*, void*, Metadata::CSFieldInfo*) const + 0xd7
+         Symbol: _ZNK5ptime12Monitor_scan15fetch_cs_columnEPNS_13MonitorHandleERNS_11OperatorEnvERNS_6BufferEmRmPNS_7MonitorEPvPN8Metadata11CSFieldInfoE
+         SFrame: IP: 0x00007f832daaf1b7 (0x00007f832daaf0e0+0xd7) FP: 0x00007f80dffd38b0 SP: 0x00007f80dffd3810 RP: 0x00007f832dab05b2
+         Params: ?, ?, 0x7f82211fe4e0
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f82211fe4e0, rbp=0x7f82417cd6d0, rsp=0x7f80dffd3810
+         Source: qe_monitor_scan.cc:351
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
      -----------------------------------------
-  10: AttributeEngine::GSPagedStorageReader::GSPagedStorageReader(ltt::allocator&, ltt::shared_ptr<AttributeEngine::GSPagedStorageWriter, ltt::default_deleter>) + 0x116
-         Symbol: _ZN15AttributeEngine20GSPagedStorageReaderC2ERN3ltt9allocatorENS1_10shared_ptrINS_20GSPagedStorageWriterENS1_15default_deleterEEE
-         SFrame: IP: 0x00007ffb6a00ace6 (0x00007ffb6a00abd0+0x116) FP: 0x00007ffd607ce2f0 SP: 0x00007ffd607ce2b0 RP: 0x000055b41e3d59bd
-         Params: ?, ?, 0x7ffaa3ff1850
-         Regs: rbx=0x7ffd607cddf0, rdx=0x7ffaa3ff1850, rbp=0x7ffaa3ff1870, rsp=0x7ffd607ce2b0
-         Source: AttributeEngine/NDS/GSPagedStorage.cpp:75
-         Module: /usr/sap/H11/HDB11/exe/libhdbcs.so
+  8: ptime::Monitor_scan::fetch_cs_columns(ptime::MonitorHandle*, ptime::OperatorEnv&, ptime::Buffer&, unsigned long, unsigned long&, ptime::Monitor*, void*) const + 0x262
+         Symbol: _ZNK5ptime12Monitor_scan16fetch_cs_columnsEPNS_13MonitorHandleERNS_11OperatorEnvERNS_6BufferEmRmPNS_7MonitorEPv
+         SFrame: IP: 0x00007f832dab05b2 (0x00007f832dab0350+0x262) FP: 0x00007f80dffd3be0 SP: 0x00007f80dffd38b0 RP: 0x00007f832dab1958
+         Params: ?, ?, 0x7f8071baf330
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f8071baf330, rbp=0x7f80dffd3bc0, rsp=0x7f80dffd38b0
+         Source: qe_monitor_scan.cc:320
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
      -----------------------------------------
-  11: UnitIdAttribute::IdBlockValues::GSPagedStorageProvider::getGSPagedStorageReader(ltt::shared_ptr<AttributeEngine::GSPagedStorageWriter, ltt::default_deleter>) + 0xbd
-         Symbol: _ZN15UnitIdAttribute13IdBlockValues22GSPagedStorageProvider23getGSPagedStorageReaderEN3ltt10shared_ptrIN15AttributeEngine20GSPagedStorageWriterENS2_15default_deleterEEE
-         SFrame: IP: 0x000055b41e3d59bd (0x000055b41e3d5900+0xbd) FP: 0x00007ffd607ce350 SP: 0x00007ffd607ce2f0 RP: 0x000055b41e3d90a4
-         Params: ?, ?, 0x7ffb22bf9618
-         Regs: rbx=0x7ffd607cddf0, rdx=0x7ffb22bf9618, rbp=0x7ffd607ce440, rsp=0x7ffd607ce2f0
-         Source: AttributeEngine/NDS/test/TestGSPagedStorage.cpp:82
-         Module: /data/H11/exe/linuxx86_64/HDB_4.50.000.00.1572420136_3f9d4e3209b77f327fce094f1d7f0f860e4350f3/tests_gmock/UnitGSPagedStorage
+  9: ptime::Monitor_scan::do_fetch(ptime::OperatorEnv&, ptime::Buffer&, unsigned long) const + 0x898
+         Symbol: _ZNK5ptime12Monitor_scan8do_fetchERNS_11OperatorEnvERNS_6BufferEm
+         SFrame: IP: 0x00007f832dab1958 (0x00007f832dab10c0+0x898) FP: 0x00007f80dffd3ed0 SP: 0x00007f80dffd3be0 RP: 0x00007f832d9a9209
+         Params: ?, ?, 0x7f810f942a60
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f810f942a60, rbp=0x7f80dffd3eb0, rsp=0x7f80dffd3be0
+         Source: qe_monitor_scan.cc:202
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
      -----------------------------------------
-  12: UnitIdAttribute::IdBlockValues::TestGSPagedStorage_testGeoSUseCase_Test::TestBody() + 0x3d4
-         Symbol: _ZN15UnitIdAttribute13IdBlockValues39TestGSPagedStorage_testGeoSUseCase_Test8TestBodyEv
-         SFrame: IP: 0x000055b41e3d90a4 (0x000055b41e3d8cd0+0x3d4) FP: 0x00007ffd607ce690 SP: 0x00007ffd607ce350 RP: 0x00007ffb6cf8b5da
-         Params: ?, ?, 0x7ffd607ce440
-         Regs: rbx=0x7ffd607cddf0, rdx=0x7ffd607ce440, rbp=0xcccccccccccccccd, rsp=0x7ffd607ce350
-         Source: AttributeEngine/NDS/test/TestGSPagedStorage.cpp:334
-         Module: /data/H11/exe/linuxx86_64/HDB_4.50.000.00.1572420136_3f9d4e3209b77f327fce094f1d7f0f860e4350f3/tests_gmock/UnitGSPagedStorage
+ 10: ptime::Table::fetch(ptime::Env&, ptime::Buffer&, unsigned long) const + 0x329
+         Symbol: _ZNK5ptime5Table5fetchERNS_3EnvERNS_6BufferEm
+         SFrame: IP: 0x00007f832d9a9209 (0x00007f832d9a8ee0+0x329) FP: 0x00007f80dffd4050 SP: 0x00007f80dffd3ed0 RP: 0x00007f832d9fde80
+         Params: ?, ?, 0x7f82211fe4e0
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f82211fe4e0, rbp=0x7f80dffd4030, rsp=0x7f80dffd3ed0
+         Source: qe_table.cc:139
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
      -----------------------------------------
-  13: void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) + 0x3a
-         Symbol: _ZN7testing8internal35HandleExceptionsInMethodIfSupportedINS_4TestEvEET0_PT_MS4_FS3_vEPKc
-         SFrame: IP: 0x00007ffb6cf8b5da (0x00007ffb6cf8b5a0+0x3a) FP: 0x00007ffd607ce6d0 SP: 0x00007ffd607ce690 RP: 0x00007ffb6cf7e0ea
-         Params: ?, ?, 0x55b41e3d8cd0
-         Regs: rbx=0x7ffd607cddf0, rdx=0x55b41e3d8cd0, rbp=0x7ffa8f618650, rsp=0x7ffd607ce690
-         Source: gmock/fused_src/gmock_gtest_all.cc:3869
-         Module: /usr/sap/H11/HDB11/exe/tests_gmock/libgmock.so
+ 11: ptime::Materialize::do_fetch(ptime::OperatorEnv&, ptime::Buffer&, unsigned long) const + 0xb0
+         Symbol: _ZNK5ptime11Materialize8do_fetchERNS_11OperatorEnvERNS_6BufferEm
+         SFrame: IP: 0x00007f832d9fde80 (0x00007f832d9fddd0+0xb0) FP: 0x00007f80dffd41b0 SP: 0x00007f80dffd4050 RP: 0x00007f832d9a9209
+         Params: ?, ?, 0x7f810ef2c620
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f810ef2c620, rbp=0x7f80dffd4190, rsp=0x7f80dffd4050
+         Source: qe_project.cc:1079
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
      -----------------------------------------
-  14: testing::Test::Run() + 0xba
-         Symbol: _ZN7testing4Test3RunEv
-         SFrame: IP: 0x00007ffb6cf7e0ea (0x00007ffb6cf7e030+0xba) FP: 0x00007ffd607ce6f0 SP: 0x00007ffd607ce6d0 RP: 0x00007ffb6cf7e248
-         Params: ?, ?, 0x7ffa8f618650
-         Regs: rbx=0x7ffd607cddf0, rdx=0x7ffa8f618650, rbp=0x7ffb6cf60800, rsp=0x7ffd607ce6d0
-         Source: gmock/fused_src/gmock_gtest_all.cc:3945
-         Module: /usr/sap/H11/HDB11/exe/tests_gmock/libgmock.so
+ 12: ptime::Table::fetch(ptime::Env&, ptime::Buffer&, unsigned long) const + 0x329
+         Symbol: _ZNK5ptime5Table5fetchERNS_3EnvERNS_6BufferEm
+         SFrame: IP: 0x00007f832d9a9209 (0x00007f832d9a8ee0+0x329) FP: 0x00007f80dffd4330 SP: 0x00007f80dffd41b0 RP: 0x00007f832da6d04f
+         Params: ?, ?, 0x7f821fde3e30
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f821fde3e30, rbp=0x7f80dffd4310, rsp=0x7f80dffd41b0
+         Source: qe_table.cc:139
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
      -----------------------------------------
-  15: testing::TestInfo::Run() + 0x128
-         Symbol: _ZN7testing8TestInfo3RunEv
-         SFrame: IP: 0x00007ffb6cf7e248 (0x00007ffb6cf7e120+0x128) FP: 0x00007ffd607ce730 SP: 0x00007ffd607ce6f0 RP: 0x00007ffb6cf7e315
-         Params: ?, ?, 0x7ffb22bf8b90
-         Regs: rbx=0x7ffd607cddf0, rdx=0x7ffb22bf8b90, rbp=0x7ffb22418790, rsp=0x7ffd607ce6f0
-         Source: gmock/fused_src/gmock_gtest_all.cc:4127
-         Module: /usr/sap/H11/HDB11/exe/tests_gmock/libgmock.so
+ 13: ptime::Union::do_fetch(ptime::OperatorEnv&, ptime::Buffer&, unsigned long) const + 0x2bf
+         Symbol: _ZNK5ptime5Union8do_fetchERNS_11OperatorEnvERNS_6BufferEm
+         SFrame: IP: 0x00007f832da6d04f (0x00007f832da6cd90+0x2bf) FP: 0x00007f80dffd44c0 SP: 0x00007f80dffd4330 RP: 0x00007f832d9a9209
+         Params: ?, ?, 0x7f821fde7020
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f821fde7020, rbp=0x7f80dffd44a0, rsp=0x7f80dffd4330
+         Source: qe_union.cc:143
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
      -----------------------------------------
-  16: testing::TestCase::Run() + 0xb5
-         Symbol: _ZN7testing8TestCase3RunEv
-         SFrame: IP: 0x00007ffb6cf7e315 (0x00007ffb6cf7e260+0xb5) FP: 0x00007ffd607ce770 SP: 0x00007ffd607ce730 RP: 0x00007ffb6cf7e7c0
-         Params: ?, ?, 0x7ffb222d3e10
-         Regs: rbx=0x7ffd607cddf0, rdx=0x7ffb222d3e10, rbp=0x1, rsp=0x7ffd607ce730
-         Source: gmock/fused_src/gmock_gtest_all.cc:4247
-         Module: /usr/sap/H11/HDB11/exe/tests_gmock/libgmock.so
+ 14: ptime::Table::fetch(ptime::Env&, ptime::Buffer&, unsigned long) const + 0x329
+         Symbol: _ZNK5ptime5Table5fetchERNS_3EnvERNS_6BufferEm
+         SFrame: IP: 0x00007f832d9a9209 (0x00007f832d9a8ee0+0x329) FP: 0x00007f80dffd4640 SP: 0x00007f80dffd44c0 RP: 0x00007f832da03e26
+         Params: ?, ?, 0x7f821fde7020
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f821fde7020, rbp=0x7f80dffd4620, rsp=0x7f80dffd44c0
+         Source: qe_table.cc:139
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
      -----------------------------------------
-  17: testing::internal::UnitTestImpl::RunAllTests() + 0x420
-         Symbol: _ZN7testing8internal12UnitTestImpl11RunAllTestsEv
-         SFrame: IP: 0x00007ffb6cf7e7c0 (0x00007ffb6cf7e3a0+0x420) FP: 0x00007ffd607ce7e0 SP: 0x00007ffd607ce770 RP: 0x00007ffb6cf8bb4a
-         Params: ?, ?, 0x7ffb23c17810
-         Regs: rbx=0x7ffd607cddf0, rdx=0x7ffb23c17810, rbp=0x7ffb22418790, rsp=0x7ffd607ce770
-         Source: gmock/fused_src/gmock_gtest_all.cc:6131
-         Module: /usr/sap/H11/HDB11/exe/tests_gmock/libgmock.so
+ 15: ptime::Project_copy::do_fetch(ptime::OperatorEnv&, ptime::Buffer&, unsigned long) const + 0x186
+         Symbol: _ZNK5ptime12Project_copy8do_fetchERNS_11OperatorEnvERNS_6BufferEm
+         SFrame: IP: 0x00007f832da03e26 (0x00007f832da03ca0+0x186) FP: 0x00007f80dffd4770 SP: 0x00007f80dffd4640 RP: 0x00007f832d9a9209
+         Params: ?, ?, 0x21
+         Regs: rbx=0x7f80dffd3490, rdx=0x21, rbp=0x7f80dffd4750, rsp=0x7f80dffd4640
+         Source: qe_project.cc:246
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
      -----------------------------------------
-  18: bool testing::internal::HandleExceptionsInMethodIfSupported<testing::internal::UnitTestImpl, bool>(testing::internal::UnitTestImpl*, bool (testing::internal::UnitTestImpl::*)(), char const*) + 0x3a
-         Symbol: _ZN7testing8internal35HandleExceptionsInMethodIfSupportedINS0_12UnitTestImplEbEET0_PT_MS4_FS3_vEPKc
-         SFrame: IP: 0x00007ffb6cf8bb4a (0x00007ffb6cf8bb10+0x3a) FP: 0x00007ffd607ce820 SP: 0x00007ffd607ce7e0 RP: 0x00007ffb6cf7e932
-         Params: ?, ?, 0x7ffb6cf7e3a0
-         Regs: rbx=0x7ffd607cddf0, rdx=0x7ffb6cf7e3a0, rbp=0x7ffb23c17810, rsp=0x7ffd607ce7e0
-         Source: gmock/fused_src/gmock_gtest_all.cc:3869
-         Module: /usr/sap/H11/HDB11/exe/tests_gmock/libgmock.so
+ 16: ptime::Table::fetch(ptime::Env&, ptime::Buffer&, unsigned long) const + 0x329
+         Symbol: _ZNK5ptime5Table5fetchERNS_3EnvERNS_6BufferEm
+         SFrame: IP: 0x00007f832d9a9209 (0x00007f832d9a8ee0+0x329) FP: 0x00007f80dffd48f0 SP: 0x00007f80dffd4770 RP: 0x00007f832e36986b
+         Params: ?, ?, 0x7f8220fb8c10
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f8220fb8c10, rbp=0x7f80dffd48d0, rsp=0x7f80dffd4770
+         Source: qe_table.cc:139
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
      -----------------------------------------
-  19: testing::UnitTest::Run() + 0x52
-         Symbol: _ZN7testing8UnitTest3RunEv
-         SFrame: IP: 0x00007ffb6cf7e932 (0x00007ffb6cf7e8e0+0x52) FP: 0x00007ffd607ce840 SP: 0x00007ffd607ce820 RP: 0x000055b41e3c86b9
-         Params: ?, ?, 0x7ffb6cfc7680
-         Regs: rbx=0x7ffd607cddf0, rdx=0x7ffb6cfc7680, rbp=0x7ffd607ce958, rsp=0x7ffd607ce820
-         Source: gmock/fused_src/gmock_gtest_all.cc:5746
-         Module: /usr/sap/H11/HDB11/exe/tests_gmock/libgmock.so
+ 17: ptime::Query::result_t::fetch(ptime::Query::Plan*, unsigned long, bool) + 0x49b
+         Symbol: _ZN5ptime5Query8result_t5fetchEPNS0_4PlanEmb
+         SFrame: IP: 0x00007f832e36986b (0x00007f832e3693d0+0x49b) FP: 0x00007f80dffd4e20 SP: 0x00007f80dffd48f0 RP: 0x00007f832e6441cf
+         Params: ?, ?, 0x7f810f940010
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f810f940010, rbp=0x7f80dffd4e00, rsp=0x7f80dffd48f0
+         Source: query_result.cc:1313
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
      -----------------------------------------
-  20: main + 0x39
-         SFrame: IP: 0x000055b41e3c86b9 (0x000055b41e3c8680+0x39) FP: 0x00007ffd607ce860 SP: 0x00007ffd607ce840 RP: 0x00007ffb4872e574
-         Params: ?, ?, 0x7ffd607ce958
-         Regs: rbx=0x7ffd607cddf0, rdx=0x7ffd607ce958, rbp=0x7ffd607ce958, rsp=0x7ffd607ce840
-         Source: gmock/fused_src/gtest/gtest.h:21154
-         Module: /data/H11/exe/linuxx86_64/HDB_4.50.000.00.1572420136_3f9d4e3209b77f327fce094f1d7f0f860e4350f3/tests_gmock/UnitGSPagedStorage
+ 18: ptime::ResultSet::fetch_(Execution::Context&, ptime::Query::result_t*, unsigned long, bool, bool, bool, bool) + 0x51f
+         Symbol: _ZN5ptime9ResultSet6fetch_ERN9Execution7ContextEPNS_5Query8result_tEmbbbb
+         SFrame: IP: 0x00007f832e6441cf (0x00007f832e643cb0+0x51f) FP: 0x00007f80dffd5660 SP: 0x00007f80dffd4e20 RP: 0x00007f832e6417cd
+         Params: ?, ?, 0x7f810e848d10
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f810e848d10, rbp=0x7f80dffd5640, rsp=0x7f80dffd4e20
+         Source: ResultSet.cc:1043
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
      -----------------------------------------
-  21: System::mainWrapper(int, char**, char**) + 0x24
-         Symbol: _ZN6System11mainWrapperEiPPcS1_
-         SFrame: IP: 0x00007ffb4872e574 (0x00007ffb4872e550+0x24) FP: 0x00007ffd607ce880 SP: 0x00007ffd607ce860 RP: 0x00007ffb46265725
-         Params: ?, ?, 0x3
-         Regs: rbx=0x7ffd607cddf0, rdx=0x3, rbp=0x7ffd607ce958, rsp=0x7ffd607ce860
-         Source: Basis/System/impl/IsInMain.cpp:340
+ 19: ptime::ResultSet::fetch_(Execution::Context&, unsigned long, bool, bool, bool) + 0xdd
+         Symbol: _ZN5ptime9ResultSet6fetch_ERN9Execution7ContextEmbbb
+         SFrame: IP: 0x00007f832e6417cd (0x00007f832e6416f0+0xdd) FP: 0x00007f80dffd56d0 SP: 0x00007f80dffd5660 RP: 0x00007f8333c89ee0
+         Params: ?, ?, 0x7f810e848d10
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f810e848d10, rbp=0x7f80dffd56c0, rsp=0x7f80dffd5660
+         Source: ResultSet.cc:952
+         Module: /usr/sap/H11/HDB11/exe/libhdbrskernel.so
+     -----------------------------------------
+ 20: ptime::SessionCodecNewdb::eResultSet(Execution::Context&, ptime::SessionEvent*, ptime::Action*, int, Communication::Protocol::ReplyPacket&, Communication::Protocol::ReplySegment&, ptime::ResultSet*, bool) + 0x660
+         Symbol: _ZN5ptime17SessionCodecNewdb10eResultSetERN9Execution7ContextEPNS_12SessionEventEPNS_6ActionEiRN13Communication8Protocol11ReplyPacketERNS9_12ReplySegmentEPNS_9ResultSetEb
+         SFrame: IP: 0x00007f8333c89ee0 (0x00007f8333c89880+0x660) FP: 0x00007f80dffd59e0 SP: 0x00007f80dffd56d0 RP: 0x00007f8333c701a8
+         Params: ?, ?, 0x7f810e848d10
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f810e848d10, rbp=0x7f80dffd59c0, rsp=0x7f80dffd56d0
+         Source: sm_eapi_manager.h:60
+         Module: /usr/sap/H11/HDB11/exe/libhdbsqlsession.so
+     -----------------------------------------
+ 21: ptime::SessionCodecNewdb::eResultSet(Execution::Context&, ptime::SessionEvent*, int, Communication::Protocol::ReplyPacket&, Communication::Protocol::ReplySegment&, ptime::ResultSet*, bool) + 0x68
+         Symbol: _ZN5ptime17SessionCodecNewdb10eResultSetERN9Execution7ContextEPNS_12SessionEventEiRN13Communication8Protocol11ReplyPacketERNS7_12ReplySegmentEPNS_9ResultSetEb
+         SFrame: IP: 0x00007f8333c701a8 (0x00007f8333c70140+0x68) FP: 0x00007f80dffd5a50 SP: 0x00007f80dffd59e0 RP: 0x00007f8333c76639
+         Params: ?, ?, 0x1
+         Regs: rbx=0x7f80dffd3490, rdx=0x1, rbp=0x7f80fbeb57b0, rsp=0x7f80dffd59e0
+         Source: sm_codec_newdb.cc:8283
+         Module: /usr/sap/H11/HDB11/exe/libhdbsqlsession.so
+     -----------------------------------------
+ 22: ptime::SessionCodecNewdb::eCursorCreated(Execution::Context&, ptime::SessionEvent*) + 0x749
+         Symbol: _ZN5ptime17SessionCodecNewdb14eCursorCreatedERN9Execution7ContextEPNS_12SessionEventE
+         SFrame: IP: 0x00007f8333c76639 (0x00007f8333c75ef0+0x749) FP: 0x00007f80dffd5b60 SP: 0x00007f80dffd5a50 RP: 0x00007f8333c70e74
+         Params: ?, ?, 0x7f80fbeb57b0
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f80fbeb57b0, rbp=0x7f80dffd5b40, rsp=0x7f80dffd5a50
+         Source: sm_codec_newdb.cc:7954
+         Module: /usr/sap/H11/HDB11/exe/libhdbsqlsession.so
+     -----------------------------------------
+ 23: ptime::SessionCodecNewdb::eExecuteString(Execution::Context&, ptime::SessionEvent*, bool&) + 0xd4
+         Symbol: _ZN5ptime17SessionCodecNewdb14eExecuteStringERN9Execution7ContextEPNS_12SessionEventERb
+         SFrame: IP: 0x00007f8333c70e74 (0x00007f8333c70da0+0xd4) FP: 0x00007f80dffd5ba0 SP: 0x00007f80dffd5b60 RP: 0x00007f8333c979fe
+         Params: ?, ?, 0x7f810f763810
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f810f763810, rbp=0x7f80fbeb57b0, rsp=0x7f80dffd5b60
+         Source: sm_codec_newdb.cc:7524
+         Module: /usr/sap/H11/HDB11/exe/libhdbsqlsession.so
+     -----------------------------------------
+ 24: ptime::SessionCodecNewdb::eVendorMessage(Execution::Context&, ptime::SessionEvent*) + 0x32e
+         Symbol: _ZN5ptime17SessionCodecNewdb14eVendorMessageERN9Execution7ContextEPNS_12SessionEventE
+         SFrame: IP: 0x00007f8333c979fe (0x00007f8333c976d0+0x32e) FP: 0x00007f80dffd5c70 SP: 0x00007f80dffd5ba0 RP: 0x00007f8333c6d390
+         Params: ?, ?, 0x7f80fbed2810
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f80fbed2810, rbp=0x7f80dffd5c50, rsp=0x7f80dffd5ba0
+         Source: sm_codec_newdb.cc:5967
+         Module: /usr/sap/H11/HDB11/exe/libhdbsqlsession.so
+     -----------------------------------------
+ 25: ptime::SessionCodec::encodeMessage(Execution::Context&, ptime::SessionEvent*) + 0x20
+         Symbol: _ZN5ptime12SessionCodec13encodeMessageERN9Execution7ContextEPNS_12SessionEventE
+         SFrame: IP: 0x00007f8333c6d390 (0x00007f8333c6d370+0x20) FP: 0x00007f80dffd5ca0 SP: 0x00007f80dffd5c70 RP: 0x00007f8333cf1a63
+         Params: ?, ?, 0x7f80fbed2828
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f80fbed2828, rbp=0x7f80dffd5dd0, rsp=0x7f80dffd5c70
+         Source: sm_codec.cc:296
+         Module: /usr/sap/H11/HDB11/exe/libhdbsqlsession.so
+     -----------------------------------------
+ 26: ptime::SessionHandler::handleEvent(Execution::Context&, SessionLayer::SessionEvent*) + 0x343
+         Symbol: _ZN5ptime14SessionHandler11handleEventERN9Execution7ContextEPN12SessionLayer12SessionEventE
+         SFrame: IP: 0x00007f8333cf1a63 (0x00007f8333cf1720+0x343) FP: 0x00007f80dffd5df0 SP: 0x00007f80dffd5ca0 RP: 0x00007f8333cf62c5
+         Params: ?, ?, 0x7f80fbed2828
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f80fbed2828, rbp=0x7f80dffd5dd0, rsp=0x7f80dffd5ca0
+         Source: sm_handler.cc:2114
+         Module: /usr/sap/H11/HDB11/exe/libhdbsqlsession.so
+     -----------------------------------------
+ 27: ptime::SessionHandler::receiveMessage_(Execution::Context&, ptime::ThreadStatusCallbackBase&, SessionLayer::CommEvent*, bool) + 0x805
+         Symbol: _ZN5ptime14SessionHandler15receiveMessage_ERN9Execution7ContextERNS_24ThreadStatusCallbackBaseEPN12SessionLayer9CommEventEb
+         SFrame: IP: 0x00007f8333cf62c5 (0x00007f8333cf5ac0+0x805) FP: 0x00007f80dffd6100 SP: 0x00007f80dffd5df0 RP: 0x00007f8333cf6dc1
+         Params: ?, ?, 0x7f80fbf02208
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f80fbf02208, rbp=0x7f80dffd60e0, rsp=0x7f80dffd5df0
+         Source: sm_handler.cc:1737
+         Module: /usr/sap/H11/HDB11/exe/libhdbsqlsession.so
+     -----------------------------------------
+ 28: ptime::SessionHandler::receiveMessage(Execution::Context&, SessionLayer::CommEvent*, bool) + 0x41
+         Symbol: _ZN5ptime14SessionHandler14receiveMessageERN9Execution7ContextEPN12SessionLayer9CommEventEb
+         SFrame: IP: 0x00007f8333cf6dc1 (0x00007f8333cf6d80+0x41) FP: 0x00007f80dffd6150 SP: 0x00007f80dffd6100 RP: 0x00007f8333d28cb4
+         Params: ?, ?, 0x7f81db9ef600
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f81db9ef600, rbp=0x7f80dffd6130, rsp=0x7f80dffd6100
+         Source: sm_handler.cc:1585
+         Module: /usr/sap/H11/HDB11/exe/libhdbsqlsession.so
+     -----------------------------------------
+ 29: ptime::TcpReceiver::doWork(Execution::Context&, SessionLayer::CommMgr*) + 0x1034
+         Symbol: _ZN5ptime11TcpReceiver6doWorkERN9Execution7ContextEPN12SessionLayer7CommMgrE
+         SFrame: IP: 0x00007f8333d28cb4 (0x00007f8333d27c80+0x1034) FP: 0x00007f80dffd63e0 SP: 0x00007f80dffd6150 RP: 0x00007f8333d29ab3
+         Regs: rbx=0x7f80dffd3490, rbp=0x7f80dffd63c0, rsp=0x7f80dffd6150
+         Source: tcp_receiver.cc:371
+         Module: /usr/sap/H11/HDB11/exe/libhdbsqlsession.so
+     -----------------------------------------
+ 30: ptime::TcpReceiver::run(void*) + 0x153
+         Symbol: _ZN5ptime11TcpReceiver3runEPv
+         SFrame: IP: 0x00007f8333d29ab3 (0x00007f8333d29960+0x153) FP: 0x00007f80dffd6710 SP: 0x00007f80dffd63e0 RP: 0x00007f8309d5d151
+         Params: ?, ?, 0x7f8165ac8400
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f8165ac8400, rbp=0x7f80dffd66f0, rsp=0x7f80dffd63e0
+         Source: tcp_receiver.cc:476
+         Module: /usr/sap/H11/HDB11/exe/libhdbsqlsession.so
+     -----------------------------------------
+ 31: TrexThreads::PoolThread::run() + 0xfc1
+         Symbol: _ZN11TrexThreads10PoolThread3runEv
+         SFrame: IP: 0x00007f8309d5d151 (0x00007f8309d5c190+0xfc1) FP: 0x00007f80dffd76e0 SP: 0x00007f80dffd6710 RP: 0x00007f8309d60640
+         Params: ?, ?, 0x7f8165ac8ab0
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f8165ac8ab0, rbp=0x7f80dffd76c0, rsp=0x7f80dffd6710
+         Source: PoolThread.cpp:462
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasement.so
+     -----------------------------------------
+ 32: TrexThreads::PoolThread::run(void*&) + 0x10
+         Symbol: _ZN11TrexThreads10PoolThread3runERPv
+         SFrame: IP: 0x00007f8309d60640 (0x00007f8309d60630+0x10) FP: 0x00007f80dffd76f0 SP: 0x00007f80dffd76e0 RP: 0x00007f82f1d6b30c
+         Params: ?, ?, 0x7f80dffd7780
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f80dffd7780, rbp=0x7f80dffd7c50, rsp=0x7f80dffd76e0
+         Source: PoolThread.cpp:143
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasement.so
+     -----------------------------------------
+ 33: Execution::Thread::staticMainImp(Execution::Thread*) + 0x89c
+         Symbol: _ZN9Execution6Thread13staticMainImpEPS0_
+         SFrame: IP: 0x00007f82f1d6b30c (0x00007f82f1d6aa70+0x89c) FP: 0x00007f80dffd7c70 SP: 0x00007f80dffd76f0 RP: 0x00007f82f1d7262a
+         Params: ?, ?, 0x7f80dffd7830
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f80dffd7830, rbp=0x7f80dffd7c50, rsp=0x7f80dffd76f0
+         Source: Thread.cpp:455
          Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
      -----------------------------------------
-  22: __libc_start_main + 0xf5
-         SFrame: IP: 0x00007ffb46265725 (0x00007ffb46265630+0xf5) FP: 0x00007ffd607ce940 SP: 0x00007ffd607ce880 RP: 0x000055b41e3c94de
+ 34: Execution::pthreadFunctionWrapper(Execution::Thread*) + 0x2ea
+         Symbol: _ZN9Execution22pthreadFunctionWrapperEPNS_6ThreadE
+         SFrame: IP: 0x00007f82f1d7262a (0x00007f82f1d72340+0x2ea) FP: 0x00007f80dffdba20 SP: 0x00007f80dffd7c70 RP: 0x00007f82f1432724
+         Params: ?, ?, 0x7f80dffdad90
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f80dffdad90, rbp=0x7f80dffdba00, rsp=0x7f80dffd7c70
+         Source: ThreadInterposition.cpp:553
+         Module: /usr/sap/H11/HDB11/exe/libhdbbasis.so
+     -----------------------------------------
+ 35: start_thread + 0xc4
+         SFrame: IP: 0x00007f82f1432724 (0x00007f82f1432660+0xc4) FP: 0x00007f80dffdbac0 SP: 0x00007f80dffdba20 RP: 0x00007f82f0042e8d
          Params: ?, ?, 0x0
-         Regs: rbx=0x7ffd607cddf0, rdx=0x0, rbp=0x0, rsp=0x7ffd607ce880
+         Regs: rbx=0x7f80dffd3490, rdx=0x0, rbp=0x0, rsp=0x7f80dffdba20
+         Module: /lib64/libpthread.so.0
+     -----------------------------------------
+ 36: __clone + 0x69
+         SFrame: IP: 0x00007f82f0042e8d (0x00007f82f0042e24+0x69) FP: 0x00007f80dffdbac8 SP: 0x00007f80dffdbac0
+         Params: ?, ?, 0x7f80dffdf700
+         Regs: rbx=0x7f80dffd3490, rdx=0x7f80dffdf700, rbp=0x0, rsp=0x7f80dffdbac0
          Module: /lib64/libc.so.6
-     -----------------------------------------
-  23: _GLOBAL__sub_I_ProcessorInfoLocal.cpp + 0x2a
-         SFrame: IP: 0x000055b41e3c94de (0x000055b41e3c94b4+0x2a) FP: 0x00007ffd607ce948 SP: 0x00007ffd607ce940
-         Params: ?, ?, 0x0
-         Regs: rbx=0x7ffd607cddf0, rdx=0x0, rbp=0x0, rsp=0x7ffd607ce940
-         Source: start.S:112
-         Module: /data/H11/exe/linuxx86_64/HDB_4.50.000.00.1572420136_3f9d4e3209b77f327fce094f1d7f0f860e4350f3/tests_gmock/UnitGSPagedStorage
 [OK]
 --
 
-[CRASH_REGISTERS]  Registers: (2019-10-30 09:50:18 764 Local)
+[CRASH_REGISTERS]  Registers: (2019-01-23 04:03:35 817 Local)
 ----> Register Dump <----
-  rax: 0x0000000000000000  rbx: 0x00007ffd607cddf0
-  rcx: 0x00007ffb4795cadb  rdx: 0x0000000000000006
-  rsi: 0x000000000000ad49  rdi: 0x000000000000ad49
-  rsp: 0x00007ffd607cd7c8  rbp: 0x00007ffd607cd890
-  r08: 0x0000000000000000  r09: 0x0000000000000000
-  r10: 0x00007ff9700f1a30  r11: 0x0000000000000202
-  r12: 0x00007ffb478b8048  r13: 0x00007ffb6183832a
-  r14: 0x0000000000000083  r15: 0x0000000000000000
-  rip: 0x00007ffb4795cadb eflg: 0x0000000000000202
-   cs: 0x002b               gs: 0x0000
+  rax: 0x0000000000000000  rbx: 0x00007f80dffd3490
+  rcx: 0x00007f82f143aadb  rdx: 0x0000000000000006
+  rsi: 0x0000000000004690  rdi: 0x0000000000002a88
+  rsp: 0x00007f80dffd2e58  rbp: 0x00007f80dffd3430
+  r08: 0x0000000000000000  r09: 0x00007f810f8940b0
+  r10: 0x00007f80dffd2e50  r11: 0x0000000000000206
+  r12: 0x00007f80dffd2f30  r13: 0x00007f833063d76a
+  r14: 0x0000000000000195  r15: 0x0000000000000000
+  rip: 0x00007f82f143aadb eflg: 0x0000000000000206
+   cs: 0x0000               gs: 0x0000
    fs: 0x0000
- omsk: 0x0000000000001000  cr2: 0x0000000000000000
- trap: 0x0000000000000000  err: 0x0000000000000000
+ omsk: 0x0000000000001000  cr2: 0x00007fd76ef66880
+ trap: 0x000000000000000e  err: 0x0000000000000007
 ----> Floating-point register dump <----
-     foper: 0x0000    frip: 0x00007ffb46bc12bb  fdata: 0x0
-   control: 0x037f  status: 0x0000  tag: 0x0
+     foper: 0x055c    frip: 0x00007f82f0002db4  fdata: 0x7ffcf0a4ea08
+   control: 0x037f  status: 0x0020  tag: 0x0
      mxcsr: 0x00001fa0  mxcr_mask: 0xffff
   fp[0]: 0x0.0000 0000 0000 0000 * 2^0x0
   fp[1]: 0x0.0000 0000 0000 0000 * 2^0x0
   fp[2]: 0x0.0000 0000 0000 0000 * 2^0x0
   fp[3]: 0x0.0000 0000 0000 0000 * 2^0x0
-  fp[4]: 0x0.0000 0000 0000 0000 * 2^0x0
-  fp[5]: 0x0.0000 0000 0000 8800 * 2^0x4003
-  fp[6]: 0x0.0000 0000 0000 8800 * 2^0x4003
-  fp[7]: 0x0.0000 0000 0000 9400 * 2^0x4004
+  fp[4]: 0x0.0000 0000 0000 9000 * 2^0x4002
+  fp[5]: 0x0.0000 0000 0000 9000 * 2^0x4002
+  fp[6]: 0x0.0000 0000 af9a b88f * 2^0x401d
+  fp[7]: 0x0.0000 0000 b10c 8f24 * 2^0x401c
   xmm[00]: 0x00000000.00000000.00000002.00000000
-  xmm[01]: 0xffffffff.ffffffff.ffffffff.ffffffff
-  xmm[02]: 0x00000000.ffffff00.ffffffff.ffffffff
-  xmm[03]: 0x00000000.00000000.00000000.00000000
-  xmm[04]: 0x70707553.6574726f.534e4964.32315f30
-  xmm[05]: 0x70632e6c.6e490070.6874654d.6649646f
-  xmm[06]: 0x65636f72.726f7373.6f666e49.61636f4c
+  xmm[01]: 0x00000000.00000000.00000000.00000000
+  xmm[02]: 0x69747563.43376e6f.65746e6f.50457478
+  xmm[03]: 0x5332314e.69737365.614c6e6f.39726579
+  xmm[04]: 0x69747563.43376e6f.65746e6f.50457478
+  xmm[05]: 0x00000000.00000000.ff000000.ffffff00
+  xmm[06]: 0xffffffff.ffffff00.ffffffff.ffffffff
   xmm[07]: 0x00000000.00000000.00000000.00000000
-  xmm[08]: 0x00000000.00000000.00000000.00000000
+  xmm[08]: 0x000000ff.00ffff00.00000000.000000ff
   xmm[09]: 0x00000000.00000000.00000000.00000000
-  xmm[10]: 0x00000000.00000000.00000000.00000000
+  xmm[10]: 0x00000000.ffffffff.00000000.0000ffff
   xmm[11]: 0x00000000.00000000.00000000.00000000
   xmm[12]: 0x0000ff00.00000000.00ff0000.00ff0000
-  xmm[13]: 0x00000000.00000000.00000000.00000000
-  xmm[14]: 0x00000000.00000000.00000000.00000000
-  xmm[15]: 0x1409212a.bff3988e.00000000.00000000
+  xmm[13]: 0xfefa3800.3fe62e42.00000000.00000000
+  xmm[14]: 0x71733019.bc5401fa.00000000.00000000
+  xmm[15]: 0xfefa3800.3fe62e42.00000000.00000000
 [OK]
 --
