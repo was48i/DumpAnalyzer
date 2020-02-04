@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import copy
 import json
 import bugzilla
 import union_find
@@ -11,30 +10,32 @@ import union_find
 def group_dumps(bugs):
     path_map = dict()
     pair_list = []
-    ex_bugs = copy.deepcopy(bugs)
     ex_dumps = []
     result = []
+    # use bugzilla api
     url = "https://hdbits.wdf.sap.corp/bugzilla/rest/"
     b = bugzilla.Bugzilla(url=url,
                           api_key="MloWmOsYyaYqLCfxFA8r3y6bRCENwJYhlranhUWh")
     for bug_id in bugs:
         bug = b.get_bug(bug_id)
         child = b.get_bug(bug.dupe_of)
+        # add to pair if necessary
         if child.cf_crashdump_location:
             path_map[bug_id] = bug.cf_crashdump_location
             path_map[bug.dupe_of] = child.cf_crashdump_location
             pair_list.append([bug_id, bug.dupe_of])
-            if bug.dupe_of not in ex_bugs:
-                ex_bugs.append(bug.dupe_of)
-        else:
-            ex_bugs.remove(bug_id)
+    # remove single bug_id
+    ex_bugs = list(path_map.keys())
+    # apply union_find
     uf = union_find.UnionFind(len(ex_bugs))
     for pair in pair_list:
         uf.unite(ex_bugs.index(pair[0]), ex_bugs.index(pair[1]))
     uf.id = [uf.find(i) for i in uf.id]
+    # convert bug_id to dump
     for bug_id in ex_bugs:
         ex_dumps.append(path_map[bug_id])
     dump_dict = dict(zip(ex_dumps, uf.id))
+    # extract dump path
     for group_id in set(uf.id):
         res = []
         for k, v in dump_dict.items():
@@ -50,6 +51,7 @@ def group_dumps(bugs):
                         k.replace("\\", "/")
                     if k.endswith(".trc") and k.startswith("/area51"):
                         res.append(k)
+        # filter single group
         if len(res) > 1:
             result.append(res)
     print(result)

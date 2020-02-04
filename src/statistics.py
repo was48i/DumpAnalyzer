@@ -2,17 +2,17 @@ import os
 import json
 
 from argument import parser
-from regex import find_stack
 from workflow import find_key
+from regex import find_backtrace, find_stack
 
 args = parser.parse_args()
 # load dataset
-data_set_path = os.path.join(os.getcwd(), "json", "data_set.json")
+data_sets_path = os.path.join(os.getcwd(), "json", "data_sets.json")
 try:
-    with open(data_set_path, "r") as f:
-        data_set = json.load(f)
+    with open(data_sets_path, "r") as f:
+        data_sets = json.load(f)
 except FileNotFoundError:
-    print("Can't find data_set, please check!")
+    print("Can't find data_sets, please check!")
 
 
 def get_pair(paths):
@@ -22,7 +22,9 @@ def get_pair(paths):
         with open(path, "r", encoding="ISO-8859-1") as fp:
             file_text = fp.read()
         if args.mode == "ast":
-            item = find_key(file_text)
+            item = find_key(find_backtrace(file_text))[1]
+            if find_key(find_backtrace(file_text))[0] == "":
+                print(path)
         else:
             item = find_stack(file_text)
         pair.append(item)
@@ -64,14 +66,14 @@ def cal_metrics(group):
         f1 = 0
     else:
         f1 = 2 * precision * recall / (precision + recall)
-    return tuple(map(lambda x: "{:.1%}".format(x), (precision, recall, f1)))
+    return tuple(map(lambda x: "{:.2%}".format(x), (precision, recall, f1)))
 
 
 def validate():
     precisions = []
     recalls = []
     f1s = []
-    for group in data_set:
+    for group in data_sets:
         trans_group = []
         positives = []
         negatives = []
@@ -83,6 +85,9 @@ def validate():
         # get negatives' pair
         for n_paths in group[1]:
             n_pair = get_pair(n_paths)
+            # for debug
+            # if n_pair[0] == n_pair[1]:
+            #     print(n_paths)
             negatives.append(n_pair)
         trans_group.append(negatives)
         # calculate metrics

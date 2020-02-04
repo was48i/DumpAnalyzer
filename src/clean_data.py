@@ -8,11 +8,14 @@ import json
 
 def data_storage(dump_list):
     prefix = "/data/hyang/DataSet"
-    pattern = re.compile(r"[\n](\[CRASH_STACK\][\S\s]+)"
+    # set stack pattern
+    pattern = re.compile(r"\n(\[CRASH_STACK\][\S\s]+)"
                          r"\[CRASH_REGISTERS\]", re.M)
     for index, dump_set in enumerate(dump_list):
+        # create subdirectory
         set_path = os.path.join(prefix, str(index))
         os.makedirs(set_path)
+        # write to dump file
         for i, path in enumerate(dump_set):
             try:
                 with open(path, "r") as fp:

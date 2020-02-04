@@ -5,13 +5,13 @@ def find_backtrace(text):
     bt = ""
     # extract method and file
     bt_pattern = re.compile(r"-\n[ ]+(\d+:[ ].+)[ ][+]"
-                            r"([^-]+?Source:.+:)*", re.M)
+                            r"([^-]+?Source:[^:]+:)*", re.M)
     bt_methods = bt_pattern.findall(text)
     for m_tuple in bt_methods:
         m = list(m_tuple)
         # merge into a line
         if m[1]:
-            m[1] = m[1][m[1].index("Source: ")+8:-1]
+            m[1] = m[1][m[1].index("Source: ") + 8:-1]
             bt += m[0] + " at " + m[1] + "\n"
         else:
             bt += m[0] + "\n"
@@ -20,15 +20,16 @@ def find_backtrace(text):
 
 def find_exception(text):
     ex = ""
-    bodies = []
-    # extract titles
-    titles = []
-    title_pattern = re.compile(r"(exception.+)[ ]TID.+\n"
-                               r"([\S\s]+?exception[ ]throw[ ]location:)", re.M)
-    for t in title_pattern.findall(text):
-        title = "\n" + t[0] + "\n" + t[1].lstrip() + "\n"
-        titles.append(title)
+    # extract headers
+    headers = []
+    header_pattern = re.compile(r"(exception.+)[ ]TID.+\n"
+                                r"([\S\s]+?exception[ ]throw[ ]location:)",
+                                re.M)
+    for h in header_pattern.findall(text):
+        header = "\n" + h[0] + "\n" + h[1].lstrip() + "\n"
+        headers.append(header)
     # extract bodies
+    bodies = []
     body_pattern = re.compile(r"(\d+:[ ])0x.+[ ]in[ ]"
                               r"(.+)[+]0x(.+)", re.M)
     whole = body_pattern.findall(text)
@@ -41,7 +42,7 @@ def find_exception(text):
     # processing body
     for i in range(len(points) - 1):
         body = ""
-        for line_tuple in whole[points[i]:points[i+1]]:
+        for line_tuple in whole[points[i]:points[i + 1]]:
             line = list(line_tuple)
             # merge into a line
             if " at " in line[2]:
@@ -50,9 +51,9 @@ def find_exception(text):
             else:
                 body += line[0] + line[1] + "\n"
         bodies.append(body)
-    # merge titles and bodies
-    for t, b in zip(titles, bodies):
-        ex += t + b
+    # merge header and body
+    for h, b in zip(headers, bodies):
+        ex += h + b
     return ex
 
 
@@ -66,5 +67,6 @@ def find_stack(text):
 
 
 __all__ = [
+    "find_backtrace",
     "find_stack"
 ]

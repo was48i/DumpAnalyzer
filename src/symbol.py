@@ -88,7 +88,7 @@ def update_symbols(root):
             if "::::" in k:
                 k = k[:k.rindex("::::")] + \
                     "::(anonymous namespace)::" + \
-                    k[k.rindex("::::")+4:]
+                    k[k.rindex("::::") + 4:]
             symbol_dict[k] = res[k]
     pool.close()
     pool.join()
@@ -96,8 +96,6 @@ def update_symbols(root):
 
 
 __all__ = [
-    "get_paths",
     "best_matched",
-    "find_symbols",
     "update_symbols"
 ]

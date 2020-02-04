@@ -76,7 +76,7 @@ def flow_print(results):
     print(format_res)
     print("\033[0;36m" + "II. Filter Stop Words" + "\033[0m")
     print(filter_res)
-    print("\033[0;36m" + "III. Infuse HANA Knowledge" + "\033[0m")
+    print("\033[0;36m" + "III. Add HANA Knowledge" + "\033[0m")
     print(rule_res)
     print("\033[0;36m" + "IV. Covert to Hash Code" + "\033[0m")
     print(hash_res)

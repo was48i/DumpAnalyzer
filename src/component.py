@@ -79,8 +79,6 @@ def update_components(root):
 
 
 __all__ = [
-    "find_components",
-    "get_child",
     "to_component",
     "update_components"
 ]

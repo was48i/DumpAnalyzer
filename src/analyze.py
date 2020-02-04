@@ -2,10 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-import re
 import sys
 
-from regex import *
 from output import *
 from argument import *
 from workflow import *
@@ -15,20 +13,6 @@ from clang.cindex import Config
 from symbol import update_symbols
 from component import update_components
 from persistence import dump_components, dump_symbols
-
-
-def pre_process():
-    dumps = []
-    # set crash stack pattern
-    pattern = re.compile(r"\n(\[CRASH_STACK\][\S\s]+)"
-                         r"\[CRASH_REGISTERS\]", re.M)
-    for path in args.dump:
-        with open(path, "r", encoding="ISO-8859-1") as fp:
-            file_text = fp.read()
-        stack = pattern.findall(file_text)
-        trace = find_stack(stack[0])
-        dumps.append(trace)
-    return dumps
 
 
 if __name__ == "__main__":
@@ -42,14 +26,16 @@ if __name__ == "__main__":
         stats_print(validate())
     # show workflow
     elif args.workflow:
-        format_res = format_dump()
+        format_res = format_dump(args.workflow[0])
         filter_res = filter_words(format_res)
         rule_res = find_key(filter_res)[0]
         hash_res = find_key(filter_res)[1]
         flow_print([format_res, filter_res, rule_res, hash_res])
     # text similarity
     else:
-        result = pre_process()
+        result = []
+        for path in args.dump:
+            result.append(format_dump(path))
         format_print(result)
     # create directory if necessary
     if args.update:

@@ -17,21 +17,21 @@ except FileNotFoundError:
     print("Can't find stop_words, please check!")
 
 
-def format_dump():
+def format_dump(path):
     # set crash stack pattern
     pattern = re.compile(r"\n(\[CRASH_STACK\][\S\s]+)"
                          r"\[CRASH_REGISTERS\]", re.M)
-    with open(args.workflow[0], "r", encoding="ISO-8859-1") as fp:
+    with open(path, "r", encoding="ISO-8859-1") as fp:
         file_text = fp.read()
     stack = pattern.findall(file_text)
     res = find_stack(stack[0])
     return res
 
 
-def filter_words(stack):
+def filter_words(formatted):
     res = ""
     start = 0
-    for index, line in enumerate([i for i in stack.split("\n") if i]):
+    for index, line in enumerate([i for i in formatted.split("\n") if i]):
         # extract symbol
         method = re.match(r"\d+:[ ](.+)", line).group(1)
         if " at " in method:
@@ -40,7 +40,7 @@ def filter_words(stack):
             method = method[:method.index("(")]
         if " " in method:
             method = method[method.index(" ") + 1:]
-        # get start point
+        # get break point
         if method not in stop_words and \
                 "ltt" not in method and \
                 "std" not in method and \
@@ -48,7 +48,7 @@ def filter_words(stack):
             start = index
             break
     # cut off exception part
-    for line in [i for i in stack.split("\n") if i][start:]:
+    for line in [i for i in formatted.split("\n") if i][start:]:
         if line.startswith("exception"):
             break
         res += line + "\n"
@@ -71,12 +71,9 @@ def find_key(backtrace):
         if "(" in m[0]:
             m[0] = m[0][:m[0].index("(")]
         if " " in m[0]:
-            m[0] = m[0][m[0].index(" ")+1:]
+            m[0] = m[0][m[0].index(" ") + 1:]
         # apply stop words
-        if m[0] not in stop_words and \
-                "ltt" not in m[0] and \
-                "std" not in m[0] and \
-                "::" in m[0]:
+        if m[0] not in stop_words and "ltt" not in m[0]:
             # first component rule
             if component != "" and to_component(m) != component:
                 break
@@ -91,7 +88,6 @@ def find_key(backtrace):
 
 
 __all__ = [
-    "stop_words",
     "format_dump",
     "filter_words",
     "find_key"
