@@ -18,7 +18,7 @@ def sample_positives(p_list):
             p_set.append(p.pop(0))
             cnt += 1
             # set number of samples
-            if cnt % 700 == 0:
+            if cnt % 500 == 0:
                 res.append(copy.deepcopy(p_set))
                 p_set.clear()
         # filter empty p
@@ -41,7 +41,7 @@ def sample_negatives(n_list):
                           random.sample(n_list[i + step], 1)[0]])
             cnt += 1
             # set number of samples
-            if cnt % 700 == 0:
+            if cnt % 500 == 0:
                 res.append(copy.deepcopy(n_set))
                 n_set.clear()
         # frequency of per increment
@@ -71,11 +71,11 @@ def reshape_data():
         # prepare list for positive sampling
         for group in list(combinations(ids, 2)):
             pair.append(list(map(lambda x:
-                                 os.path.join(prefix_, "dump_"+x), group)))
+                                 os.path.join(prefix_, "dump_" + x), group)))
         p_list.append(pair)
         # prepare list for negative sampling
         n_list.append(list(map(lambda x:
-                               os.path.join(prefix_, "dump_"+x), ids)))
+                               os.path.join(prefix_, "dump_" + x), ids)))
     # generate dataset
     for p, n in zip(sample_positives(p_list), sample_negatives(n_list)):
         res.append([p, n])

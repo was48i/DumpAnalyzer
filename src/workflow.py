@@ -18,13 +18,9 @@ except FileNotFoundError:
 
 
 def format_dump(path):
-    # set crash stack pattern
-    pattern = re.compile(r"\n(\[CRASH_STACK\][\S\s]+)"
-                         r"\[CRASH_REGISTERS\]", re.M)
     with open(path, "r", encoding="ISO-8859-1") as fp:
         file_text = fp.read()
-    stack = pattern.findall(file_text)
-    res = find_stack(stack[0])
+    res = find_stack(file_text)
     return res
 
 
@@ -40,28 +36,36 @@ def filter_words(formatted):
             method = method[:method.index("(")]
         if " " in method:
             method = method[method.index(" ") + 1:]
-        # get break point
+        # apply stop words
         if method not in stop_words and \
-                "ltt" not in method and \
-                "std" not in method and \
-                "::" in method:
+                "MemoryManager" not in method and \
+                "ltt" not in method:
             start = index
             break
-    # cut off exception part
-    for line in [i for i in formatted.split("\n") if i][start:]:
-        if line.startswith("exception"):
-            break
-        res += line + "\n"
+    # output filtered stack
+    for line in formatted.split("\n")[start:-1]:
+        if line == "":
+            res += "\n"
+        else:
+            res += line + "\n"
     return res
 
 
-def find_key(backtrace):
+def find_key(filtered):
     key = ""
     component = ""
+    method_info = []
     # set method info pattern
     pattern = re.compile(r"\d+:[ ](.+)"
                          r"([ ]at[ ].+)*", re.M)
-    method_info = pattern.findall(backtrace)
+    # exception first
+    if "exception throw location" in filtered:
+        key_part = filtered.split("exception throw location")[1]
+        method_info = pattern.findall(key_part)
+    # extract backtrace if necessary
+    if not method_info:
+        key_part = filtered.split("exception throw location")[0]
+        method_info = pattern.findall(key_part)
     for m_tuple in method_info:
         m = list(m_tuple)
         # get source info
@@ -72,8 +76,7 @@ def find_key(backtrace):
             m[0] = m[0][:m[0].index("(")]
         if " " in m[0]:
             m[0] = m[0][m[0].index(" ") + 1:]
-        # apply stop words
-        if m[0] not in stop_words and "ltt" not in m[0]:
+        if "MemoryManager" not in m[0] and "ltt" not in m[0]:
             # first component rule
             if component != "" and to_component(m) != component:
                 break

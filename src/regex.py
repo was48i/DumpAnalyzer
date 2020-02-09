@@ -32,7 +32,7 @@ def find_exception(text):
     bodies = []
     body_pattern = re.compile(r"(\d+:[ ])0x.+[ ]in[ ]"
                               r"(.+)[+]0x(.+)", re.M)
-    whole = body_pattern.findall(text)
+    whole = body_pattern.findall(text.split("exception throw location")[1])
     # get break points
     points = []
     for i, b in enumerate(whole):
@@ -58,12 +58,19 @@ def find_exception(text):
 
 
 def find_stack(text):
-    trace = find_backtrace(text)
+    res = ""
+    # set stack pattern
+    stack_pattern = re.compile(r"\n(\[CRASH_STACK\][\S\s]+)"
+                               r"\[CRASH_REGISTERS\]", re.M)
+    stack = stack_pattern.findall(text)
+    # extract backtrace
+    bt = find_backtrace(stack[0])
+    res += bt
     # merge exceptions if exist
-    if "exception throw location" in text:
-        exception = find_exception(text)
-        trace += exception
-    return trace
+    if "exception throw location" in stack[0]:
+        ex = find_exception(stack[0])
+        res += ex
+    return res
 
 
 __all__ = [

@@ -9,8 +9,7 @@ import json
 def data_storage(dump_list):
     prefix = "/data/hyang/DataSet"
     # set stack pattern
-    pattern = re.compile(r"\n(\[CRASH_STACK\][\S\s]+)"
-                         r"\[CRASH_REGISTERS\]", re.M)
+    pattern = re.compile(r"\n\[CRASH_STACK\][\S\s]+\[CRASH_REGISTERS\]", re.M)
     for index, dump_set in enumerate(dump_list):
         # create subdirectory
         set_path = os.path.join(prefix, str(index))
@@ -25,7 +24,7 @@ def data_storage(dump_list):
             stack = pattern.findall(file_text)
             if not stack:
                 continue
-            with open(os.path.join(set_path, "dump_"+str(i)), "w") as fp:
+            with open(os.path.join(set_path, "dump_" + str(i)), "w") as fp:
                 fp.write(stack[0])
 
 

@@ -1,9 +1,8 @@
 import os
 import json
 
+from workflow import *
 from argument import parser
-from workflow import find_key
-from regex import find_backtrace, find_stack
 
 args = parser.parse_args()
 # load dataset
@@ -19,14 +18,10 @@ def get_pair(paths):
     pair = []
     # convert paths to pair
     for path in paths:
-        with open(path, "r", encoding="ISO-8859-1") as fp:
-            file_text = fp.read()
         if args.mode == "ast":
-            item = find_key(find_backtrace(file_text))[1]
-            if find_key(find_backtrace(file_text))[0] == "":
-                print(path)
+            item = find_key(filter_words(format_dump(path)))[1]
         else:
-            item = find_stack(file_text)
+            item = format_dump(path)
         pair.append(item)
     return pair
 
@@ -66,7 +61,7 @@ def cal_metrics(group):
         f1 = 0
     else:
         f1 = 2 * precision * recall / (precision + recall)
-    return tuple(map(lambda x: "{:.2%}".format(x), (precision, recall, f1)))
+    return tuple(map(lambda x: "{:.3f}".format(x), (precision, recall, f1)))
 
 
 def validate():
@@ -85,9 +80,6 @@ def validate():
         # get negatives' pair
         for n_paths in group[1]:
             n_pair = get_pair(n_paths)
-            # for debug
-            # if n_pair[0] == n_pair[1]:
-            #     print(n_paths)
             negatives.append(n_pair)
         trans_group.append(negatives)
         # calculate metrics

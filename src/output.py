@@ -72,13 +72,13 @@ def stats_print(metrics):
 def flow_print(results):
     format_res, filter_res, rule_res, hash_res = results
     # follow 4 steps to output
-    print("\033[0;36m" + "I. Format Dump File" + "\033[0m")
+    print("\033[0;32m" + "I. Format Dump File" + "\033[0m")
     print(format_res)
-    print("\033[0;36m" + "II. Filter Stop Words" + "\033[0m")
+    print("\033[0;32m" + "II. Filter Stop Words" + "\033[0m")
     print(filter_res)
-    print("\033[0;36m" + "III. Add HANA Knowledge" + "\033[0m")
+    print("\033[0;32m" + "III. Add HANA Knowledge" + "\033[0m")
     print(rule_res)
-    print("\033[0;36m" + "IV. Covert to Hash Code" + "\033[0m")
+    print("\033[0;32m" + "IV. Covert to Hash Code" + "\033[0m")
     print(hash_res)
 
 
