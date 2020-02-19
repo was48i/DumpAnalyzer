@@ -4,7 +4,7 @@ Compare the similarity between crash dump files based on AST, and analyze syntax
 ### LLVM
 We should install [Clang](http://releases.llvm.org/download.html) first:
 
-![](https://raw.githubusercontent.com/ICHIGOI7E/mdpics/master/DumpAnalyzer/llvm.jpg)
+![](https://raw.githubusercontent.com/was48i/mdpics/master/DumpAnalyzer/llvm.jpg)
 ### Python
 Tested by [Python 3.6.8](https://www.python.org/downloads/release/python-368/)
 
@@ -14,7 +14,7 @@ $ pip install -r requirements.txt
 ```
 We parsing C++ in Python with Clang:
 
-![](https://raw.githubusercontent.com/ICHIGOI7E/mdpics/master/DumpAnalyzer/python_clang.jpg)
+![](https://raw.githubusercontent.com/was48i/mdpics/master/DumpAnalyzer/python_clang.jpg)
 ### Source Code
 Put prepared source code in specified directory.
 ## Usage
@@ -42,7 +42,7 @@ We validate our classifier based on [confusion matrix](https://en.wikipedia.org/
 
 Our data set is cleaned and reshaped:
 
-![](https://raw.githubusercontent.com/ICHIGOI7E/mdpics/master/DumpAnalyzer/validation.jpg)
+![](https://raw.githubusercontent.com/was48i/mdpics/master/DumpAnalyzer/validation.jpg)
 
 Use the stats mode:
 ```

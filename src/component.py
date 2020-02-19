@@ -57,7 +57,7 @@ def update_components(root):
     queue = []
     component_dict = dict()
     queue.append(root)
-    # do WFS
+    # do BFS
     while len(queue) > 0:
         prefix = queue.pop(0)
         cmk_path = os.path.join(prefix, "CMakeLists.txt")

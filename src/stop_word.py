@@ -24,12 +24,16 @@ def get_words(text):
         # get bt_methods
         bt_methods = bt_pattern.findall(stack[0])
         for m in bt_methods:
+            # remove offset if exists
             if " + 0x" in m:
                 method = m[:m.rindex(" + 0x")]
             else:
                 method = m
+            # remove parameter variable and return type
             if "(" in method:
                 method = method[:method.index("(")]
+            if " " in method:
+                method = method[method.index(" ") + 1:]
             res.append(method)
         # get key of ex_methods
         ex_methods = ex_pattern.findall(stack[0])

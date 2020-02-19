@@ -19,7 +19,7 @@ def group_dumps(bugs):
     for bug_id in bugs:
         bug = b.get_bug(bug_id)
         child = b.get_bug(bug.dupe_of)
-        # add to pair if necessary
+        # add to pair if exists
         if child.cf_crashdump_location:
             path_map[bug_id] = bug.cf_crashdump_location
             path_map[bug.dupe_of] = child.cf_crashdump_location

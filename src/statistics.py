@@ -19,7 +19,10 @@ def get_pair(paths):
     # convert paths to pair
     for path in paths:
         if args.mode == "ast":
-            item = find_key(filter_words(format_dump(path)))[1]
+            if not args.ignore:
+                item = find_key(filter_words(format_dump(path)))[1]
+            else:
+                item = find_key(format_dump(path))[1]
         else:
             item = format_dump(path)
         pair.append(item)

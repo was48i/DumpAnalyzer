@@ -39,7 +39,7 @@ def filter_words(formatted):
         # apply stop words
         if method not in stop_words and \
                 "MemoryManager" not in method and \
-                "ltt" not in method:
+                "ltt" not in method and method:
             start = index
             break
     # output filtered stack
@@ -58,11 +58,12 @@ def find_key(filtered):
     # set method info pattern
     pattern = re.compile(r"\d+:[ ](.+)"
                          r"([ ]at[ ].+)*", re.M)
-    # exception first
-    if "exception throw location" in filtered:
-        key_part = filtered.split("exception throw location")[1]
-        method_info = pattern.findall(key_part)
-    # extract backtrace if necessary
+    if not args.ignore:
+        # extract exception if exists
+        if "exception throw location" in filtered:
+            key_part = filtered.split("exception throw location")[1]
+            method_info = pattern.findall(key_part)
+    # extract backtrace
     if not method_info:
         key_part = filtered.split("exception throw location")[0]
         method_info = pattern.findall(key_part)
@@ -76,8 +77,17 @@ def find_key(filtered):
             m[0] = m[0][:m[0].index("(")]
         if " " in m[0]:
             m[0] = m[0][m[0].index(" ") + 1:]
-        if "MemoryManager" not in m[0] and "ltt" not in m[0]:
-            # first component rule
+        if not args.ignore:
+            if "MemoryManager" not in m[0] and \
+                    "ltt" not in m[0] and m[0]:
+                # first component rule
+                if component != "" and to_component(m) != component:
+                    break
+                else:
+                    component = to_component(m)
+                    key += m[0] + "\n"
+        else:
+            # ignore stop words
             if component != "" and to_component(m) != component:
                 break
             else:

@@ -11,6 +11,9 @@ parser.add_argument("--stats", nargs="?", const=True,
 # show workflow
 parser.add_argument("--workflow", nargs=1,
                     help="show workflow")
+# ignore stop words
+parser.add_argument("--ignore", nargs="?", const=True,
+                    help="ignore stop words")
 # support Windows
 if sys.platform == "win32":
     parser.add_argument("-d", "--dump", nargs=2,

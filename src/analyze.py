@@ -37,8 +37,9 @@ if __name__ == "__main__":
         for path in args.dump:
             result.append(format_dump(path))
         format_print(result)
-    # create directory if necessary
+    # update components/symbols
     if args.update:
+        # create directory if doesn't exist
         json_path = os.path.join(os.getcwd(), "json")
         if not os.path.exists(json_path):
             os.makedirs(json_path)
