@@ -107,5 +107,6 @@ venv.bak/
 .idea
 
 # project
+.vscode
 .DS_Store
-json/
+json

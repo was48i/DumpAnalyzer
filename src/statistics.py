@@ -1,8 +1,8 @@
 import os
 import json
 
-from workflow import *
 from argument import parser
+from workflow import format_dump, filter_words, find_key
 
 args = parser.parse_args()
 # load dataset

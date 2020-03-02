@@ -15,8 +15,8 @@ def find_components(path):
     with open(path, "r") as fp:
         file_text = fp.read()
     # set patterns
-    parent_pattern = re.compile(r"SET_COMPONENT\(\"(.+)?\"\)", re.M)
-    child_pattern = re.compile(r"SET_COMPONENT\(\"(.+)?\"([^)]+)\)", re.M)
+    parent_pattern = re.compile(r'SET_COMPONENT\("(.+)"\)', re.M)
+    child_pattern = re.compile(r'SET_COMPONENT\("(.+)"\n[^)]+\)', re.M)
     # get matching lists
     parents = parent_pattern.findall(file_text)
     children = child_pattern.findall(file_text)

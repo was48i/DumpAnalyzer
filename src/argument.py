@@ -11,6 +11,9 @@ parser.add_argument("--stats", nargs="?", const=True,
 # show workflow
 parser.add_argument("--workflow", nargs=1,
                     help="show workflow")
+# show component order
+parser.add_argument("--order", nargs="?", const=True,
+                    help="show component order")
 # ignore stop words
 parser.add_argument("--ignore", nargs="?", const=True,
                     help="ignore stop words")

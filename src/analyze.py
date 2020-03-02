@@ -4,21 +4,20 @@
 import os
 import sys
 
-from output import *
-from argument import *
-from workflow import *
-from statistics import *
-
+from argument import parser
+from statistics import validate
 from clang.cindex import Config
 from symbol import update_symbols
 from component import update_components
 from persistence import dump_components, dump_symbols
+from output import stats_print, flow_print, format_print
+from workflow import format_dump, filter_words, find_key
 
 
 if __name__ == "__main__":
     args = parser.parse_args()
     # load libclang.so
-    lib_path = r"C:\LLVM\bin" if sys.platform == "win32" else "/usr/local/lib"
+    lib_path = r"C:\LLVM\bin" if sys.platform == "win32" else "/usr/lib"
     if not Config.loaded:
         Config.set_library_path(lib_path)
     # data validation
@@ -35,7 +34,10 @@ if __name__ == "__main__":
     else:
         result = []
         for path in args.dump:
-            result.append(format_dump(path))
+            if not args.order:
+                result.append(format_dump(path))
+            else:
+                result.append(find_key(filter_words(format_dump(path)))[0])
         format_print(result)
     # update components/symbols
     if args.update:

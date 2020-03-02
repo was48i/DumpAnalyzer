@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import os
+import json
 import copy
 import random
 
@@ -79,9 +77,11 @@ def reshape_data():
     # generate dataset
     for p, n in zip(sample_positives(p_list), sample_negatives(n_list)):
         res.append([p, n])
-    print(res)
+    tmp_path = os.path.join(os.getcwd(), "json", "tmp.json")
+    with open(tmp_path, "w") as fp:
+        json.dump(res, fp, indent=4, sort_keys=True)
 
 
 if __name__ == "__main__":
-    prefix = r"C:\DataSet"
+    prefix = r"/dataset"
     reshape_data()

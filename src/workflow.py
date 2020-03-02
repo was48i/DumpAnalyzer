@@ -34,12 +34,10 @@ def filter_words(formatted):
             method = method[:method.index(" at ")]
         if "(" in method:
             method = method[:method.index("(")]
-        if " " in method:
+        if re.match(r"\w+[ ]", method):
             method = method[method.index(" ") + 1:]
         # apply stop words
-        if method not in stop_words and \
-                "MemoryManager" not in method and \
-                "ltt" not in method and method:
+        if method not in stop_words:
             start = index
             break
     # output filtered stack
@@ -77,22 +75,16 @@ def find_key(filtered):
             m[0] = m[0][:m[0].index("(")]
         if " " in m[0]:
             m[0] = m[0][m[0].index(" ") + 1:]
-        if not args.ignore:
-            if "MemoryManager" not in m[0] and \
-                    "ltt" not in m[0] and m[0]:
-                # first component rule
-                if component != "" and to_component(m) != component:
-                    break
-                else:
-                    component = to_component(m)
-                    key += m[0] + "\n"
-        else:
-            # ignore stop words
+        if not args.order:
+            # first component rule
             if component != "" and to_component(m) != component:
                 break
             else:
                 component = to_component(m)
                 key += m[0] + "\n"
+        else:
+            # get component order
+            key += to_component(m) + "\n"
     # compare by MD5
     md5 = hashlib.md5()
     message = key

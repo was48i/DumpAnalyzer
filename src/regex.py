@@ -4,7 +4,7 @@ import re
 def find_backtrace(text):
     bt = ""
     # extract method and file
-    bt_pattern = re.compile(r"-\n[ ]+(\d+:[ ].+)[ ][+]"
+    bt_pattern = re.compile(r"-\n[ ]*(\d+:[ ].+)[ ][+]"
                             r"([^-]+?Source:[^:]+:)*", re.M)
     bt_methods = bt_pattern.findall(text)
     for m_tuple in bt_methods:

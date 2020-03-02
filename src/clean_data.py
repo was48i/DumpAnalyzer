@@ -7,7 +7,7 @@ import json
 
 
 def data_storage(dump_list):
-    prefix = "/data/hyang/DataSet"
+    prefix = "/data/hyang/dataset"
     # set stack pattern
     pattern = re.compile(r"\n\[CRASH_STACK\][\S\s]+\[CRASH_REGISTERS\]", re.M)
     for index, dump_set in enumerate(dump_list):
