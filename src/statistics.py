@@ -1,8 +1,12 @@
 import os
 import json
+import math
+import Levenshtein
 
+from lcs_dp import lcs_dp
 from argument import parser
-from workflow import format_dump, filter_words, find_key
+from regex import find_stack
+from workflow import format_dump, filter_word, add_knowledge
 
 args = parser.parse_args()
 # load dataset
@@ -19,28 +23,58 @@ def get_pair(paths):
     # convert paths to pair
     for path in paths:
         if args.mode == "ast":
-            if not args.ignore:
-                item = find_key(filter_words(format_dump(path)))[1]
+            if not args.raw:
+                item = add_knowledge(filter_word(format_dump(path)))
             else:
-                item = find_key(format_dump(path))[1]
+                item = add_knowledge(format_dump(path))
         else:
-            item = format_dump(path)
+            item = find_stack(path)
         pair.append(item)
     return pair
+
+
+def cal_sim(paths):
+    dup = 0
+    path_1, path_2 = paths
+    if args.mode == "ast":
+        info_1 = add_knowledge(filter_word(format_dump(path_1)))
+        info_2 = add_knowledge(filter_word(format_dump(path_2)))
+        coms_1 = [i[0] for i in info_1]
+        coms_2 = [i[0] for i in info_2]
+        above_sum = 0
+        below_sum = 0
+        lcs, pos_1, pos_2 = lcs_dp(coms_1, coms_2)
+        for i, com in enumerate(lcs):
+            com_sim = Levenshtein.ratio(info_1[pos_1[i]][1],
+                                        info_2[pos_2[i]][1])
+            above = math.exp(-8 * max(pos_1[i], pos_2[i])) * \
+                math.exp(-8 * (1 - com_sim))
+            above_sum += above
+        for i in range(max(len(coms_1), len(coms_2))):
+            below_sum += math.exp(-8 * i)
+        sim = above_sum / below_sum
+        if sim >= 0.5:
+            dup = 1
+    else:
+        info_1 = find_stack(path_1)
+        info_2 = find_stack(path_2)
+        if info_1 == info_2:
+            dup = 1
+    return dup
 
 
 def matrix_stats(group):
     positives, negatives = group
     tp, fp, fn, tn = [0, 0, 0, 0]
     # count positive samples
-    for p_pair in positives:
-        if p_pair[0] == p_pair[1]:
+    for dup in positives:
+        if dup == 1:
             tp += 1
         else:
             fn += 1
     # count negative samples
-    for n_pair in negatives:
-        if n_pair[0] == n_pair[1]:
+    for dup in negatives:
+        if dup == 1:
             fp += 1
         else:
             tn += 1
@@ -75,15 +109,15 @@ def validate():
         trans_group = []
         positives = []
         negatives = []
-        # get positives' pair
+        # get positive pair
         for p_paths in group[0]:
-            p_pair = get_pair(p_paths)
-            positives.append(p_pair)
+            dup = cal_sim(p_paths)
+            positives.append(dup)
         trans_group.append(positives)
-        # get negatives' pair
+        # get negative pair
         for n_paths in group[1]:
-            n_pair = get_pair(n_paths)
-            negatives.append(n_pair)
+            dup = cal_sim(n_paths)
+            negatives.append(dup)
         trans_group.append(negatives)
         # calculate metrics
         precision, recall, f1 = cal_metrics(trans_group)
