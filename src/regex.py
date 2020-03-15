@@ -3,12 +3,15 @@ import re
 
 def find_backtrace(text):
     bt = ""
-    # extract method and file
-    bt_pattern = re.compile(r"-\n[ ]*(\d+:[ ].+)[ ][+]"
-                            r"([^-]+?Source:[^:]+:)*", re.M)
+    # extract frame and source
+    bt_pattern = re.compile(r"-\n[ ]*(\d+:[ ].+)"
+                            r"([^-]+Source:[ ].+:)*", re.M)
     bt_methods = bt_pattern.findall(text)
     for m_tuple in bt_methods:
         m = list(m_tuple)
+        # remove offset if exists
+        if " + 0x" in m[0]:
+            m[0] = m[0][:m[0].index(" + 0x")]
         # merge into a line
         if m[1]:
             m[1] = m[1][m[1].index("Source: ") + 8:-1]
@@ -26,30 +29,25 @@ def find_exception(text):
                                 r"([\S\s]+?exception[ ]throw[ ]location:)",
                                 re.M)
     for h in header_pattern.findall(text):
-        header = "\n" + h[0] + "\n" + h[1].lstrip() + "\n"
+        header = "\n" + h[0] + "\n" + h[1].strip() + "\n"
         headers.append(header)
     # extract bodies
     bodies = []
-    body_pattern = re.compile(r"(\d+:[ ])0x.+[ ]in[ ]"
-                              r"(.+)[+]0x(.+)", re.M)
-    whole = body_pattern.findall(text.split("exception throw location")[1])
+    body_pattern = re.compile(r"(\d+:[ ].+[ ]at[ ].+):", re.M)
+    whole = body_pattern.findall(text)
     # get break points
     points = []
     for i, b in enumerate(whole):
         if b[0] == whole[0][0]:
             points.append(i)
-    points.append(len(whole) + 1)
+    points.append(len(whole))
     # processing body
     for i in range(len(points) - 1):
         body = ""
-        for line_tuple in whole[points[i]:points[i + 1]]:
-            line = list(line_tuple)
-            # merge into a line
-            if " at " in line[2]:
-                line[2] = line[2][line[2].index(" at "):line[2].index(":")]
-                body += line[0] + line[1] + line[2] + "\n"
-            else:
-                body += line[0] + line[1] + "\n"
+        for line in whole[points[i]:points[i + 1]]:
+            # remove offset if exists
+            offset_pattern = re.compile(r"([ ]const)*[+]*0x\w+([ ]in[ ])*")
+            body += re.sub(offset_pattern, "", line) + "\n"
         bodies.append(body)
     # merge header and body
     for h, b in zip(headers, bodies):
@@ -57,16 +55,18 @@ def find_exception(text):
     return ex
 
 
-def find_stack(text):
+def find_stack(path):
     res = ""
+    with open(path, "r", encoding="ISO-8859-1") as fp:
+        file_text = fp.read()
     # set stack pattern
     stack_pattern = re.compile(r"\n(\[CRASH_STACK\][\S\s]+)"
                                r"\[CRASH_REGISTERS\]", re.M)
-    stack = stack_pattern.findall(text)
+    stack = stack_pattern.findall(file_text)
     # extract backtrace
     bt = find_backtrace(stack[0])
     res += bt
-    # merge exceptions if exist
+    # merge exception if exists
     if "exception throw location" in stack[0]:
         ex = find_exception(stack[0])
         res += ex
