@@ -16,7 +16,7 @@ def find_components(path):
         file_text = fp.read()
     # set patterns
     parent_pattern = re.compile(r'SET_COMPONENT\("(.+)"\)', re.M)
-    child_pattern = re.compile(r'SET_COMPONENT\("(.+)"\n[^)]+\)', re.M)
+    child_pattern = re.compile(r'SET_COMPONENT\("(.+)"\n([^)]+)\)', re.M)
     # get matching lists
     parents = parent_pattern.findall(file_text)
     children = child_pattern.findall(file_text)
@@ -26,9 +26,9 @@ def find_components(path):
 def get_child(children, prefix):
     child = dict()
     for com in children:
-        for node in filter(lambda x: x.strip() is not None, com[1].split("\n")):
+        for node in [i.strip() for i in com[1].split("\n") if i]:
             path = prefix
-            for layer in node.strip().split("/"):
+            for layer in node.split("/"):
                 path = os.path.join(path, layer)
             # support wild character
             for wild in glob.iglob(path):
@@ -36,21 +36,30 @@ def get_child(children, prefix):
     return child
 
 
-def to_component(method_info):
-    method, source = method_info
+def to_component(func_info):
+    name, source = func_info
+    raw = name
     # get component by source
-    if "/" in source:
+    if source:
         path = args.source
         for layer in source.split("/"):
             path = os.path.join(path, layer)
-        component = best_matched(path)
-    # get component by symbol
+        com = best_matched(path)
+    # get component by name
     else:
-        try:
-            component = symbols[method]
-        except KeyError:
-            component = method
-    return component
+        if name in symbols:
+            com = symbols[name]
+        else:
+            while True:
+                if "::" in name:
+                    name = name[:name.rindex("::")]
+                    if name in symbols:
+                        com = symbols[name]
+                        break
+                else:
+                    com = raw
+                    break
+    return com
 
 
 def update_components(root):

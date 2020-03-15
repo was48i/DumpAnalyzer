@@ -27,12 +27,12 @@ def load_components():
 
 
 def load_symbols():
-    load_path = os.path.join(os.getcwd(), "json", "symbols.json")
+    load_path = os.path.join(os.getcwd(), "json", "quick_functions.json")
     try:
         with open(load_path, "r") as fp:
             sym_dict = json.load(fp)
     except FileNotFoundError:
-        print("We don't have symbol dict, need to update!")
+        print("We don't have function dict, need to update!")
         return dict()
     else:
         return sym_dict

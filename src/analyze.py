@@ -5,13 +5,14 @@ import os
 import sys
 
 from argument import parser
+from regex import find_stack
 from statistics import validate
 from clang.cindex import Config
 from symbol import update_symbols
 from component import update_components
 from persistence import dump_components, dump_symbols
 from output import stats_print, flow_print, format_print
-from workflow import format_dump, filter_words, find_key
+from workflow import format_dump, filter_word, add_knowledge
 
 
 if __name__ == "__main__":
@@ -20,24 +21,20 @@ if __name__ == "__main__":
     lib_path = r"C:\LLVM\bin" if sys.platform == "win32" else "/usr/lib"
     if not Config.loaded:
         Config.set_library_path(lib_path)
-    # data validation
+    # data evaluation
     if args.stats:
         stats_print(validate())
     # show workflow
     elif args.workflow:
-        format_res = format_dump(args.workflow[0])
-        filter_res = filter_words(format_res)
-        rule_res = find_key(filter_res)[0]
-        hash_res = find_key(filter_res)[1]
-        flow_print([format_res, filter_res, rule_res, hash_res])
-    # text similarity
+        step_1 = format_dump(args.workflow[0])
+        step_2 = filter_word(step_1)
+        step_3 = add_knowledge(step_2)
+        flow_print([step_1, step_2, step_3])
+    # compare dump
     else:
         result = []
         for path in args.dump:
-            if not args.order:
-                result.append(format_dump(path))
-            else:
-                result.append(find_key(filter_words(format_dump(path)))[0])
+            result.append(find_stack(path))
         format_print(result)
     # update components/symbols
     if args.update:

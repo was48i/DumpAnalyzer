@@ -5,18 +5,15 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-m", "--mode", default="ast",
                     choices=["ast", "csi"],
                     help="select the mode of analysis")
-# data validation
+# data evaluation
 parser.add_argument("--stats", nargs="?", const=True,
-                    help="data validation")
+                    help="data evaluation")
 # show workflow
 parser.add_argument("--workflow", nargs=1,
                     help="show workflow")
-# show component order
-parser.add_argument("--order", nargs="?", const=True,
-                    help="show component order")
-# ignore stop words
-parser.add_argument("--ignore", nargs="?", const=True,
-                    help="ignore stop words")
+# don't filter stop words
+parser.add_argument("--raw", nargs="?", const=True,
+                    help="don't filter stop words")
 # support Windows
 if sys.platform == "win32":
     parser.add_argument("-d", "--dump", nargs=2,

@@ -1,5 +1,4 @@
 import os
-import sys
 
 from argument import parser
 from clang.cindex import Index
@@ -44,8 +43,7 @@ def best_matched(path):
         com = components[path]
     else:
         while True:
-            slash = "\\" if sys.platform == "win32" else "/"
-            path = path[:path.rindex(slash)]
+            path = path[:path.rindex("/")]
             if path in components:
                 com = components[path]
                 break
@@ -79,7 +77,7 @@ def find_symbols(path):
 
 def update_symbols(root):
     symbol_dict = dict()
-    # update symbols using multi-process
+    # using multi-process
     paths = get_paths(root)
     pool = Pool(4)
     results = pool.map(find_symbols, paths)

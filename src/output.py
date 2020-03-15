@@ -70,16 +70,17 @@ def stats_print(metrics):
 
 
 def flow_print(results):
-    format_res, filter_res, rule_res, hash_res = results
+    step_1, step_2, step_3 = results
     # follow 4 steps to output
     print("\033[0;32m" + "I. Format Dump File" + "\033[0m")
-    print(format_res)
+    print(step_1)
     print("\033[0;32m" + "II. Filter Stop Words" + "\033[0m")
-    print(filter_res)
+    print(step_2)
     print("\033[0;32m" + "III. Add HANA Knowledge" + "\033[0m")
-    print(rule_res)
-    print("\033[0;32m" + "IV. Covert to Hash Code" + "\033[0m")
-    print(hash_res)
+    for func_info in step_3:
+        print("\033[0;36m" + func_info[0] + "\033[0m")
+        for name in func_info[1].split("\n"):
+            print(name)
 
 
 __all__ = [
