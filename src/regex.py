@@ -67,13 +67,13 @@ def find_stack(path):
     bt = find_backtrace(stack[0])
     res += bt
     # merge exception if exists
-    if "exception throw location" in stack[0]:
+    ex_key = "exception throw location"
+    if ex_key in stack[0]:
         ex = find_exception(stack[0])
         res += ex
     return res
 
 
 __all__ = [
-    "find_backtrace",
     "find_stack"
 ]

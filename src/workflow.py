@@ -19,7 +19,7 @@ except FileNotFoundError:
 def demangle(name):
     args = ["c++filt", "-p"]
     args.extend([name])
-    pipe = subprocess.Popen(args, stdout=subprocess.PIPE, 
+    pipe = subprocess.Popen(args, stdout=subprocess.PIPE,
                             stdin=subprocess.PIPE)
     stdout, stderr = pipe.communicate()
     return stdout.decode("utf-8")[:-1]
@@ -59,18 +59,19 @@ def extract_backtrace(text):
 
 def extract_exception(text):
     ex = "[EXCEPTION]\n"
-    ex_pattern = re.compile(r"\d+:[ ](.+)([ ]at[ ].+:)*", re.M)
+    ex_pattern = re.compile(r"\d+:[ ](.+[ ]at[ ].+):", re.M)
     ex_functions = ex_pattern.findall(text)
-    for func_info in ex_functions:
-        f = list(func_info)
+    for line in ex_functions:
         # remove offset if exists
         offset_pattern = re.compile(r"([ ]const)*[+]*0x\w+([ ]in[ ])*")
-        f[0] = re.sub(offset_pattern, "", f[0])
-        name = get_name(f[0])
-        if f[1]:
-            f[1] = f[1][f[1].index(" at ") + 4:-1]
-        if "/" in f[1]:
-            ex += name + " at " + f[1] + "\n"
+        func_info = re.sub(offset_pattern, "", line)
+        name = func_info[:func_info.index(" at ")]
+        source = func_info[func_info.index(" at ") + 4:]
+        name = get_name(name)
+        if not re.match(r"^[A-Za-z]", name):
+            continue
+        if "/" in source:
+            ex += name + " at " + source + "\n"
         else:
             ex += name + "\n"
     return ex
@@ -88,28 +89,22 @@ def format_dump(path):
     bt = extract_backtrace(stack[0])
     res += bt
     # merge exception function if exists
-    ex_start = "exception throw location"
-    ex_end = "exception type information"
-    bt_key = "----> Symbolic stack backtrace <----"
-    if ex_start in stack[0]:
-        key_part = stack[0].split(ex_start)[1]
-        if ex_end in key_part:
-            key_part = key_part.split(ex_end)[0]
-        else:
-            key_part = key_part.split(bt_key)[0]
+    ex_key = "exception throw location"
+    if ex_key in stack[0]:
+        key_part = stack[0].split(ex_key)[1]
         ex = extract_exception(key_part)
         res += ex
-    return res[:-1]
+    return res
 
 
 def filter_word(formatted):
     res = ""
     if "[EXCEPTION]\n" in formatted:
-        key_part = formatted.split("[EXCEPTION]\n")[1][:-1]
+        key_part = formatted.split("[EXCEPTION]\n")[1]
         if key_part:
             res = key_part
     else:
-        key_part = formatted[formatted.index("[BACKTRACE]\n") + 12:-1]
+        key_part = formatted[formatted.index("[BACKTRACE]\n") + 12:]
         if key_part:
             start = 0
             for i, func in enumerate(key_part.split("\n")):
@@ -121,7 +116,7 @@ def filter_word(formatted):
                     break
             for line in key_part.split("\n")[start:]:
                 res += line + "\n"
-            res = res[:-1]
+            res = res
     return res
 
 
@@ -129,7 +124,7 @@ def add_knowledge(filtered):
     res = []
     component = ""
     func_content = ""
-    for func_info in filtered.split("\n"):
+    for func_info in [i for i in filtered.split("\n") if i]:
         if " at " in func_info:
             name = func_info[:func_info.index(" at ")]
             source = func_info[func_info.index(" at ") + 4:]
@@ -144,7 +139,7 @@ def add_knowledge(filtered):
         else:
             component = to_component(f)
             func_content += f[0] + "\n"
-    res.append([component, func_content[:-1]])
+    res.append([component, func_content])
     return res
 
 
