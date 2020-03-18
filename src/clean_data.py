@@ -24,7 +24,7 @@ def data_storage(dump_list):
             stack = pattern.findall(file_text)
             if not stack:
                 continue
-            with open(os.path.join(set_path, "dump_" + str(i)), "w") as fp:
+            with open(os.path.join(set_path, str(i) + ".dmp"), "w") as fp:
                 fp.write(stack[0])
 
 

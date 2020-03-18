@@ -67,24 +67,24 @@ def reshape_data():
         path = os.path.join(prefix, str(group_id))
         # get dump numbers of each group
         for node in os.listdir(path):
-            ids.append(node[node.index("_") + 1:])
+            ids.append(node[:node.index(".")])
         prefix_ = os.path.join(prefix, str(group_id))
         # prepare list for positive sampling
         for group in list(combinations(ids, 2)):
             pair.append(list(map(lambda x:
-                                 os.path.join(prefix_, "dump_" + x), group)))
+                                 os.path.join(prefix_, x + ".dmp"), group)))
         p_list.append(pair)
         # prepare list for negative sampling
         n_list.append(list(map(lambda x:
-                               os.path.join(prefix_, "dump_" + x), ids)))
+                               os.path.join(prefix_, x + ".dmp"), ids)))
     # generate dataset
     for p, n in zip(sample_positives(p_list), sample_negatives(n_list)):
         res.append([p, n])
-    tmp_path = os.path.join(os.getcwd(), "json", "tmp.json")
-    with open(tmp_path, "w") as fp:
+    dst_path = os.path.join(os.getcwd(), "json", "data_sets.json")
+    with open(dst_path, "w") as fp:
         json.dump(res, fp, indent=4, sort_keys=True)
 
 
 if __name__ == "__main__":
-    prefix = r"/dataset"
+    prefix = "/dataset"
     reshape_data()
