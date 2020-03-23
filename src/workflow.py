@@ -107,14 +107,23 @@ def filter_word(formatted):
         key_part = formatted[formatted.index("[BACKTRACE]\n") + 12:]
         if key_part:
             start = 0
-            for i, func in enumerate(key_part.split("\n")):
+            end = len([i for i in key_part.split("\n") if i])
+            prefix_words, suffix_words = stop_words
+            # get start/end
+            for i, func in enumerate([i for i in key_part.split("\n") if i]):
                 if " at " in func:
                     func = func[:func.index(" at ")]
-                # filter stop words
-                if func not in stop_words:
-                    start = i
+                if func not in prefix_words:
+                    start += i
                     break
-            for line in key_part.split("\n")[start:]:
+            for i, func in enumerate([i for i in key_part.split("\n") if i]
+                                     [::-1]):
+                if " at " in func:
+                    func = func[:func.index(" at ")]
+                if func not in suffix_words:
+                    end -= i
+                    break
+            for line in [i for i in key_part.split("\n") if i][start:end]:
                 res += line + "\n"
             res = res
     return res
