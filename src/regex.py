@@ -26,7 +26,7 @@ def find_exception(text):
     # extract headers
     headers = []
     header_pattern = re.compile(r"(exception.+)[ ]TID.+\n"
-                                r"([\S\s]+?exception[ ]throw[ ]location:)",
+                                r"([\s\S]+?exception[ ]throw[ ]location:)",
                                 re.M)
     for h in header_pattern.findall(text):
         header = "\n" + h[0] + "\n" + h[1].strip() + "\n"
@@ -60,7 +60,7 @@ def find_stack(path):
     with open(path, "r", encoding="ISO-8859-1") as fp:
         file_text = fp.read()
     # set stack pattern
-    stack_pattern = re.compile(r"\n(\[CRASH_STACK\][\S\s]+)"
+    stack_pattern = re.compile(r"\n(\[CRASH_STACK\][\s\S]+)"
                                r"\[CRASH_REGISTERS\]", re.M)
     stack = stack_pattern.findall(file_text)
     # extract backtrace

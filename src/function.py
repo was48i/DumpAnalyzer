@@ -1,4 +1,5 @@
 import os
+import re
 
 from argument import parser
 from clang.cindex import Index
@@ -9,11 +10,11 @@ args = parser.parse_args()
 components = load_components()
 
 
-def get_paths(root):
+def get_paths():
     stack = []
     paths = []
-    stack.append(root)
-    # do DFS
+    stack.append(args.source)
+    # DFS
     while len(stack) > 0:
         prefix = stack.pop(len(stack) - 1)
         for node in os.listdir(prefix):
@@ -40,18 +41,18 @@ def fully_qualified(child, path):
 
 def best_matched(path):
     if path in components:
-        com = components[path]
+        component = components[path]
     else:
         while True:
             path = path[:path.rindex("/")]
             if path in components:
-                com = components[path]
+                component = components[path]
                 break
-    return com
+    return component
 
 
-def find_symbols(path):
-    symbol = dict()
+def find_functions(path):
+    functions = dict()
     index = Index.create()
     header = os.path.join(args.source, "rte", "rtebase", "include")
     args_list = [
@@ -71,29 +72,29 @@ def find_symbols(path):
                 (child.spelling or child.displayname):
             kind = str(child.kind)[str(child.kind).index('.') + 1:]
             if kind in decl_kinds:
-                symbol[fully_qualified(child, path)] = best_matched(path)
-    return symbol
+                functions[fully_qualified(child, path)] = best_matched(path)
+    return functions
 
 
-def update_symbols(root):
-    symbol_dict = dict()
+def update_functions():
+    function_dict = dict()
     # using multi-process
-    paths = get_paths(root)
+    paths = get_paths()
     pool = Pool(4)
-    results = pool.map(find_symbols, paths)
-    for res in filter(lambda x: x is not None, results):
-        for k in res:
-            if "::::" in k:
-                k = k[:k.rindex("::::")] + \
-                    "::(anonymous namespace)::" + \
-                    k[k.rindex("::::") + 4:]
-            symbol_dict[k] = res[k]
+    results = pool.map(find_functions, paths)
+    for res in [i for i in results if i]:
+        for k in res.keys():
+            # special cases
+            key = k
+            # handle anonymous namespace
+            while "::::" in key:
+                key = k.replace("::::", "::")
+            # remove special characters
+            if re.search(r"[^0-9a-zA-Z:_]", key):
+                point = re.search(r"[^0-9a-zA-Z:_]", key).span()[0]
+                key = key[:point]
+            print(key)
+            function_dict[key] = res[k]
     pool.close()
     pool.join()
-    return symbol_dict
-
-
-__all__ = [
-    "best_matched",
-    "update_symbols"
-]
+    return function_dict

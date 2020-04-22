@@ -13,15 +13,15 @@ def lcs_dp(x, y):
     # get LCS result
     index = dp[m][n]
     result = [""] * index
-    pos_x = []
-    pos_y = []
+    x_pos = []
+    y_pos = []
     i = m
     j = n
     while i > 0 and j > 0:
         if x[i - 1] == y[j - 1]:
             result[index - 1] = x[i - 1]
-            pos_x.append(i - 1)
-            pos_y.append(j - 1)
+            x_pos.append(i - 1)
+            y_pos.append(j - 1)
             i -= 1
             j -= 1
             index -= 1
@@ -29,9 +29,9 @@ def lcs_dp(x, y):
             i -= 1
         else:
             j -= 1
-    pos_x.reverse()
-    pos_y.reverse()
-    return result, pos_x, pos_y
+    x_pos.reverse()
+    y_pos.reverse()
+    return result, x_pos, y_pos
 
 
 __all__ = [

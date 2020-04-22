@@ -2,45 +2,37 @@ import os
 import json
 
 
-def dump_components(com_dict):
-    dump_path = os.path.join(os.getcwd(), "json", "components.json")
+def dump_components(component_dict):
+    dump_path = os.path.join(os.getcwd(), "json", "components-master.json")
     with open(dump_path, "w") as fp:
-        json.dump(com_dict, fp, indent=4, sort_keys=True)
+        json.dump(component_dict, fp, indent=4, sort_keys=True)
 
 
-def dump_symbols(sym_dict):
-    dump_path = os.path.join(os.getcwd(), "json", "symbols.json")
+def dump_functions(function_dict):
+    dump_path = os.path.join(os.getcwd(), "json", "functions-master.json")
     with open(dump_path, "w") as fp:
-        json.dump(sym_dict, fp, indent=4, sort_keys=True)
+        json.dump(function_dict, fp, indent=4, sort_keys=True)
 
 
 def load_components():
-    load_path = os.path.join(os.getcwd(), "json", "components.json")
+    load_path = os.path.join(os.getcwd(), "json", "components-master.json")
     try:
         with open(load_path, "r") as fp:
-            com_dict = json.load(fp)
+            component_dict = json.load(fp)
     except FileNotFoundError:
-        print("We don't have component dict, need to update!")
+        print("Can not find component dict, please update.")
         return dict()
     else:
-        return com_dict
+        return component_dict
 
 
-def load_symbols():
-    load_path = os.path.join(os.getcwd(), "json", "quick_functions.json")
+def load_functions():
+    load_path = os.path.join(os.getcwd(), "json", "functions-master.json")
     try:
         with open(load_path, "r") as fp:
-            sym_dict = json.load(fp)
+            function_dict = json.load(fp)
     except FileNotFoundError:
-        print("We don't have function dict, need to update!")
+        print("Can not find function dict, please update.")
         return dict()
     else:
-        return sym_dict
-
-
-__all__ = [
-    "dump_components",
-    "dump_symbols",
-    "load_components",
-    "load_symbols"
-]
+        return function_dict

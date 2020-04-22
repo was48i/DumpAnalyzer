@@ -26,10 +26,13 @@ def demangle(name):
 
 
 def get_name(func):
+    # remove parameter varible
     while "(" in func:
         func = func[:func.rindex("(")]
+    # remove template
     if "<" in func:
         func = func[:func.index("<")]
+    # remove return type
     if re.match(r"^[a-z]+[ ]", func):
         func = func[func.index(" ") + 1:]
     return func
@@ -68,7 +71,7 @@ def extract_exception(text):
         name = func_info[:func_info.index(" at ")]
         source = func_info[func_info.index(" at ") + 4:]
         name = get_name(name)
-        if not re.match(r"^[A-Za-z]", name):
+        if not re.match(r"^[a-zA-Z]", name):
             continue
         if "/" in source:
             ex += name + " at " + source + "\n"
@@ -82,7 +85,7 @@ def format_dump(path):
     with open(path, "r", encoding="ISO-8859-1") as fp:
         file_text = fp.read()
     # set stack pattern
-    stack_pattern = re.compile(r"\n(\[CRASH_STACK\][\S\s]+)"
+    stack_pattern = re.compile(r"\n(\[CRASH_STACK\][\s\S]+)"
                                r"\[CRASH_REGISTERS\]", re.M)
     stack = stack_pattern.findall(file_text)
     # backtrace function
@@ -150,10 +153,3 @@ def add_knowledge(filtered):
             func_content += f[0] + "\n"
     res.append([component, func_content])
     return res
-
-
-__all__ = [
-    "format_dump",
-    "filter_word",
-    "add_knowledge"
-]

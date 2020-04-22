@@ -47,13 +47,13 @@ def cal_sim(paths):
         for i, com in enumerate(lcs):
             com_sim = Levenshtein.ratio(info_1[pos_1[i]][1],
                                         info_2[pos_2[i]][1])
-            above = math.exp(-0.7 * max(pos_1[i], pos_2[i])) * \
-                math.exp(-2.0 * (1 - com_sim))
+            above = math.exp(-0.4 * max(pos_1[i], pos_2[i])) * \
+                math.exp(-1.9 * (1 - com_sim))
             above_sum += above
-        for i in range(min(len(coms_1), len(coms_2))):
-            below_sum += math.exp(-0.7 * i)
+        for i in range(max(len(coms_1), len(coms_2))):
+            below_sum += math.exp(-0.4 * i)
         sim = above_sum / below_sum
-        if sim >= 0.5:
+        if sim >= 0.259:
             dup = 1
     else:
         info_1 = find_stack(path_1)
@@ -97,7 +97,7 @@ def cal_metrics(group):
     if precision + recall == 0:
         f1 = 0
     else:
-        f1 = 2 * precision * recall / (precision + recall)
+        f1 = (1 + 1 * 1) * precision * recall / (1 * 1 * precision + recall)
     return tuple(map(lambda x: "{:.3f}".format(x), (precision, recall, f1)))
 
 
