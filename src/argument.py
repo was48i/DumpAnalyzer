@@ -1,39 +1,23 @@
-import sys
 import argparse
 
 parser = argparse.ArgumentParser()
+# mode selection
 parser.add_argument("-m", "--mode", default="ast",
                     choices=["ast", "csi"],
                     help="select the mode of analysis")
-# data evaluation
-parser.add_argument("--stats", nargs="?", const=True,
-                    help="data evaluation")
-# show workflow
-parser.add_argument("--workflow", nargs=1,
-                    help="show workflow")
-# don't filter stop words
-parser.add_argument("--raw", nargs="?", const=True,
-                    help="don't filter stop words")
-# support Windows
-if sys.platform == "win32":
-    parser.add_argument("-d", "--dump", nargs=2,
-                        default=[r"data\bt_dump_1.trc", r"data\bt_dump_2.trc"],
-                        help="input crash dump files")
-    parser.add_argument("-s", "--source", nargs="?",
-                        default=r"C:\hana",
-                        help="source code path")
-else:
-    parser.add_argument("-d", "--dump", nargs=2,
-                        default=["data/bt_dump_1.trc", "data/bt_dump_2.trc"],
-                        help="input crash dump files")
-    parser.add_argument("-s", "--source", nargs="?",
-                        default="/hana",
-                        help="source code path")
-# update or not
+# do not filter stop words
+parser.add_argument("-r", "--raw", nargs="?", const=True,
+                    help="do not filter stop words")
+# show AST workflow
+parser.add_argument("-w", "--workflow", nargs=1,
+                    help="show our workflow")
+# comparing based on CSI
+parser.add_argument("-d", "--dump", nargs=2,
+                    help="input crash dump files")
+# change source code path
+parser.add_argument("-s", "--source", nargs="?",
+                    default="/hana-master",
+                    help="source code path")
+# update components/functions
 parser.add_argument("-u", "--update", nargs="?", const=True,
-                    help="update components/symbols or not")
-
-
-__all__ = [
-    "parser"
-]
+                    help="update components/functions")

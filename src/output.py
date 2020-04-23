@@ -1,7 +1,6 @@
 import os
 import difflib
 import Levenshtein
-import prettytable as pt
 
 from argument import parser
 
@@ -59,16 +58,6 @@ def format_print(lists):
     sim_print(lists[0], lists[1])
 
 
-def stats_print(metrics):
-    tb = pt.PrettyTable()
-    # insert metrics
-    precision, recall, f1 = metrics
-    tb.add_column("Precision", precision)
-    tb.add_column("Recall", recall)
-    tb.add_column("F1 Score", f1)
-    print(tb)
-
-
 def flow_print(results):
     step_1, step_2, step_3 = results
     # follow 4 steps to output
@@ -81,10 +70,3 @@ def flow_print(results):
         print("\033[0;36m" + func_info[0] + "\033[0m")
         for name in func_info[1].split("\n"):
             print(name)
-
-
-__all__ = [
-    "format_print",
-    "stats_print",
-    "flow_print"
-]
