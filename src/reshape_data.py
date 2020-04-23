@@ -53,8 +53,23 @@ def sample_negatives(n_list):
     return res[:10]
 
 
-def reshape_data():
+# def flatten(items):
+#     for x in items:
+#         if hasattr(x,'__iter__') and not isinstance(x, (str, bytes)):
+#             yield from flatten(x)
+#         else:
+#             yield x
+
+
+def flatten(items):
     res = []
+    for group in items:
+        for pair in group:
+            res.append(pair)
+    return res
+
+
+def reshape_data():
     group_ids = range(len(os.listdir(prefix)))
     # filter single group
     group_ids = [i for i in group_ids
@@ -77,9 +92,14 @@ def reshape_data():
         # prepare list for negative sampling
         n_list.append(list(map(lambda x:
                                os.path.join(prefix_, x + ".dmp"), ids)))
-    # generate dataset
-    for p, n in zip(sample_positives(p_list), sample_negatives(n_list)):
-        res.append([p, n])
+    res = []
+    positives = sample_positives(p_list)
+    negatives = sample_negatives(n_list)
+    # generate training set
+    res.append([flatten(positives[:7]), flatten(negatives[:7])])
+    # generate testing set
+    res.append([flatten(positives[7:]), flatten(negatives[7:])])
+    # store dataset
     dst_path = os.path.join(os.getcwd(), "json", "data_sets.json")
     with open(dst_path, "w") as fp:
         json.dump(res, fp, indent=4, sort_keys=True)

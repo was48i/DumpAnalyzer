@@ -84,7 +84,6 @@ def update_functions():
     results = pool.map(find_functions, paths)
     for res in [i for i in results if i]:
         for k in res.keys():
-            # special cases
             key = k
             # handle anonymous namespace
             while "::::" in key:

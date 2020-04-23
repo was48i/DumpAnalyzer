@@ -1,4 +1,5 @@
-def lcs_dp(x, y):
+def lcs_dp(seq_list):
+    x, y = seq_list
     m = len(x)
     n = len(y)
     dp = [[0 for i in range(n + 1)] for i in range(m + 1)]
@@ -32,8 +33,3 @@ def lcs_dp(x, y):
     x_pos.reverse()
     y_pos.reverse()
     return result, x_pos, y_pos
-
-
-__all__ = [
-    "lcs_dp"
-]
