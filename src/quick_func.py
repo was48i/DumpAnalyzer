@@ -12,12 +12,12 @@ def trie_tree(func):
     res = dict()
     print(func)
     key = func
-    item_list = func.split("::")
+    item_list = [i for i in func.split("::") if i]
     for i, item in enumerate(item_list):
         component_set = set()
         prefix = func[:func.index(item) + len(item)]
         for name in func_dict:
-            if name.startswith(prefix) and name.split("::")[i] == item:
+            if name.startswith(prefix):
                 component_set.add(func_dict[name])
                 if len(component_set) > 1:
                     break

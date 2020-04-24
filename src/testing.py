@@ -51,7 +51,8 @@ def pr_drawing(m_opt, n_opt):
     plt.ylabel("Precision")
     plt.title("PR Curve")
     plt.legend(loc="lower left")
-    plt.savefig("csi.svg")
+    pic_name = args.mode
+    plt.savefig(pic_name + ".svg")
     # useful tables
     print(precision)
     print(recall)

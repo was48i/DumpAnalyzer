@@ -60,7 +60,7 @@ def pr_training():
     n_opt = 0.0
     ap_max = 0.0
     for m in np.arange(0.0, 2.1, 0.1):
-        for n in np.arange(2.0, 4.1, 0.1):
+        for n in np.arange(0.0, 2.1, 0.1):
             # get true_label and pred_score
             true_label = []
             pred_score = []
