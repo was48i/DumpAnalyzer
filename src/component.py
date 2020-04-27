@@ -23,6 +23,14 @@ def find_components(path):
     return parents, children
 
 
+def get_key(str_path):
+    key = str_path[len(args.source):]
+    if key:
+        key = key[1:]
+        print(key)
+    return key
+
+
 def get_child(children, prefix):
     child = dict()
     for component in children:
@@ -41,10 +49,7 @@ def to_component(func_info):
     raw = name
     # get component by source
     if source:
-        path = args.source
-        for layer in source.split("/"):
-            path = os.path.join(path, layer)
-        component = best_matched(path)
+        component = best_matched(source)
     # get component by name
     else:
         if name in functions:
@@ -57,8 +62,12 @@ def to_component(func_info):
                         component = functions[name]
                         break
                 else:
-                    component = raw
-                    break
+                    if name in functions:
+                        component = functions[name]
+                        break
+                    else:
+                        component = raw
+                        break
     return component
 
 
@@ -75,13 +84,15 @@ def update_components():
             parents, children = find_components(cmk_path)
             # save parent component
             for component in parents:
-                print(prefix)
-                component_dict[prefix] = component
+                key = get_key(prefix)
+                if key:
+                    component_dict[key] = component
             # save child component
             child_dict = get_child(children, prefix)
             for child in child_dict:
-                print(child)
-                component_dict[child] = child_dict[child]
+                key = get_key(child)
+                if key:
+                    component_dict[key] = child_dict[child]
         for node in os.listdir(prefix):
             child = os.path.join(prefix, node)
             if os.path.isdir(child):

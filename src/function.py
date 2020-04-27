@@ -23,7 +23,10 @@ def get_paths():
             if os.path.isdir(child):
                 stack.append(child)
             elif extension in [".h", ".hpp"]:
-                paths.append(child)
+                file_path = child[len(args.source):]
+                if file_path:
+                    file_path = file_path[1:]
+                    paths.append(file_path)
     return paths
 
 
@@ -44,10 +47,18 @@ def best_matched(path):
         component = components[path]
     else:
         while True:
-            path = path[:path.rindex("/")]
-            if path in components:
-                component = components[path]
-                break
+            if "/" in path:
+                path = path[:path.rindex("/")]
+                if path in components:
+                    component = components[path]
+                    break
+            else:
+                if path in components:
+                    component = components[path]
+                    break
+                else:
+                    component = "UNKNOWN"
+                    break
     return component
 
 
