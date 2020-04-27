@@ -23,10 +23,7 @@ def get_paths():
             if os.path.isdir(child):
                 stack.append(child)
             elif extension in [".h", ".hpp"]:
-                file_path = child[len(args.source):]
-                if file_path:
-                    file_path = file_path[1:]
-                    paths.append(file_path)
+                paths.append(child)
     return paths
 
 
@@ -63,6 +60,7 @@ def best_matched(path):
 
 
 def find_functions(path):
+    print(path)
     functions = dict()
     index = Index.create()
     header = os.path.join(args.source, "rte", "rtebase", "include")
@@ -83,7 +81,8 @@ def find_functions(path):
                 (child.spelling or child.displayname):
             kind = str(child.kind)[str(child.kind).index('.') + 1:]
             if kind in decl_kinds:
-                functions[fully_qualified(child, path)] = best_matched(path)
+                key = fully_qualified(child, path)
+                functions[key] = best_matched(path)
     return functions
 
 
@@ -103,7 +102,6 @@ def update_functions():
             if re.search(r"[^0-9a-zA-Z:_]", key):
                 point = re.search(r"[^0-9a-zA-Z:_]", key).span()[0]
                 key = key[:point]
-            print(key)
             function_dict[key] = res[k]
     pool.close()
     pool.join()
