@@ -8,7 +8,6 @@ import numpy as np
 
 from lcs_dp import lcs_dp
 from argument import parser
-from regex import find_stack
 from sklearn.metrics import average_precision_score
 from workflow import format_dump, filter_word, add_knowledge
 
@@ -35,23 +34,16 @@ def calculate_sim(paths, m, n):
         info_list.append(info)
         component_list.append([i[0] for i in info])
     # calculate similarity
-    if args.mode == "ast":
-        above_sum = 0.0
-        below_sum = 0.0
-        # apply LCS
-        lcs, x_pos, y_pos = lcs_dp(component_list)
-        for i, com in enumerate(lcs):
-            component_sim = Levenshtein.ratio(info_list[0][x_pos[i]][1], info_list[1][y_pos[i]][1])
-            above_sum += np.exp(-m * max(x_pos[i], y_pos[i])) * np.exp(-n * (1 - component_sim))
-        for i in range(max(len(component_list[0]), len(component_list[1]))):
-            below_sum += np.exp(-m * i)
-        sim = above_sum / below_sum
-    else:
-        stack_list = []
-        for path in paths:
-            stack_list.append(find_stack(path))
-        if stack_list[0] == stack_list[1]:
-            sim = 1.0
+    above_sum = 0.0
+    below_sum = 0.0
+    # apply LCS
+    lcs, x_pos, y_pos = lcs_dp(component_list)
+    for i, com in enumerate(lcs):
+        component_sim = Levenshtein.ratio(info_list[0][x_pos[i]][1], info_list[1][y_pos[i]][1])
+        above_sum += np.exp(-m * max(x_pos[i], y_pos[i])) * np.exp(-n * (1 - component_sim))
+    for i in range(max(len(component_list[0]), len(component_list[1]))):
+        below_sum += np.exp(-m * i)
+    sim = above_sum / below_sum
     return sim
 
 
