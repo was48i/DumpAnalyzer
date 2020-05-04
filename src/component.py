@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import glob
 
 from argument import parser
@@ -21,14 +22,6 @@ def find_components(path):
     parents = parent_pattern.findall(file_text)
     children = child_pattern.findall(file_text)
     return parents, children
-
-
-def get_key(path):
-    key = path[len(args.source):]
-    if key:
-        key = key[1:]
-        print(key)
-    return key
 
 
 def get_child(children, prefix):
@@ -84,14 +77,22 @@ def update_components():
             parents, children = find_components(cmk_path)
             # save parent component
             for component in parents:
-                key = get_key(prefix)
+                key = prefix[len(args.source):]
+                if sys.platform == "win32":
+                    key = key.replace("\\", "/")
                 if key:
+                    key = key[1:]
+                    print(key)
                     component_dict[key] = component
             # save child component
             child_dict = get_child(children, prefix)
             for child in child_dict:
-                key = get_key(child)
+                key = child[len(args.source):]
+                if sys.platform == "win32":
+                    key = key.replace("\\", "/")
                 if key:
+                    key = key[1:]
+                    print(key)
                     component_dict[key] = child_dict[child]
         for node in os.listdir(prefix):
             child = os.path.join(prefix, node)

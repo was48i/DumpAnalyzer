@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 
 from argument import parser
 from clang.cindex import Index
@@ -43,6 +44,10 @@ def fully_qualified(child, path):
 def best_matched(path):
     # remove prefix
     path = path[len(args.source) + 1:]
+    # support Win
+    if sys.platform == "win32":
+        path = path.replace("\\", "/")
+    # match component
     if path in components:
         component = components[path]
     else:
@@ -102,6 +107,7 @@ def multi_process(paths):
             if re.search(r"[^0-9a-zA-Z:_]", key):
                 point = re.search(r"[^0-9a-zA-Z:_]", key).span()[0]
                 key = key[:point]
+            print(key)
             function_dict[key] = res[k]
     pool.close()
     pool.join()
@@ -114,7 +120,7 @@ def update_functions():
     for pack in os.listdir(args.source):
         cur_path = os.path.join(args.source, pack)
         if os.path.isdir(cur_path):
-            print(cur_path)
             paths = get_files(cur_path)
-            result.update(multi_process(paths))
+            if paths:
+                result.update(multi_process(paths))
     return result
