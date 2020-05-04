@@ -5,17 +5,8 @@ import os
 import re
 import json
 
+from workflow import get_name
 from collections import Counter
-
-
-def get_name(func):
-    while "(" in func:
-        func = func[:func.rindex("(")]
-    if "<" in func:
-        func = func[:func.index("<")]
-    if re.match(r"^[a-z]+[ ]", func):
-        func = func[func.index(" ") + 1:]
-    return func
 
 
 def get_words(text):
@@ -94,6 +85,6 @@ if __name__ == "__main__":
         with open(api_bug_lists_path, "r") as f:
             api_bug_lists = json.load(f)
     except FileNotFoundError:
-        print("Can't find api_bug_lists, please check!")
+        print("Can not find api_bug_lists, please check.")
     prefix = "/area51/bugzilla"
     read_dumps(api_bug_lists)

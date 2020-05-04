@@ -29,15 +29,15 @@ def trie_tree(func):
 
 
 def quick_func():
-    quick_funs = dict()
+    quick_funcs = dict()
     pool = Pool(4)
     results = pool.map(trie_tree, func_dict.keys())
     for res in results:
         for k in res.keys():
-            quick_funs[k] = res[k]
+            quick_funcs[k] = res[k]
     dump_path = os.path.join(os.getcwd(), "json", "quick_functions-master.json")
     with open(dump_path, "w") as fp:
-        json.dump(quick_funs, fp, indent=4, sort_keys=True)
+        json.dump(quick_funcs, fp, indent=4, sort_keys=True)
 
 
 if __name__ == "__main__":

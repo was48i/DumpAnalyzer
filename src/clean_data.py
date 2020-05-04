@@ -34,5 +34,5 @@ if __name__ == "__main__":
         with open(dump_unions_path, "r") as f:
             dump_unions = json.load(f)
     except FileNotFoundError:
-        print("Can't find dump_unions, please check!")
+        print("Can not find dump_unions, please check.")
     data_storage(dump_unions)

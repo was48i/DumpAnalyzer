@@ -63,5 +63,5 @@ if __name__ == "__main__":
         with open(dup_bug_lists_path, "r") as f:
             dup_bug_lists = json.load(f)
     except FileNotFoundError:
-        print("Can't find dup_bug_lists, please check!")
+        print("Can not find dup_bug_lists, please check.")
     group_dumps(dup_bug_lists)

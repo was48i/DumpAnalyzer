@@ -13,20 +13,20 @@ try:
     with open(stop_words_path, "r") as f:
         stop_words = json.load(f)
 except FileNotFoundError:
-    print("Can't find stop_words, please check!")
+    print("Can not find stop_words, please check.")
 
 
-def demangle(name):
-    args = ["c++filt", "-p"]
-    args.extend([name])
-    pipe = subprocess.Popen(args, stdout=subprocess.PIPE,
-                            stdin=subprocess.PIPE)
-    stdout, stderr = pipe.communicate()
-    return stdout.decode("utf-8")[:-1]
+# def demangle(name):
+#     args = ["c++filt", "-p"]
+#     args.extend([name])
+#     pipe = subprocess.Popen(args, stdout=subprocess.PIPE,
+#                             stdin=subprocess.PIPE)
+#     stdout, stderr = pipe.communicate()
+#     return stdout.decode("utf-8")[:-1]
 
 
 def get_name(func):
-    # remove parameter varible
+    # remove parameter variable
     while "(" in func:
         func = func[:func.rindex("(")]
     # remove template
@@ -140,16 +140,16 @@ def add_knowledge(filtered):
         if " at " in func_info:
             name = func_info[:func_info.index(" at ")]
             source = func_info[func_info.index(" at ") + 4:]
-            f = [name, source]
+            func = [name, source]
         else:
-            f = [func_info, ""]
-        if component != "" and to_component(f) != component:
+            func = [func_info, ""]
+        if component != "" and to_component(func) != component:
             res.append([component, func_content[:-1]])
-            component = to_component(f)
+            component = to_component(func)
             func_content = ""
-            func_content += f[0] + "\n"
+            func_content += func[0] + "\n"
         else:
-            component = to_component(f)
-            func_content += f[0] + "\n"
+            component = to_component(func)
+            func_content += func[0] + "\n"
     res.append([component, func_content])
     return res

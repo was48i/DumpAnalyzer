@@ -23,7 +23,7 @@ except FileNotFoundError:
 
 def calculate_sim(paths, m, n):
     sim = 0.0
-    # prepare items for caculation
+    # prepare items for calculation
     info_list = []
     component_list = []
     for path in paths:
@@ -65,7 +65,7 @@ def pr_training():
                 pred_score.append(calculate_sim(neg, m, n))
             true_label = np.array(true_label)
             pred_score = np.array(pred_score)
-            # caculate ap
+            # calculate ap
             ap = average_precision_score(true_label, pred_score)
             print("m=%.1f, n=%.1f, AP=%.3f" % (m, n, ap))
             # get optimal value
