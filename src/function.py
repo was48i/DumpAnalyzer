@@ -10,20 +10,21 @@ args = parser.parse_args()
 components = load_components()
 
 
-def get_paths():
+def get_files(pack_path):
     stack = []
     paths = []
-    stack.append(args.source)
+    stack.append(pack_path)
     # DFS
     while len(stack) > 0:
         prefix = stack.pop(len(stack) - 1)
         for node in os.listdir(prefix):
-            child = os.path.join(prefix, node)
-            extension = os.path.splitext(child)[-1]
-            if os.path.isdir(child):
-                stack.append(child)
-            elif extension in [".h", ".hpp"]:
-                paths.append(child)
+            cur_path = os.path.join(prefix, node)
+            extension = os.path.splitext(cur_path)[-1]
+            if not os.path.isdir(cur_path):
+                if extension in [".h", ".hpp"]:
+                    paths.append(cur_path)
+            else:
+                stack.append(cur_path)
     return paths
 
 
@@ -40,6 +41,8 @@ def fully_qualified(child, path):
 
 
 def best_matched(path):
+    # remove prefix
+    path = path[len(args.source) + 1:]
     if path in components:
         component = components[path]
     else:
@@ -60,7 +63,6 @@ def best_matched(path):
 
 
 def find_functions(path):
-    print(path)
     functions = dict()
     index = Index.create()
     header = os.path.join(args.source, "rte", "rtebase", "include")
@@ -76,9 +78,8 @@ def find_functions(path):
         "CONVERSION_FUNCTION"
     ]
     for child in tu.cursor.walk_preorder():
-        if child.location.file is not None and \
-                child.location.file.name == path and \
-                (child.spelling or child.displayname):
+        if child.location.file is not None and child.location.file.name == path and \
+           (child.spelling or child.displayname):
             kind = str(child.kind)[str(child.kind).index('.') + 1:]
             if kind in decl_kinds:
                 key = fully_qualified(child, path)
@@ -86,10 +87,9 @@ def find_functions(path):
     return functions
 
 
-def update_functions():
+def multi_process(paths):
     function_dict = dict()
     # using multi-process
-    paths = get_paths()
     pool = Pool(4)
     results = pool.map(find_functions, paths)
     for res in [i for i in results if i]:
@@ -106,3 +106,15 @@ def update_functions():
     pool.close()
     pool.join()
     return function_dict
+
+
+def update_functions():
+    result = dict()
+    # apply map reduce
+    for pack in os.listdir(args.source):
+        cur_path = os.path.join(args.source, pack)
+        if os.path.isdir(cur_path):
+            print(cur_path)
+            paths = get_files(cur_path)
+            result.update(multi_process(paths))
+    return result

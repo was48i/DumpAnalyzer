@@ -23,8 +23,8 @@ def find_components(path):
     return parents, children
 
 
-def get_key(str_path):
-    key = str_path[len(args.source):]
+def get_key(path):
+    key = path[len(args.source):]
     if key:
         key = key[1:]
         print(key)
