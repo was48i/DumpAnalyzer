@@ -1,7 +1,7 @@
 import os
 import re
 import json
-import subprocess
+# import subprocess
 
 from argument import parser
 from component import to_component

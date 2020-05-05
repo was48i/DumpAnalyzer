@@ -9,8 +9,8 @@ from persistence import load_functions
 
 
 def trie_tree(func):
-    res = dict()
     print(func)
+    res = dict()
     key = func
     item_list = [i for i in func.split("::") if i]
     for i, item in enumerate(item_list):
@@ -18,9 +18,17 @@ def trie_tree(func):
         prefix = func[:func.index(item) + len(item)]
         for name in func_dict:
             if name.startswith(prefix):
-                component_set.add(func_dict[name])
-                if len(component_set) > 1:
-                    break
+                flag = 0
+                length = len(prefix)
+                if len(name) == length:
+                    flag = 1
+                else:
+                    if name[length:length + 2] == "::":
+                        flag = 1
+                if flag == 1:
+                    component_set.add(func_dict[name])
+                    if len(component_set) > 1:
+                        break
         if len(component_set) == 1:
             key = prefix
             break
