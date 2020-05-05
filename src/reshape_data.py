@@ -9,27 +9,6 @@ import random
 from itertools import combinations
 
 
-def sample_positives(p_list):
-    cnt = 0
-    res = []
-    p_set = []
-    while True:
-        for p in p_list:
-            # start positive sampling
-            p_set.append(p.pop(0))
-            cnt += 1
-            # set number of samples
-            if cnt % 500 == 0:
-                res.append(copy.deepcopy(p_set))
-                p_set.clear()
-        # filter empty p
-        p_list = [i for i in p_list if i]
-        # set number of groups
-        if len(res) >= 10:
-            break
-    return res[:10]
-
-
 def sample_negatives(n_list):
     cnt = 0
     distance = 1.0
@@ -47,6 +26,27 @@ def sample_negatives(n_list):
                 n_set.clear()
         # frequency of per increment
         distance += 1.0 / 4
+        # set number of groups
+        if len(res) >= 10:
+            break
+    return res[:10]
+
+
+def sample_positives(p_list):
+    cnt = 0
+    res = []
+    p_set = []
+    while True:
+        for p in p_list:
+            # start positive sampling
+            p_set.append(p.pop(0))
+            cnt += 1
+            # set number of samples
+            if cnt % 500 == 0:
+                res.append(copy.deepcopy(p_set))
+                p_set.clear()
+        # filter empty p
+        p_list = [i for i in p_list if i]
         # set number of groups
         if len(res) >= 10:
             break
@@ -74,8 +74,8 @@ def reshape_data():
     # filter single group
     group_ids = [i for i in group_ids
                  if len(os.listdir(os.path.join(prefix, str(i)))) > 1]
-    p_list = []
     n_list = []
+    p_list = []
     for group_id in group_ids:
         ids = []
         pair = []
@@ -84,21 +84,20 @@ def reshape_data():
         for node in os.listdir(path):
             ids.append(node[:node.index(".")])
         prefix_ = os.path.join(prefix, str(group_id))
+        # prepare list for negative sampling
+        n_list.append(list(map(lambda x:
+                               os.path.join(prefix_, x + ".dmp"), ids)))
         # prepare list for positive sampling
         for group in list(combinations(ids, 2)):
             pair.append(list(map(lambda x:
                                  os.path.join(prefix_, x + ".dmp"), group)))
         p_list.append(pair)
-        # prepare list for negative sampling
-        n_list.append(list(map(lambda x:
-                               os.path.join(prefix_, x + ".dmp"), ids)))
-    res = []
     positives = sample_positives(p_list)
     negatives = sample_negatives(n_list)
-    # generate training set
-    res.append([flatten(positives[:7]), flatten(negatives[:7])])
-    # generate testing set
-    res.append([flatten(positives[7:]), flatten(negatives[7:])])
+    # generate training/testing set
+    res = []
+    res.append([flatten(negatives[:7]), flatten(positives[:7])])
+    res.append([flatten(negatives[7:]), flatten(positives[7:])])
     # store dataset
     dst_path = os.path.join(os.getcwd(), "json", "data_sets.json")
     with open(dst_path, "w") as fp:

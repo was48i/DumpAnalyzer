@@ -56,13 +56,10 @@ def pr_training():
             # get true_label and pred_score
             true_label = []
             pred_score = []
-            positives, negatives = data_sets[0]
-            for pos in positives:
-                true_label.append(1)
-                pred_score.append(calculate_sim(pos, m, n))
-            for neg in negatives:
-                true_label.append(0)
-                pred_score.append(calculate_sim(neg, m, n))
+            for index, group in enumerate(data_sets[0]):
+                for sample in group:
+                    true_label.append(index)
+                    pred_score.append(calculate_sim(sample, m, n))
             true_label = np.array(true_label)
             pred_score = np.array(pred_score)
             # calculate ap

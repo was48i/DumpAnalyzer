@@ -37,15 +37,11 @@ def pr_drawing(m_opt, n_opt):
     true_label = []
     pred_score = []
     csi_score = []
-    positives, negatives = data_sets[1]
-    for pos in positives:
-        true_label.append(1)
-        pred_score.append(calculate_sim(pos, m_opt, n_opt))
-        csi_score.append(compare_text(pos))
-    for neg in negatives:
-        true_label.append(0)
-        pred_score.append(calculate_sim(neg, m_opt, n_opt))
-        csi_score.append(compare_text(neg))
+    for index, group in enumerate(data_sets[1]):
+        for sample in group:
+            true_label.append(index)
+            pred_score.append(calculate_sim(sample, m_opt, n_opt))
+            csi_score.append(compare_text(sample))
     # convert list to numpy array
     true_label = np.array(true_label)
     pred_score = np.array(pred_score)
@@ -59,10 +55,8 @@ def pr_drawing(m_opt, n_opt):
     # drawing
     plt.figure()
     plt.figure(figsize=(10, 10))
-    plt.plot(recall, precision, color="orange",
-             lw=2, label="Our Approach = %.3f" % ast_ap)
-    plt.plot(csi_recall, csi_precision, color="gray",
-             lw=2, label="Text Similarity = %.3f" % csi_ap)
+    plt.plot(recall, precision, color="orange", lw=2, label="Our Approach = %.3f" % ast_ap)
+    plt.plot(csi_recall, csi_precision, color="gray", lw=2, label="Text Similarity = %.3f" % csi_ap)
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.05])
     plt.xlabel("Recall")
