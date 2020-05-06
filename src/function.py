@@ -5,7 +5,7 @@ import sys
 from argument import parser
 from clang.cindex import Index
 from multiprocessing import Pool
-from persistence import load_components
+from persistence import load_components, load_functions, dump_functions
 
 args = parser.parse_args()
 components = load_components()
@@ -115,12 +115,12 @@ def multi_process(paths):
 
 
 def update_functions():
-    result = dict()
     # apply map reduce
     for pack in os.listdir(args.source):
         cur_path = os.path.join(args.source, pack)
         if os.path.isdir(cur_path):
             paths = get_files(cur_path)
             if paths:
+                result = load_functions()
                 result.update(multi_process(paths))
-    return result
+                dump_functions(result)

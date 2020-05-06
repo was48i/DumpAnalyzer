@@ -39,7 +39,5 @@ if __name__ == "__main__":
         if not os.path.exists(json_path):
             os.makedirs(json_path)
         # store components/functions
-        component_dict = update_components()
-        dump_components(component_dict)
-        func_dict = update_functions()
-        dump_functions(func_dict)
+        update_components()
+        update_functions()

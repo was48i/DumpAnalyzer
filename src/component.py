@@ -5,7 +5,7 @@ import glob
 
 from argument import parser
 from function import best_matched
-from persistence import load_functions
+from persistence import load_functions, dump_components
 
 args = parser.parse_args()
 functions = load_functions()
@@ -98,4 +98,4 @@ def update_components():
             child = os.path.join(prefix, node)
             if os.path.isdir(child):
                 queue.append(child)
-    return component_dict
+    dump_components(component_dict)
