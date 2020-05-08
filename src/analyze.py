@@ -10,7 +10,6 @@ from clang.cindex import Config
 from function import update_functions
 from component import update_components
 from output import flow_print, format_print
-from persistence import dump_components, dump_functions
 from workflow import format_dump, filter_word, add_knowledge
 
 

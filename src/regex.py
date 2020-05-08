@@ -72,8 +72,3 @@ def find_stack(path):
         ex = find_exception(stack[0])
         res += ex
     return res
-
-
-__all__ = [
-    "find_stack"
-]

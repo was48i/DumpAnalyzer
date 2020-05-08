@@ -5,16 +5,16 @@ import sys
 from argument import parser
 from clang.cindex import Index
 from multiprocessing import Pool
-from persistence import load_components, load_functions, dump_functions
+from persistence import load_components, dump_functions
 
 args = parser.parse_args()
 components = load_components()
 
 
-def get_files(pack_path):
+def get_files(dir_path):
     stack = []
     paths = []
-    stack.append(pack_path)
+    stack.append(dir_path)
     # DFS
     while len(stack) > 0:
         prefix = stack.pop(len(stack) - 1)
@@ -80,6 +80,7 @@ def find_functions(path):
         "FUNCTION_DECL",
         "CXX_METHOD",
         "CONSTRUCTOR",
+        "DESTRUCTOR",
         "CONVERSION_FUNCTION"
     ]
     for child in tu.cursor.walk_preorder():
@@ -97,30 +98,31 @@ def multi_process(paths):
     # using multi-process
     pool = Pool(4)
     results = pool.map(find_functions, paths)
+    pool.close()
+    pool.join()
     for res in [i for i in results if i]:
         for k in res.keys():
             key = k
             # handle anonymous namespace
             while "::::" in key:
-                key = k.replace("::::", "::")
+                key = key.replace("::::", "::")
             # remove special characters
-            if re.search(r"[^0-9a-zA-Z:_]", key):
-                point = re.search(r"[^0-9a-zA-Z:_]", key).span()[0]
+            if re.search(r"[^0-9a-zA-Z:_~]", key):
+                point = re.search(r"[^0-9a-zA-Z:_~]", key).span()[0]
                 key = key[:point]
             print(key)
             function_dict[key] = res[k]
-    pool.close()
-    pool.join()
     return function_dict
 
 
 def update_functions():
+    result = dict()
     # apply map reduce
-    for pack in os.listdir(args.source):
-        cur_path = os.path.join(args.source, pack)
+    for loc in os.listdir(args.source):
+        cur_path = os.path.join(args.source, loc)
         if os.path.isdir(cur_path):
             paths = get_files(cur_path)
+            # update functions by directory
             if paths:
-                result = load_functions()
                 result.update(multi_process(paths))
-                dump_functions(result)
+    dump_functions(result)

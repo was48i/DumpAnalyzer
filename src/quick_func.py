@@ -7,6 +7,8 @@ import json
 from multiprocessing import Pool
 from persistence import load_functions
 
+func_dict = load_functions()
+
 
 def trie_tree(func):
     print(func)
@@ -38,8 +40,11 @@ def trie_tree(func):
 
 def quick_func():
     quick_funcs = dict()
+    # using multi-process
     pool = Pool(4)
     results = pool.map(trie_tree, func_dict.keys())
+    pool.close()
+    pool.join()
     for res in results:
         for k in res.keys():
             quick_funcs[k] = res[k]
@@ -49,5 +54,4 @@ def quick_func():
 
 
 if __name__ == "__main__":
-    func_dict = load_functions()
     quick_func()

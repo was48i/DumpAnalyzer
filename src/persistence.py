@@ -27,7 +27,7 @@ def load_components():
 
 
 def load_functions():
-    load_path = os.path.join(os.getcwd(), "json", "quick_functions-master.json")
+    load_path = os.path.join(os.getcwd(), "json", "functions-master.json")
     try:
         with open(load_path, "r") as fp:
             function_dict = json.load(fp)

@@ -8,6 +8,8 @@ import random
 
 from itertools import combinations
 
+prefix = "/dataset"
+
 
 def sample_negatives(n_list):
     cnt = 0
@@ -95,9 +97,8 @@ def reshape_data():
     positives = sample_positives(p_list)
     negatives = sample_negatives(n_list)
     # generate training/testing set
-    res = []
-    res.append([flatten(negatives[:7]), flatten(positives[:7])])
-    res.append([flatten(negatives[7:]), flatten(positives[7:])])
+    res = [[flatten(negatives[:7]), flatten(positives[:7])],
+           [flatten(negatives[7:]), flatten(positives[7:])]]
     # store dataset
     dst_path = os.path.join(os.getcwd(), "json", "data_sets.json")
     with open(dst_path, "w") as fp:
@@ -105,5 +106,4 @@ def reshape_data():
 
 
 if __name__ == "__main__":
-    prefix = "/dataset"
     reshape_data()

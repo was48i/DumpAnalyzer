@@ -8,6 +8,8 @@ import json
 from workflow import get_name
 from collections import Counter
 
+bugzilla_prefix = "/area51/bugzilla"
+
 
 def get_words(text):
     res = []
@@ -54,7 +56,7 @@ def read_dumps(bugs):
     prefix_words = []
     suffix_words = []
     for bug in bugs:
-        path = os.path.join(prefix, str(bug / 1000).zfill(3) + "xxx", str(bug))
+        path = os.path.join(bugzilla_prefix, str(bug / 1000).zfill(3) + "xxx", str(bug))
         # handle bug_id directory doesn't exist
         try:
             for node in os.listdir(path):
@@ -86,5 +88,4 @@ if __name__ == "__main__":
             api_bug_lists = json.load(f)
     except FileNotFoundError:
         print("Can not find api_bug_lists, please check.")
-    prefix = "/area51/bugzilla"
     read_dumps(api_bug_lists)
