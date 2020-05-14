@@ -48,7 +48,7 @@ def quick_func():
     for res in results:
         for k in res.keys():
             quick_funcs[k] = res[k]
-    dump_path = os.path.join(os.getcwd(), "json", "quick_functions-master.json")
+    dump_path = os.path.join(os.getcwd(), "json", "quick_functions.json")
     with open(dump_path, "w") as fp:
         json.dump(quick_funcs, fp, indent=4, sort_keys=True)
 

@@ -3,19 +3,19 @@ import json
 
 
 def dump_components(component_dict):
-    dump_path = os.path.join(os.getcwd(), "json", "components-master.json")
+    dump_path = os.path.join(os.getcwd(), "json", "components.json")
     with open(dump_path, "w") as fp:
         json.dump(component_dict, fp, indent=4, sort_keys=True)
 
 
 def dump_functions(function_dict):
-    dump_path = os.path.join(os.getcwd(), "json", "functions-master.json")
+    dump_path = os.path.join(os.getcwd(), "json", "functions.json")
     with open(dump_path, "w") as fp:
         json.dump(function_dict, fp, indent=4, sort_keys=True)
 
 
 def load_components():
-    load_path = os.path.join(os.getcwd(), "json", "components-master.json")
+    load_path = os.path.join(os.getcwd(), "json", "components.json")
     try:
         with open(load_path, "r") as fp:
             component_dict = json.load(fp)
@@ -27,7 +27,7 @@ def load_components():
 
 
 def load_functions():
-    load_path = os.path.join(os.getcwd(), "json", "functions-master.json")
+    load_path = os.path.join(os.getcwd(), "json", "quick_functions.json")
     try:
         with open(load_path, "r") as fp:
             function_dict = json.load(fp)

@@ -94,11 +94,14 @@ def reshape_data():
             pair.append(list(map(lambda x:
                                  os.path.join(prefix_, x + ".dmp"), group)))
         p_list.append(pair)
-    positives = sample_positives(p_list)
     negatives = sample_negatives(n_list)
+    positives = sample_positives(p_list)
     # generate training/testing set
-    res = [[flatten(negatives[:7]), flatten(positives[:7])],
-           [flatten(negatives[7:]), flatten(positives[7:])]]
+    random.shuffle(negatives)
+    random.shuffle(positives)
+    training_set = [flatten(negatives[:7]), flatten(positives[:7])]
+    testing_set = [flatten(negatives[7:]), flatten(positives[7:])]
+    res = [training_set, testing_set]
     # store dataset
     dst_path = os.path.join(os.getcwd(), "json", "data_sets.json")
     with open(dst_path, "w") as fp:
