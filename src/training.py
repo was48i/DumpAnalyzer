@@ -57,9 +57,9 @@ def pr_training():
             true_label = []
             pred_score = []
             for index, group in enumerate(data_sets[0]):
-                for sample in group:
+                for pair in group:
                     true_label.append(index)
-                    pred_score.append(calculate_sim(sample, m, n))
+                    pred_score.append(calculate_sim(pair, m, n))
             true_label = np.array(true_label)
             pred_score = np.array(pred_score)
             # calculate ap

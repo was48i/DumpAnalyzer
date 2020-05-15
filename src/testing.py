@@ -3,12 +3,14 @@
 
 import os
 import json
+import Levenshtein
 import numpy as np
 import matplotlib.pyplot as plt
 
 from argument import parser
 from regex import find_stack
 from training import calculate_sim
+from workflow import format_dump, filter_word, add_knowledge
 from sklearn.metrics import precision_recall_curve, average_precision_score
 
 args = parser.parse_args()
@@ -21,13 +23,22 @@ except FileNotFoundError:
     print("Can not find data_sets, please check.")
 
 
-def compare_text(paths):
+def edit_distance(paths):
     sim = 0.0
-    stack_list = []
+    stack = []
     for path in paths:
-        stack_list.append(find_stack(path))
-    if stack_list[0] == stack_list[1]:
+        stack.append(find_stack(path))
+    if stack[0] == stack[1]:
         sim = 1.0
+    return sim
+
+
+def prefix_match(paths):
+    prefix = []
+    for path in paths:
+        info = add_knowledge(filter_word(format_dump(path)))
+        prefix.append(info[0][1])
+    sim = Levenshtein.ratio(prefix[0], prefix[1])
     return sim
 
 
@@ -35,31 +46,38 @@ def pr_drawing(m_opt, n_opt):
     # get true_label and pred_score
     true_label = []
     pred_score = []
-    csi_score = []
+    ed_score = []
+    pm_score = []
     for index, group in enumerate(data_sets[1]):
-        for sample in group:
+        for pair in group:
             true_label.append(index)
-            pred_score.append(calculate_sim(sample, m_opt, n_opt))
-            csi_score.append(compare_text(sample))
+            pred_score.append(calculate_sim(pair, m_opt, n_opt))
+            ed_score.append(edit_distance(pair))
+            pm_score.append(prefix_match(pair))
     # convert list to numpy array
     true_label = np.array(true_label)
     pred_score = np.array(pred_score)
-    csi_score = np.array(csi_score)
+    ed_score = np.array(ed_score)
+    pm_score = np.array(pm_score)
     # get items for drawing
     precision, recall, threshold = precision_recall_curve(true_label, pred_score)
-    precision_csi = precision_recall_curve(true_label, csi_score)[0]
-    recall_csi = precision_recall_curve(true_label, csi_score)[1]
-    ast_ap = average_precision_score(true_label, pred_score)
-    csi_ap = average_precision_score(true_label, csi_score)
+    precision_ed = precision_recall_curve(true_label, ed_score)[0]
+    precision_pm = precision_recall_curve(true_label, pm_score)[0]
+    recall_ed = precision_recall_curve(true_label, ed_score)[1]
+    recall_pm = precision_recall_curve(true_label, pm_score)[1]
+    ap = average_precision_score(true_label, pred_score)
+    ap_ed = average_precision_score(true_label, ed_score)
+    ap_pm = average_precision_score(true_label, pm_score)
     # set figure
     plt.figure()
     plt.figure(figsize=(10, 10), dpi=600)
-    plt.plot(recall, precision, color="orange", label="Our Approach = %.3f" % ast_ap)
-    plt.plot(recall_csi, precision_csi, color="gray", label="Text Similarity = %.3f" % csi_ap)
+    plt.plot(recall, precision, color="#F0AB00", label="Our Approach = %.3f" % ap)
+    plt.plot(recall_pm, precision_pm, color="#008FD3", label="Prefix Match = %.3f" % ap_pm)
+    plt.plot(recall_ed, precision_ed, color="#666666", label="Edit Distance = %.3f" % ap_ed)
     # grid drawing
     plt.minorticks_on()
     plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 1.05])
+    plt.ylim([0.5, 1.02])
     plt.grid(which="both", axis="y", linestyle="--", alpha=0.5)
     plt.grid(which="major", axis="x", linestyle="--", alpha=0.5)
     # annotate cut point

@@ -2,13 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import json
 import copy
 import random
 
 from itertools import combinations
 
-prefix = "/dataset"
+if sys.platform == "win32":
+    prefix = r"C:\dataset"
+else:
+    prefix = "/dataset"
 
 
 def sample_negatives(n_list):

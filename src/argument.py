@@ -1,3 +1,4 @@
+import sys
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -8,9 +9,14 @@ parser.add_argument("-w", "--workflow", nargs=1,
 parser.add_argument("-d", "--dump", nargs=2,
                     help="Input crash dump files.")
 # change source code path
-parser.add_argument("-s", "--source", nargs="?",
-                    default="/hana-master",
-                    help="Select source code path.")
+if sys.platform == "win32":
+    parser.add_argument("-s", "--source", nargs="?",
+                        default=r"C:\hana-master",
+                        help="Select source code path.")
+else:
+    parser.add_argument("-s", "--source", nargs="?",
+                        default="/hana-master",
+                        help="Select source code path.")
 # do not filter stop words
 parser.add_argument("-r", "--raw", nargs="?", const=True,
                     help="Do not filter stop words.")
