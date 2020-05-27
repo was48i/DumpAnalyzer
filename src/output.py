@@ -61,11 +61,17 @@ def format_print(lists):
 def flow_print(results):
     step_1, step_2, step_3 = results
     # follow 4 steps to output
-    print("\033[0;32m" + "I. Format Dump File" + "\033[0m")
+    print("+---------------------+")
+    print("| I. Format Dump File |")
+    print("+---------------------+")
     print(step_1)
-    print("\033[0;32m" + "II. Filter Stop Words" + "\033[0m")
+    print("+-----------------------+")
+    print("| II. Filter Stop Words |")
+    print("+-----------------------+")
     print(step_2)
-    print("\033[0;32m" + "III. Add HANA Knowledge" + "\033[0m")
+    print("+-------------------------+")
+    print("| III. Add HANA Knowledge |")
+    print("+-------------------------+")
     for func_info in step_3:
         print("\033[0;36m" + func_info[0] + "\033[0m")
         for name in func_info[1].split("\n"):

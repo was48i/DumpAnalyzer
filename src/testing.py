@@ -81,15 +81,15 @@ def pr_drawing(m_opt, n_opt):
     plt.grid(which="both", axis="y", linestyle="--", alpha=0.5)
     plt.grid(which="major", axis="x", linestyle="--", alpha=0.5)
     # annotate cut point
-    for i, p in enumerate(precision):
-        if p >= 0.95:
-            x = recall[i]
-            y = precision[i]
-            distance = threshold[i]
-            plt.plot(x, y, color="red", marker=".")
-            plt.annotate("(%.3f, %.3f)\nthreshold = %.3f" % (x, y, distance), xy=(x, y),
-                         xytext=(5, 5), textcoords="offset points")
-            break
+    # for i, p in enumerate(precision):
+    #     if p >= 0.95:
+    #         x = recall[i]
+    #         y = precision[i]
+    #         distance = threshold[i]
+    #         plt.plot(x, y, color="red", marker=".")
+    #         plt.annotate("(%.3f, %.3f)\nthreshold = %.3f" % (x, y, distance), xy=(x, y),
+    #                      xytext=(5, 5), textcoords="offset points")
+    #         break
     # add useful words
     plt.xlabel("Recall")
     plt.ylabel("Precision")
