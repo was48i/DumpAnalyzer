@@ -51,7 +51,7 @@ def pr_drawing(m_opt, n_opt):
     for index, group in enumerate(data_sets[1]):
         for pair in group:
             true_label.append(index)
-            pred_score.append(calculate_sim(pair, m_opt, n_opt))
+            pred_score.append(calculate_sim(pair, m_opt, n_opt)[0])
             ed_score.append(edit_distance(pair))
             pm_score.append(prefix_match(pair))
     # convert list to numpy array
@@ -82,12 +82,12 @@ def pr_drawing(m_opt, n_opt):
     plt.grid(which="major", axis="x", linestyle="--", alpha=0.5)
     # annotate cut point
     # for i, p in enumerate(precision):
-    #     if p >= 0.95:
+    #     if p >= 0.950:
     #         x = recall[i]
     #         y = precision[i]
     #         distance = threshold[i]
-    #         plt.plot(x, y, color="red", marker=".")
-    #         plt.annotate("(%.3f, %.3f)\nthreshold = %.3f" % (x, y, distance), xy=(x, y),
+    #         plt.plot(x, y, color="#E35500", marker=".")
+    #         plt.annotate("(%.3f, %.3f)\nthreshold = %.4f" % (x, y, distance), xy=(x, y),
     #                      xytext=(5, 5), textcoords="offset points")
     #         break
     # add useful words

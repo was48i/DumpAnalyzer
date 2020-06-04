@@ -44,15 +44,15 @@ def extract_backtrace(text):
                             r"([^-]+Source:[ ].+:)*", re.M)
     bt_functions = bt_pattern.findall(text)
     for func_tuple in bt_functions:
-        f = list(func_tuple)
+        func_info = list(func_tuple)
         # merge into a line
-        if " + 0x" in f[0]:
-            f[0] = f[0][:f[0].index(" + 0x")]
-        name = get_name(f[0])
-        if f[1]:
-            f[1] = f[1][f[1].index("Source: ") + 8:-1]
-            if "/" in f[1]:
-                bt += name + " at " + f[1] + "\n"
+        if " + 0x" in func_info[0]:
+            func_info[0] = func_info[0][:func_info[0].index(" + 0x")]
+        name = get_name(func_info[0])
+        if func_info[1]:
+            func_info[1] = func_info[1][func_info[1].index("Source: ") + 8:-1]
+            if "/" in func_info[1]:
+                bt += name + " at " + func_info[1] + "\n"
             else:
                 bt += name + "\n"
         else:

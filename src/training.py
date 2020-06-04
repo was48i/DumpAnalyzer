@@ -38,13 +38,17 @@ def calculate_sim(paths, m, n):
     below_sum = 0.0
     # apply LCS
     lcs, x_pos, y_pos = lcs_dp(component_list)
+    above_item = []
     for i, com in enumerate(lcs):
+        pos = max(x_pos[i], y_pos[i])
         component_sim = Levenshtein.ratio(info_list[0][x_pos[i]][1], info_list[1][y_pos[i]][1])
-        above_sum += np.exp(-m * max(x_pos[i], y_pos[i])) * np.exp(-n * (1 - component_sim))
-    for i in range(max(len(component_list[0]), len(component_list[1]))):
+        above_item.append([pos, component_sim])
+        above_sum += np.exp(-m * pos) * np.exp(-n * (1 - component_sim))
+    below_item = max(len(component_list[0]), len(component_list[1]))
+    for i in range(below_item):
         below_sum += np.exp(-m * i)
     sim = above_sum / below_sum
-    return sim
+    return sim, above_item, below_item
 
 
 def pr_training():
@@ -59,7 +63,7 @@ def pr_training():
             for index, group in enumerate(data_sets[0]):
                 for pair in group:
                     true_label.append(index)
-                    pred_score.append(calculate_sim(pair, m, n))
+                    pred_score.append(calculate_sim(pair, m, n)[0])
             true_label = np.array(true_label)
             pred_score = np.array(pred_score)
             # calculate ap

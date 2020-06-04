@@ -42,8 +42,9 @@ def fully_qualified(child, path):
 
 
 def best_matched(path):
-    # remove prefix
-    path = path[len(args.source) + 1:]
+    # remove root directory
+    if args.source in path:
+        path = path[len(args.source) + 1:]
     # support Win
     if sys.platform == "win32":
         path = path.replace("\\", "/")

@@ -21,9 +21,13 @@ if __name__ == "__main__":
         Config.set_library_path(lib_path)
     # show AST workflow
     if args.workflow:
-        step_1 = format_dump(args.workflow[0])
-        step_2 = filter_word(step_1)
-        step_3 = add_knowledge(step_2)
+        step_1 = []
+        step_2 = []
+        step_3 = []
+        for dump in args.workflow:
+            step_1.append(format_dump(dump))
+            step_2.append(filter_word(format_dump(dump)))
+            step_3.append(add_knowledge(filter_word(format_dump(dump))))
         flow_print([step_1, step_2, step_3])
     # comparing based on CSI
     if args.dump:

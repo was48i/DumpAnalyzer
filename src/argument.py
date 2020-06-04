@@ -3,7 +3,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 # show AST workflow
-parser.add_argument("-w", "--workflow", nargs=1,
+parser.add_argument("-w", "--workflow", nargs=2,
                     help="Show our workflow.")
 # comparing based on CSI
 parser.add_argument("-d", "--dump", nargs=2,
