@@ -132,19 +132,15 @@ def flow_print(results):
     indent = round(abs(len(numerator) - len(denominator)) / 2)
     print("\n", end="")
     if len(numerator) >= len(denominator):
-        if numerator:
-            print("             " + numerator)
-        else:
-            print("             " + "0")
-        print("Similarity = " + "-" * max_length + " = {:.2%}".format(sim))
-        print("             " + " " * indent + denominator)
+        denominator = " " * indent + denominator
     else:
         if numerator:
-            print("             " + " " * indent + numerator)
+            numerator = " " * indent + numerator
         else:
-            print("             " + " " * indent + "0")
-        print("Similarity = " + "-" * max_length + " = {:.2%}".format(sim))
-        print("             " + denominator)
+            numerator = " " * indent + "0"
+    print("             " + numerator)
+    print("Similarity = " + "-" * max_length + " = {:.2%}".format(sim))
+    print("             " + denominator)
     print("\n", end="")
     if sim >= threshold:
         print("{:.2%} >= {:.2%}, ".format(sim, threshold), end="")
