@@ -95,7 +95,7 @@ def pr_drawing(m_opt, n_opt):
     plt.ylabel("Precision")
     plt.title("Precision-Recall Curve")
     plt.legend(loc="lower left")
-    plt.savefig("result.png")
+    plt.savefig("evaluation.png")
 
 
 if __name__ == "__main__":

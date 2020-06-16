@@ -16,7 +16,7 @@ def get_words(text):
     prefix = []
     suffix = []
     # set stack pattern
-    stack_pattern = re.compile(r"\n(\[CRASH_STACK\][\S\s]+)"
+    stack_pattern = re.compile(r"\n(\[CRASH_STACK\][\s\S]+)"
                                r"\[CRASH_REGISTERS\]", re.M)
     stack = stack_pattern.findall(text)
     if not stack:
@@ -24,7 +24,7 @@ def get_words(text):
     ex_flag = "exception throw location"
     if ex_flag in stack[0]:
         # set bt/ex patterns
-        bt_pattern = re.compile(r"-\n[ ]*\d+:[ ](.+)[^-]+Symbol:[ ].+"
+        bt_pattern = re.compile(r"-\n[ ]*\d+:[ ](.+)"
                                 r"([^-]+Source:[ ].+:)*", re.M)
         ex_pattern = re.compile(r"\d+:[ ](.+)[ ]at[ ].+:", re.M)
         # get bt_functions

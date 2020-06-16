@@ -1,7 +1,7 @@
 import os
 import re
 import json
-# import subprocess
+import subprocess
 
 from argument import parser
 from component import to_component
@@ -16,13 +16,13 @@ except FileNotFoundError:
     print("Can not find stop_words, please check.")
 
 
-# def demangle(name):
-#     args = ["c++filt", "-p"]
-#     args.extend([name])
-#     pipe = subprocess.Popen(args, stdout=subprocess.PIPE,
-#                             stdin=subprocess.PIPE)
-#     stdout, stderr = pipe.communicate()
-#     return stdout.decode("utf-8")[:-1]
+def demangle(name):
+    args = ["c++filt", "-p"]
+    args.extend([name])
+    pipe = subprocess.Popen(args, stdout=subprocess.PIPE,
+                            stdin=subprocess.PIPE)
+    stdout, stderr = pipe.communicate()
+    return stdout.decode("utf-8")[:-1]
 
 
 def get_name(func):
@@ -40,7 +40,7 @@ def get_name(func):
 
 def extract_backtrace(text):
     bt = "[BACKTRACE]\n"
-    bt_pattern = re.compile(r"-\n[ ]*\d+:[ ](.+)[^-]+Symbol:[ ].+"
+    bt_pattern = re.compile(r"-\n[ ]*\d+:[ ](.+)"
                             r"([^-]+Source:[ ].+:)*", re.M)
     bt_functions = bt_pattern.findall(text)
     for func_tuple in bt_functions:
@@ -48,6 +48,8 @@ def extract_backtrace(text):
         # merge into a line
         if " + 0x" in func_info[0]:
             func_info[0] = func_info[0][:func_info[0].index(" + 0x")]
+        if func_info[0].startswith("_Z"):
+            func_info[0] = demangle(func_info[0])
         name = get_name(func_info[0])
         if func_info[1]:
             func_info[1] = func_info[1][func_info[1].index("Source: ") + 8:-1]
@@ -68,9 +70,11 @@ def extract_exception(text):
         # remove offset if exists
         offset_pattern = re.compile(r"([ ]const)*[+]*0x\w+([ ]in[ ])*")
         func_info = re.sub(offset_pattern, "", line)
-        name = func_info[:func_info.index(" at ")]
+        f_name = func_info[:func_info.index(" at ")]
         source = func_info[func_info.index(" at ") + 4:]
-        name = get_name(name)
+        if f_name.startswith("_Z"):
+            f_name = demangle(f_name)
+        name = get_name(f_name)
         if not re.match(r"^[a-zA-Z]", name):
             continue
         if "/" in source:
