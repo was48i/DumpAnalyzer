@@ -9,7 +9,7 @@ import json
 def data_clean(dump_list):
     prefix = "/data/hyang/dataset"
     # set stack pattern
-    pattern = re.compile(r"\n\[CRASH_STACK\][\S\s]+\[CRASH_REGISTERS\]", re.M)
+    pattern = re.compile(r"\n\[CRASH_STACK\][\s\S]+\[CRASH_REGISTERS\]", re.M)
     for index, dump_set in enumerate(dump_list):
         # create subdirectory
         set_path = os.path.join(prefix, str(index))

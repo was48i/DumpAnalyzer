@@ -37,30 +37,40 @@ def get_child(children, prefix):
     return child
 
 
+def function_match(func):
+    if func in functions:
+        component = functions[func]
+    else:
+        while True:
+            if "::" in func:
+                func = func[:func.rindex("::")]
+                if func in functions:
+                    component = functions[func]
+                    break
+            else:
+                if func in functions:
+                    component = functions[func]
+                    break
+                else:
+                    component = ""
+                    break
+    return component
+
+
 def to_component(func_info):
     name, source = func_info
     raw = name
     # get component by source
     if source:
         component = best_matched(source)
+        # handle fake source
+        if component == "UNKNOWN":
+            component = function_match(name)
     # get component by name
     else:
-        if name in functions:
-            component = functions[name]
-        else:
-            while True:
-                if "::" in name:
-                    name = name[:name.rindex("::")]
-                    if name in functions:
-                        component = functions[name]
-                        break
-                else:
-                    if name in functions:
-                        component = functions[name]
-                        break
-                    else:
-                        component = raw
-                        break
+        component = function_match(name)
+    if component == "":
+        component = raw
     return component
 
 
