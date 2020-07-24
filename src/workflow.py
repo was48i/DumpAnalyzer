@@ -116,16 +116,11 @@ def pre_process(path):
     # call stack pattern
     stack_pattern = re.compile(r"\n(\[CRASH_STACK\][\s\S]+)"
                                r"\[CRASH_REGISTERS\]", re.M)
-    stack = stack_pattern.findall(file_text)[0]
-    # if not stack:
-    #     print("Dump format is not correct, please check.")
-    #     return ""
-    # # split call stack by bt_header
-    # bt_header = "-> Symbolic stack backtrace <-"
-    # if bt_header not in stack[0]:
-    #     print("Dump format is not correct, please check.")
-    #     return ""
-    # ex_part, bt_part = stack[0].split(bt_header)
+    content = stack_pattern.findall(file_text)[0]
+    if not content:
+        return ""
+    else:
+        stack = content[0]
     # extract exception firstly
     ex_location = "exception throw location:"
     if ex_location in stack:

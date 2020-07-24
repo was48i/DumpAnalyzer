@@ -25,20 +25,23 @@ def find_exception(text):
     ex = ""
     # extract headers
     headers = []
-    header_pattern = re.compile(r"(exception.+)[ ]TID.+\n"
-                                r"([\s\S]+?exception[ ]throw[ ]location:)",
-                                re.M)
+    header_pattern = re.compile(r"(^exception.+no[.].+)\n"
+                                r"([\s\S]+?exception[ ]throw[ ]location:)", re.M)
     for h in header_pattern.findall(text):
         header = "\n" + h[0] + "\n" + h[1].strip() + "\n"
         headers.append(header)
     # extract bodies
     bodies = []
-    body_pattern = re.compile(r"(\d+:[ ].+[ ]at[ ].+):", re.M)
+    body_pattern = re.compile(r"(\d+:[ ].+[+].+[ ]at[ ].+):", re.M)
+    # handle exception without source
+    body_pattern_sp = re.compile(r"(\d+:[ ].+[+].+)[ ]", re.M)
     whole = body_pattern.findall(text)
+    if not whole:
+        whole = body_pattern_sp.findall(text)
     # get break points
     points = []
     for i, b in enumerate(whole):
-        if b[0] == whole[0][0]:
+        if b[:b.index(":")] == whole[0][0]:
             points.append(i)
     points.append(len(whole))
     # processing body
@@ -62,13 +65,17 @@ def find_stack(path):
     # set stack pattern
     stack_pattern = re.compile(r"\n(\[CRASH_STACK\][\s\S]+)"
                                r"\[CRASH_REGISTERS\]", re.M)
-    stack = stack_pattern.findall(file_text)
+    content = stack_pattern.findall(file_text)
+    if not content:
+        return ""
+    else:
+        stack = content[0]
     # extract backtrace
-    bt = find_backtrace(stack[0])
+    bt = find_backtrace(stack)
     res += bt
     # merge exception if exists
-    ex_key = "exception throw location"
-    if ex_key in stack[0]:
-        ex = find_exception(stack[0])
+    ex_header = "-> Pending exceptions (possible root cause) <-"
+    if ex_header in stack:
+        ex = find_exception(stack)
         res += ex
     return res

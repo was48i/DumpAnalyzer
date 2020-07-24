@@ -86,6 +86,7 @@ def formula_print(results, parameters):
 
 
 def diff_print(lists, files):
+    print("\n", end="")
     # handle the same situation
     if lists[0] == lists[1]:
         for line in lists[0].split("\n"):
@@ -120,6 +121,7 @@ def sim_print(text_1, text_2):
         print("+---------------------+")
         print("| Similarity: {:.2%} |".format(sim))
         print("+---------------------+")
+    print("\n", end="")
 
 
 def format_print(lists):
