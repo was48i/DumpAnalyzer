@@ -3,52 +3,11 @@
 
 import os
 import json
-import Levenshtein
 import numpy as np
 
-from lcs_dp import lcs_dp
 from argument import parser
+from workflow import calculate_sim
 from sklearn.metrics import average_precision_score
-from workflow import format_dump, filter_word, add_knowledge
-
-args = parser.parse_args()
-# load dataset
-data_sets_path = os.path.join(os.getcwd(), "json", "data_sets.json")
-try:
-    with open(data_sets_path, "r") as fp:
-        data_sets = json.load(fp)
-except FileNotFoundError:
-    print("Can not find data_sets, please check.")
-
-
-def calculate_sim(paths, m, n):
-    sim = 0.0
-    # prepare items for calculation
-    info_list = []
-    component_list = []
-    for path in paths:
-        if not args.raw:
-            info = add_knowledge(filter_word(format_dump(path)))
-        else:
-            info = add_knowledge(format_dump(path))
-        info_list.append(info)
-        component_list.append([i[0] for i in info])
-    # calculate similarity
-    above_sum = 0.0
-    below_sum = 0.0
-    # apply LCS
-    lcs, x_pos, y_pos = lcs_dp(component_list)
-    above_item = []
-    for i, com in enumerate(lcs):
-        pos = max(x_pos[i], y_pos[i])
-        component_sim = Levenshtein.ratio(info_list[0][x_pos[i]][1], info_list[1][y_pos[i]][1])
-        above_item.append([pos, component_sim])
-        above_sum += np.exp(-m * pos) * np.exp(-n * (1 - component_sim))
-    below_item = max(len(component_list[0]), len(component_list[1]))
-    for i in range(below_item):
-        below_sum += np.exp(-m * i)
-    sim = above_sum / below_sum
-    return sim, above_item, below_item
 
 
 def pr_training():
@@ -79,4 +38,13 @@ def pr_training():
 
 
 if __name__ == "__main__":
+    args = parser.parse_args()
+    # load dataset
+    data_sets_path = os.path.join(os.getcwd(), "json", "data_sets.json")
+    try:
+        with open(data_sets_path, "r") as fp:
+            data_sets = json.load(fp)
+    except FileNotFoundError:
+        print("Can not find data_sets, please check.")
+    # training
     pr_training()

@@ -10,17 +10,8 @@ import matplotlib.pyplot as plt
 from argument import parser
 from regex import find_stack
 from training import calculate_sim
-from workflow import format_dump, filter_word, add_knowledge
+from workflow import pre_process, add_knowledge
 from sklearn.metrics import precision_recall_curve, average_precision_score
-
-args = parser.parse_args()
-# load dataset
-data_sets_path = os.path.join(os.getcwd(), "json", "data_sets.json")
-try:
-    with open(data_sets_path, "r") as fp:
-        data_sets = json.load(fp)
-except FileNotFoundError:
-    print("Can not find data_sets, please check.")
 
 
 def edit_distance(paths):
@@ -36,7 +27,7 @@ def edit_distance(paths):
 def prefix_match(paths):
     prefix = []
     for path in paths:
-        info = add_knowledge(filter_word(format_dump(path)))
+        info = add_knowledge(pre_process(path))
         prefix.append(info[0][1])
     sim = Levenshtein.ratio(prefix[0], prefix[1])
     return sim
@@ -99,4 +90,13 @@ def pr_drawing(m_opt, n_opt):
 
 
 if __name__ == "__main__":
+    args = parser.parse_args()
+    # load dataset
+    data_sets_path = os.path.join(os.getcwd(), "json", "data_sets.json")
+    try:
+        with open(data_sets_path, "r") as fp:
+            data_sets = json.load(fp)
+    except FileNotFoundError:
+        print("Can not find data_sets, please check.")
+    # draw P-R curve
     pr_drawing(0.4, 1.9)

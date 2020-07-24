@@ -17,9 +17,6 @@ else:
     parser.add_argument("-s", "--source", nargs="?",
                         default="/hana-master",
                         help="Select source code path.")
-# do not filter stop words
-parser.add_argument("-r", "--raw", nargs="?", const=True,
-                    help="Do not filter stop words.")
 # update components/functions
 parser.add_argument("-u", "--update", nargs="?", const=True,
                     help="Update components/functions.")

@@ -9,8 +9,8 @@ from regex import find_stack
 from clang.cindex import Config
 from function import update_functions
 from component import update_components
-from output import flow_print, format_print
-from workflow import format_dump, filter_word, add_knowledge
+from output import hana_print, formula_print, format_print
+from workflow import pre_process, add_knowledge, calculate_sim
 
 
 if __name__ == "__main__":
@@ -21,14 +21,18 @@ if __name__ == "__main__":
         Config.set_library_path(lib_path)
     # show AST workflow
     if args.workflow:
+        # hana_print
         step_1 = []
-        step_2 = []
-        step_3 = []
         for dump in args.workflow:
-            step_1.append(format_dump(dump))
-            step_2.append(filter_word(format_dump(dump)))
-            step_3.append(add_knowledge(filter_word(format_dump(dump))))
-        flow_print([step_1, step_2, step_3])
+            step_1.append(add_knowledge(pre_process(dump)))
+        hana_print(step_1)
+        # formula print
+        m_pos = 0.4
+        n_sim = 1.9
+        threshold = 0.3104
+        parameters = [m_pos, n_sim, threshold]
+        step_2 = calculate_sim(args.workflow, m_pos, n_sim)
+        formula_print(step_2, parameters)
     # comparing based on CSI
     if args.dump:
         result = []
