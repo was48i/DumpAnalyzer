@@ -7,10 +7,8 @@ import Levenshtein
 import numpy as np
 import matplotlib.pyplot as plt
 
-from argument import parser
 from regex import find_stack
-from training import calculate_sim
-from workflow import pre_process, add_knowledge
+from workflow import pre_process, add_knowledge, calculate_sim
 from sklearn.metrics import precision_recall_curve, average_precision_score
 
 
@@ -90,7 +88,6 @@ def pr_drawing(m_opt, n_opt):
 
 
 if __name__ == "__main__":
-    args = parser.parse_args()
     # load dataset
     data_sets_path = os.path.join(os.getcwd(), "json", "data_sets.json")
     try:

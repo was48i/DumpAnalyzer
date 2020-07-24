@@ -5,7 +5,6 @@ import os
 import json
 import numpy as np
 
-from argument import parser
 from workflow import calculate_sim
 from sklearn.metrics import average_precision_score
 
@@ -38,7 +37,6 @@ def pr_training():
 
 
 if __name__ == "__main__":
-    args = parser.parse_args()
     # load dataset
     data_sets_path = os.path.join(os.getcwd(), "json", "data_sets.json")
     try:

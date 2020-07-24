@@ -116,7 +116,7 @@ def pre_process(path):
     # call stack pattern
     stack_pattern = re.compile(r"\n(\[CRASH_STACK\][\s\S]+)"
                                r"\[CRASH_REGISTERS\]", re.M)
-    content = stack_pattern.findall(file_text)[0]
+    content = stack_pattern.findall(file_text)
     if not content:
         return ""
     else:
