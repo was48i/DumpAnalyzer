@@ -18,7 +18,7 @@ except FileNotFoundError:
     print("Can not find stop_words, please check.")
 
 
-def vaild_function(func):
+def valid_function(func):
     # demangle
     arguments = ["c++filt", "-p"]
     if func.startswith("_Z"):
@@ -27,6 +27,11 @@ def vaild_function(func):
                                 stdin=subprocess.PIPE)
         stdout, stderr = pipe.communicate()
         func = stdout.decode("utf-8")[:-1]
+    # handle anonymous namespace
+    if "::(anonymous namespace)" in func:
+        func = func.replace("::(anonymous namespace)", "")
+    if "(anonymous namespace)::" in func:
+        func = func.replace("(anonymous namespace)::", "")
     # remove parameter variable
     if "(" in func:
         func = func[:func.index("(")]
@@ -40,6 +45,31 @@ def vaild_function(func):
         return ""
     else:
         return func
+
+
+def extract_backtrace(text):
+    bt = ""
+    bt_pattern = re.compile(r"-\n[ ]*\d+:[ ](.+)"
+                            r"([^-]+Source:[ ].+:)*", re.M)
+    bt_functions = bt_pattern.findall(text)
+    for func_tuple in bt_functions:
+        func_info = list(func_tuple)
+        # merge into a line
+        if " + 0x" in func_info[0]:
+            func_info[0] = func_info[0][:func_info[0].index(" + 0x")]
+        # get valid function name
+        name = valid_function(func_info[0])
+        if name == "":
+            continue
+        if func_info[1]:
+            func_info[1] = func_info[1][func_info[1].index("Source: ") + 8:-1]
+            if "/" in func_info[1]:
+                bt += name + " at " + func_info[1] + "\n"
+            else:
+                bt += name + "\n"
+        else:
+            bt += name + "\n"
+    return bt
 
 
 def extract_exception(text):
@@ -61,8 +91,8 @@ def extract_exception(text):
             source = func_info[func_info.index(" at ") + 4:]
         else:
             f_name = func_info
-        # get vaild function name
-        name = vaild_function(f_name)
+        # get valid function name
+        name = valid_function(f_name)
         if name == "":
             continue
         # combine function and source
@@ -73,40 +103,30 @@ def extract_exception(text):
     return ex
 
 
-def extract_backtrace(text):
-    bt = ""
-    bt_pattern = re.compile(r"-\n[ ]*\d+:[ ](.+)"
-                            r"([^-]+Source:[ ].+:)*", re.M)
-    bt_functions = bt_pattern.findall(text)
-    for func_tuple in bt_functions:
-        func_info = list(func_tuple)
-        # merge into a line
-        if " + 0x" in func_info[0]:
-            func_info[0] = func_info[0][:func_info[0].index(" + 0x")]
-        # get vaild function name
-        name = vaild_function(func_info[0])
-        if name == "":
-            continue
-        if func_info[1]:
-            func_info[1] = func_info[1][func_info[1].index("Source: ") + 8:-1]
-            if "/" in func_info[1]:
-                bt += name + " at " + func_info[1] + "\n"
-            else:
-                bt += name + "\n"
+def filter_word(stacks):
+    start = -1
+    end = len(stacks)
+    # clean source information
+    pure_stacks = []
+    for function in stacks:
+        if " at " in function:
+            function = function[:function.index(" at ")]
+            pure_stacks.append(function)
         else:
-            bt += name + "\n"
-    return bt
-
-
-def filter_position(stacks, words):
-    position = 0
-    for i, func in enumerate(stacks):
-        if " at " in func:
-            func = func[:func.index(" at ")]
-        if func not in words:
-            position = i
-            break
-    return position
+            pure_stacks.append(function)
+    # filter prefix/suffix words
+    prefix_words, suffix_words = stop_words
+    for word in prefix_words:
+        if word in pure_stacks:
+            point = pure_stacks.index(word)
+            if point > start:
+                start = point
+    for word in suffix_words:
+        if word in pure_stacks:
+            point = pure_stacks.index(word)
+            if point < end:
+                end = point
+    return stacks[start + 1:end]
 
 
 def pre_process(path):
@@ -130,10 +150,8 @@ def pre_process(path):
     if result == "":
         bt_result = extract_backtrace(stack)
         bt_list = [i for i in bt_result.split("\n") if i]
-        prefix_words, suffix_words = stop_words
-        start = filter_position(bt_list, prefix_words)
-        end = len(bt_list) - filter_position(bt_list[::-1], suffix_words)
-        for line in bt_list[start:end]:
+        filtered_bt = filter_word(bt_list)
+        for line in filtered_bt:
             result += line + "\n"
     return result
 

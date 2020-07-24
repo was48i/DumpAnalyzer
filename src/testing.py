@@ -59,15 +59,15 @@ def pr_drawing(m_opt, n_opt):
     ap_pm = average_precision_score(true_label, pm_score)
     # set figure
     plt.figure()
-    plt.figure(figsize=(10, 10), dpi=600)
-    plt.plot(recall, precision, color="#F0AB00", label="Our Approach = %.3f" % ap)
-    plt.plot(recall_pm, precision_pm, color="#008FD3", label="Prefix Match = %.3f" % ap_pm)
-    plt.plot(recall_ed, precision_ed, color="#666666", label="Edit Distance = %.3f" % ap_ed)
+    plt.figure(figsize=(10, 5), dpi=600)
+    plt.plot(recall, precision, color="#F0AB00", label="K-Detector: %.3f" % ap)
+    plt.plot(recall_pm, precision_pm, color="#008FD3", label="Prefix Match: %.3f" % ap_pm)
+    plt.plot(recall_ed, precision_ed, color="#666666", label="Edit Distance: %.3f" % ap_ed)
     # grid drawing
     plt.minorticks_on()
     plt.xlim([0.0, 1.0])
     plt.ylim([0.5, 1.02])
-    plt.grid(which="both", axis="y", linestyle="--", alpha=0.5)
+    plt.grid(which="major", axis="y", linestyle="--", alpha=0.5)
     plt.grid(which="major", axis="x", linestyle="--", alpha=0.5)
     # annotate cut point
     # for i, p in enumerate(precision):
@@ -82,7 +82,7 @@ def pr_drawing(m_opt, n_opt):
     # add useful words
     plt.xlabel("Recall")
     plt.ylabel("Precision")
-    plt.title("Precision-Recall Curve")
+    # plt.title("Precision-Recall Curve")
     plt.legend(loc="lower left")
     plt.savefig("evaluation.png")
 
@@ -96,4 +96,4 @@ if __name__ == "__main__":
     except FileNotFoundError:
         print("Can not find data_sets, please check.")
     # draw P-R curve
-    pr_drawing(0.4, 1.9)
+    pr_drawing(0.6, 9.5)
