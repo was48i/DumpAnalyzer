@@ -16,26 +16,28 @@ except FileNotFoundError:
     print("Can not find stop_words, please check.")
 
 
-def demangle(name):
+def valid_function(func):
+    # demangling
     args = ["c++filt", "-p"]
-    args.extend([name])
-    pipe = subprocess.Popen(args, stdout=subprocess.PIPE,
-                            stdin=subprocess.PIPE)
-    stdout, stderr = pipe.communicate()
-    return stdout.decode("utf-8")[:-1]
-
-
-def get_name(func):
+    if func.startswith("_Z"):
+        args.extend([func])
+        pipe = subprocess.Popen(args, stdout=subprocess.PIPE, 
+                                stdin=subprocess.PIPE)
+        stdout, stderr = pipe.communicate()
+        func = stdout.decode("utf-8")[:-1]
     # remove parameter variable
-    while "(" in func:
-        func = func[:func.rindex("(")]
+    if "(" in func:
+        func = func[:func.index("(")]
     # remove template
     if "<" in func:
         func = func[:func.index("<")]
     # remove return type
     if re.match(r"^[a-z]+[ ]", func):
         func = func[func.index(" ") + 1:]
-    return func
+    if not re.match(r"^[_a-zA-Z]", func):
+        return ""
+    else:
+        return func
 
 
 def extract_backtrace(text):
@@ -48,9 +50,10 @@ def extract_backtrace(text):
         # merge into a line
         if " + 0x" in func_info[0]:
             func_info[0] = func_info[0][:func_info[0].index(" + 0x")]
-        if func_info[0].startswith("_Z"):
-            func_info[0] = demangle(func_info[0])
-        name = get_name(func_info[0])
+        # get valid function name
+        name = valid_function(func_info[0])
+        if name == "":
+            continue
         if func_info[1]:
             func_info[1] = func_info[1][func_info[1].index("Source: ") + 8:-1]
             if "/" in func_info[1]:
@@ -64,18 +67,26 @@ def extract_backtrace(text):
 
 def extract_exception(text):
     ex = "[EXCEPTION]\n"
-    ex_pattern = re.compile(r"\d+:[ ](.+[ ]at[ ].+):", re.M)
+    ex_pattern = re.compile(r"\d+:[ ](.+[+].+[ ]at[ ].+):", re.M)
+    # handle exception without source
+    ex_pattern_sp = re.compile(r"\d+:[ ](.+[+].+)[ ]", re.M)
     ex_functions = ex_pattern.findall(text)
+    if not ex_functions:
+        ex_functions = ex_pattern_sp.findall(text)
     for line in ex_functions:
         # remove offset if exists
         offset_pattern = re.compile(r"([ ]const)*[+]*0x\w+([ ]in[ ])*")
         func_info = re.sub(offset_pattern, "", line)
-        f_name = func_info[:func_info.index(" at ")]
-        source = func_info[func_info.index(" at ") + 4:]
-        if f_name.startswith("_Z"):
-            f_name = demangle(f_name)
-        name = get_name(f_name)
-        if not re.match(r"^[a-zA-Z]", name):
+        source = ""
+        # handle special exception
+        if " at " in func_info:
+            f_name = func_info[:func_info.index(" at ")]
+            source = func_info[func_info.index(" at ") + 4:]
+        else:
+            f_name = func_info
+        # get valid function name
+        name = valid_function(f_name)
+        if name == "":
             continue
         if "/" in source:
             ex += name + " at " + source + "\n"
@@ -93,14 +104,19 @@ def format_dump(path):
                                r"\[CRASH_REGISTERS\]", re.M)
     stack = stack_pattern.findall(file_text)
     # backtrace function
-    bt = extract_backtrace(stack[0])
+    bt_header = "-> Symbolic stack backtrace <-"
+    ex_header = "-> Pending exceptions (possible root cause) <-"
+    ex_part, bt_part = stack[0].split(bt_header)
+    bt = extract_backtrace(bt_part)
     res += bt
     # merge exception function if exists
-    ex_key = "exception throw location"
-    if ex_key in stack[0]:
-        key_part = stack[0].split(ex_key)[1]
-        ex = extract_exception(key_part)
-        res += ex
+    if ex_header in ex_part:
+        # extract the first exception
+        ex_location = "exception throw location:"
+        if ex_location in ex_part:
+            first_ex = ex_part.split(ex_location)[1]
+            ex = extract_exception(first_ex)
+            res += ex
     return res
 
 
@@ -123,8 +139,7 @@ def filter_word(formatted):
                 if func not in prefix_words:
                     start += i
                     break
-            for i, func in enumerate([i for i in key_part.split("\n") if i]
-                                     [::-1]):
+            for i, func in enumerate([i for i in key_part.split("\n") if i][::-1]):
                 if " at " in func:
                     func = func[:func.index(" at ")]
                 if func not in suffix_words:
@@ -155,5 +170,5 @@ def add_knowledge(filtered):
         else:
             component = to_component(func)
             func_content += func[0] + "\n"
-    res.append([component, func_content])
+    res.append([component, func_content[:-1]])
     return res

@@ -6,7 +6,7 @@ import re
 import json
 
 
-def data_storage(dump_list):
+def data_clean(dump_list):
     prefix = "/data/hyang/dataset"
     # set stack pattern
     pattern = re.compile(r"\n\[CRASH_STACK\][\S\s]+\[CRASH_REGISTERS\]", re.M)
@@ -29,10 +29,11 @@ def data_storage(dump_list):
 
 
 if __name__ == "__main__":
+    # data cleaning
     dump_unions_path = os.path.join(os.getcwd(), "json", "dump_unions.json")
     try:
         with open(dump_unions_path, "r") as f:
             dump_unions = json.load(f)
     except FileNotFoundError:
         print("Can not find dump_unions, please check.")
-    data_storage(dump_unions)
+    data_clean(dump_unions)

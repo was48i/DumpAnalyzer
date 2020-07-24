@@ -9,11 +9,6 @@ import random
 
 from itertools import combinations
 
-if sys.platform == "win32":
-    prefix = r"C:\dataset"
-else:
-    prefix = "/dataset"
-
 
 def sample_negatives(n_list):
     cnt = 0
@@ -75,7 +70,7 @@ def flatten(items):
     return res
 
 
-def reshape_data():
+def sample_data():
     group_ids = range(len(os.listdir(prefix)))
     # filter single group
     group_ids = [i for i in group_ids
@@ -107,10 +102,11 @@ def reshape_data():
     testing_set = [flatten(negatives[7:]), flatten(positives[7:])]
     res = [training_set, testing_set]
     # store dataset
-    dst_path = os.path.join(os.getcwd(), "json", "data_sets.json")
-    with open(dst_path, "w") as fp:
+    tgt_path = os.path.join(os.getcwd(), "json", "data_sets.json")
+    with open(tgt_path, "w") as fp:
         json.dump(res, fp, indent=4, sort_keys=True)
 
 
 if __name__ == "__main__":
-    reshape_data()
+    prefix = r"C:\dataset" if sys.platform == "win32" else "/dataset"
+    sample_data()
