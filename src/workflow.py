@@ -99,14 +99,14 @@ def extract_backtrace(text):
 
 
 def filter_position(stacks, words):
-    pos = 0
+    position = 0
     for i, func in enumerate(stacks):
         if " at " in func:
             func = func[:func.index(" at ")]
         if func not in words:
-            pos = i
+            position = i
             break
-    return pos
+    return position
 
 
 def pre_process(path):
@@ -139,7 +139,7 @@ def pre_process(path):
 
 
 def add_knowledge(processed):
-    res = []
+    result = []
     component = ""
     func_content = ""
     for func_info in [i for i in processed.split("\n") if i]:
@@ -150,15 +150,15 @@ def add_knowledge(processed):
         else:
             func = [func_info, ""]
         if component != "" and to_component(func) != component:
-            res.append([component, func_content[:-1]])
+            result.append([component, func_content[:-1]])
             component = to_component(func)
             func_content = ""
             func_content += func[0] + "\n"
         else:
             component = to_component(func)
             func_content += func[0] + "\n"
-    res.append([component, func_content[:-1]])
-    return res
+    result.append([component, func_content[:-1]])
+    return result
 
 
 def edit_distance(src, tgt):
