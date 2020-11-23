@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
+import update_mapping
 import sys
 
 from argument import parser
 from regex import find_stack
 from clang.cindex import Config
-from function import update_functions
-from component import update_components
 from output import hana_print, formula_print, format_print
 from workflow import pre_process, add_knowledge, calculate_sim
 
@@ -41,10 +39,5 @@ if __name__ == "__main__":
         format_print(result)
     # update components/functions
     if args.update:
-        # create directory if doesn't exist
-        json_path = os.path.join(os.getcwd(), "json")
-        if not os.path.exists(json_path):
-            os.makedirs(json_path)
-        # store components/functions
-        update_components()
-        update_functions()
+        mapping = update_mapping.UpdateMapping()
+        mapping.update_mapping()
