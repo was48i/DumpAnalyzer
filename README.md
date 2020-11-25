@@ -1,58 +1,109 @@
-# DumpAnalyzer
-Compare the similarity between crash dump files based on AST, and analyze syntax tree using Python bindings for Clang.
+# KDetector
+This repository contains our implementation for "K-Detector: Identifying Duplicate Crash Failures in Large-Scale Software Delivery", which is nominated as candidate to the **Best Industry Paper Award** in IEEE 31st International Symposium on Software Reliability Engineering (ISSRE 2020).
+
+![](https://raw.githubusercontent.com/was48i/mPOST/master/KDetector/00.png)
+
+Its core mathematical model is protected by USPTO:
+![](https://raw.githubusercontent.com/was48i/mPOST/master/KDetector/01.png)
+
 ## Install
+There are some dependencies that need to be installed in advance.
+
 ### LLVM
-We should install [Clang](http://releases.llvm.org/download.html) first:
+Install [Clang](http://releases.llvm.org/download.html) using pre-built binary:
+```
+$ wget https://github.com/llvm/llvm-project/releases/download/llvmorg-11.0.0/clang+llvm-11.0.0-x86_64-linux-sles12.4.tar.xz
+$ sudo tar -C /usr/local -xvf clang+llvm-11.0.0-x86_64-linux-sles12.4.tar.xz --strip 1
+```
 
-![](https://raw.githubusercontent.com/was48i/mdpics/master/DumpAnalyzer/llvm.jpg)
+Verify that Clang has installed successfully:
+```
+$ clang --version
+clang version 11.0.0
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /usr/local/bin
+```
+
+### MongoDB
+Import the MongoDB public key:
+```
+$ sudo rpm --import https://www.mongodb.org/static/pgp/server-4.4.asc
+```
+
+Add the MongoDB repository:
+```
+$ sudo zypper addrepo --gpgcheck "https://repo.mongodb.org/zypper/suse/15/mongodb-org/4.4/x86_64/" mongodb
+```
+
+Install the MongoDB packages:
+```
+$ sudo zypper -n install mongodb-org
+```
+
+Start MongoDB:
+```
+$ sudo systemctl start mongod
+```
+
+Verify that MongoDB has started successfully:
+```
+$ sudo systemctl status mongod
+Nov 24 02:38:37 i516697 systemd[1]: Starting MongoDB Database Server...
+Nov 24 02:38:37 i516697 mongod[48038]: about to fork child process, waiting until server is ready for connections.
+Nov 24 02:38:37 i516697 mongod[48038]: forked process: 48040
+Nov 24 02:38:38 i516697 mongod[48038]: child process started successfully, parent exiting
+Nov 24 02:38:38 i516697 systemd[1]: Started MongoDB Database Server.
+```
+
+Begin using MongoDB:
+```
+$ mongo
+```
+
 ### Python
-Tested by [Python 3.6.8](https://www.python.org/downloads/release/python-368/)
-
-Install required packages:
+Install the required packages:
 ```
 $ pip install -r requirements.txt
 ```
-We parsing C++ in Python with Clang:
 
-![](https://raw.githubusercontent.com/was48i/mdpics/master/DumpAnalyzer/python_clang.jpg)
-### Source Code
-Put prepared source code in specified directory.
+In particular, we use Python bindings for Clang to build the Abstract Syntax Tree:
+![](https://raw.githubusercontent.com/was48i/mPOST/master/KDetector/02.png)
+
 ## Usage
-View help information:
-```
-$ ./src/analyze.py --help
-```
-If source code is updated, we need to update database:
-```
-$ ./src/analyze.py --update
-```
-Change the path of source code or dump files:
-```
-$ ./src/analyze.py --source [repo path]
-```
-```
-$ ./src/analyze.py --dump [dump files]
-```
-Change the mode of analysis:
-```
-$ ./src/analyze.py --mode [ast/csi]
-```
-## Validation
-We validate our classifier based on [confusion matrix](https://en.wikipedia.org/wiki/Confusion_matrix).
+We provide 4 main features:
 
-Our data set is cleaned and reshaped:
+- Update potential function-related mappings in the code base:
+    ```
+    $ ./src/main.py --update
+    ```
+- Train the model with recent crash dumps for parameter tuning:
+    ```
+    $ ./src/main.py --train
+    ```
+- Compare original call stacks and display with [combined diff format](https://git-scm.com/docs/diff-format):
+    ```
+    $ ./src/main.py --compare [<dumps>]
+    ```
+- Detect crash dump similarity through the mathematical model:
+    ```
+    $ ./src/main.py --detect [<dumps>]
+    ```
 
-![](https://raw.githubusercontent.com/was48i/mdpics/master/DumpAnalyzer/validation.jpg)
+## Evaluation
+We evaluate our code on a development server:
+- SLES15 SP1;
+- 40 CPUs;
+- 160 GB RAM;
+- 1 TB Disk;
 
-Use the stats mode:
-```
-$ ./src/analyze.py --stats
-```
+The elapsed time is listed as follows:
+|Update|Train|
+|:-:|:-:|
+|||
+
 ## Contributing
 We love contributions! Before submitting a Pull Request, it's always good to start with a new issue first.
-### Contributors
-[@was48i](https://github.com/was48i)
 
-[@Pal1998](https://github.com/Pal1998)
 ## License
-This library is licensed under Apache 2.0. Full license text is available in [LICENSE](https://github.com/ICHIGOI7E/DumpAnalyzer/blob/master/LICENSE).
+This library is licensed under Apache 2.0. Full license text is available in [LICENSE](https://github.com/was48i/KDetector/blob/master/LICENSE).
