@@ -1,43 +1,43 @@
-from argument import parser
-from function import best_matched
-from persistence import load_functions
+import configparser
+import subprocess
 
-args = parser.parse_args()
-functions = load_functions()
+from utils import *
 
 
-def function_match(func):
-    if func in functions:
-        component = functions[func]
-    else:
-        while True:
-            if "::" in func:
-                func = func[:func.rindex("::")]
-                if func in functions:
-                    component = functions[func]
-                    break
-            else:
-                if func in functions:
-                    component = functions[func]
-                    break
-                else:
-                    component = ""
-                    break
-    return component
+class Component(object):
+    """
+    Obtain Component-File mapping based on the layered CMakeLists.txt.
+    """
+    config = configparser.ConfigParser()
+    path = os.path.join(os.getcwd(), "settings.ini")
+    config.read(path)
+    git_url = config.get("git", "url")
+    git_directory = config.get("git", "directory")
 
+    def __init__(self):
+        # clone source code
+        cmd = "git clone --branch master --depth 1 {} {}".format(self.git_url, self.git_directory)
+        subprocess.call(cmd.split(" "))
 
-def to_component(func_info):
-    name, source = func_info
-    raw = name
-    # get component by source
-    if source:
-        component = best_matched(source)
-        # handle fake source
-        if component == "UNKNOWN":
-            component = function_match(name)
-    # get component by name
-    else:
-        component = function_match(name)
-    if component == "":
-        component = raw
-    return component
+    def update_component(self):
+        """
+        Obtain Component-File mapping based on the layered CMakeLists.txt.
+        """
+        component_mapping = dict()
+        queue = [self.git_directory]
+        # BFS
+        while len(queue) > 0:
+            prefix = queue.pop(0)
+            cmk_path = os.path.join(prefix, "CMakeLists.txt")
+            if os.path.exists(cmk_path):
+                components = find_component(cmk_path)
+                component_mapping.update(convert_path(components, prefix))
+            for node in os.listdir(prefix):
+                item = os.path.join(prefix, node)
+                if os.path.isdir(item):
+                    queue.append(item)
+        # create a directory if not exist
+        json_path = os.path.join(os.getcwd(), "json")
+        if not os.path.exists(json_path):
+            os.makedirs(json_path)
+        dump_component(component_mapping)

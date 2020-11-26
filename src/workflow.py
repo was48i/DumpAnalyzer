@@ -6,7 +6,7 @@ import numpy as np
 
 from lcs_dp import lcs_dp
 from argument import parser
-from component import to_component
+#from component import to_component
 
 args = parser.parse_args()
 # load stop words
