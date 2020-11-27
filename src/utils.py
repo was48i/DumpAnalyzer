@@ -1,7 +1,7 @@
 import glob
-import json
 import os
 import re
+import subprocess
 
 
 def find_component(path):
@@ -26,11 +26,9 @@ def find_component(path):
 def convert_path(components, prefix):
     """
     Obtain the file path for corresponding component.
-
     Args:
         components: Parent component or child component list.
         prefix: The current prefix of CMakeLists.txt.
-
     Returns:
         Component-File mapping.
     """
@@ -53,24 +51,15 @@ def convert_path(components, prefix):
     return result
 
 
-def dump_component(mapping):
+def header_path(dir_path):
     """
-    Dump component mapping to JSON format.
-    """
-    dump_path = os.path.join(os.getcwd(), "json", "components.json")
-    with open(dump_path, "w") as fp:
-        json.dump(mapping, fp, indent=4, sort_keys=True)
-
-
-def get_header(dir_path):
-    """
-    Obtain all header files in the current directory.
+    Obtain all header file's paths in the current directory.
 
     Args:
         dir_path: The dictionary to be processed.
 
     Returns:
-        All header files in the directory.
+        All header file's paths in the directory.
     """
     headers = []
     stack = [dir_path]
@@ -86,39 +75,6 @@ def get_header(dir_path):
             else:
                 stack.append(cur_path)
     return headers
-
-
-def load_component():
-    """
-    Load component JSON to mapping.
-    """
-    load_path = os.path.join(os.getcwd(), "json", "components.json")
-    with open(load_path, "r") as fp:
-        component_mapping = json.load(fp)
-    return component_mapping
-
-
-def best_matched(path):
-    """
-    Obtain the best matched component.
-
-    Args:
-        path: The path of current header file.
-
-    Returns:
-        The best matched component.
-    """
-    result = "UNKNOWN"
-    components = load_component()
-    if path in components:
-        result = components[path]
-    else:
-        while "/" in path:
-            path = path[:path.rindex("/")]
-            if path in components:
-                result = components[path]
-                break
-    return result
 
 
 def fully_qualified(node, path):
@@ -143,10 +99,29 @@ def fully_qualified(node, path):
     return node.spelling
 
 
-def dump_function(mapping):
-    """
-    Dump function mapping to JSON format.
-    """
-    dump_path = os.path.join(os.getcwd(), "json", "functions.json")
-    with open(dump_path, "w") as fp:
-        json.dump(mapping, fp, indent=4, sort_keys=True)
+def valid_function(func):
+    # demangle
+    arguments = ["c++filt", "-p"]
+    if func.startswith("_Z"):
+        arguments.extend([func])
+        pipe = subprocess.Popen(arguments, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+        stdout, stderr = pipe.communicate()
+        func = stdout.decode("utf-8")[:-1]
+    # handle anonymous namespace
+    if "::(anonymous namespace)" in func:
+        func = func.replace("::(anonymous namespace)", "")
+    if "(anonymous namespace)::" in func:
+        func = func.replace("(anonymous namespace)::", "")
+    # remove parameter variable
+    if "(" in func:
+        func = func[:func.index("(")]
+    # remove template
+    if "<" in func:
+        func = func[:func.index("<")]
+    # remove return type
+    if re.match(r"^[a-z]+[ ]", func):
+        func = func[func.index(" ")+1:]
+    if not re.match(r"^[_a-zA-Z]", func):
+        return ""
+    else:
+        return func

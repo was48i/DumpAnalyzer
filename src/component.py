@@ -1,5 +1,5 @@
 import configparser
-import subprocess
+import pymongo
 
 from utils import *
 
@@ -11,12 +11,18 @@ class Component(object):
     config = configparser.ConfigParser()
     path = os.path.join(os.getcwd(), "settings.ini")
     config.read(path)
-    git_url = config.get("git", "url")
-    git_directory = config.get("git", "directory")
+    # Git
+    url = config.get("git", "url")
+    directory = config.get("git", "dir")
+    # Mongo
+    host = config.get("mongo", "host")
+    port = config.get("mongo", "port")
+    database = config.get("mongo", "db")
+    collection = config.get("mongo", "coll_cpnt")
 
     def __init__(self):
         # clone source code
-        cmd = "git clone --branch master --depth 1 {} {}".format(self.git_url, self.git_directory)
+        cmd = "git clone --branch master --depth 1 {} {}".format(self.url, self.directory)
         subprocess.call(cmd.split(" "))
 
     def update_component(self):
@@ -24,7 +30,7 @@ class Component(object):
         Obtain Component-File mapping based on the layered CMakeLists.txt.
         """
         component_mapping = dict()
-        queue = [self.git_directory]
+        queue = [self.directory]
         # BFS
         while len(queue) > 0:
             prefix = queue.pop(0)
@@ -36,8 +42,14 @@ class Component(object):
                 item = os.path.join(prefix, node)
                 if os.path.isdir(item):
                     queue.append(item)
-        # create a directory if not exist
-        json_path = os.path.join(os.getcwd(), "json")
-        if not os.path.exists(json_path):
-            os.makedirs(json_path)
-        dump_component(component_mapping)
+        # insert documents
+        client = pymongo.MongoClient(host=self.host, port=int(self.port))
+        collection = client[self.database][self.collection]
+        collection.drop()
+        documents = []
+        for key in component_mapping:
+            data = dict()
+            data["path"] = key
+            data["component"] = component_mapping[key]
+            documents.append(data)
+        collection.insert_many(documents)

@@ -73,7 +73,7 @@ In particular, we use Python bindings for Clang to build the Abstract Syntax Tre
 ## Usage
 We provide 4 main features:
 
-- Update potential function-related mappings in the code base:
+- Update potential function-related mappings from code base:
     ```
     $ ./src/main.py --update
     ```
@@ -98,9 +98,9 @@ We evaluate our code on a development server:
 - 1 TB Disk;
 
 The elapsed time is listed as follows:
-|Update|Train|
-|:-:|:-:|
-|||
+|Update|Train|Compare|Detect|
+|:-:|:-:|:-:|:-:|
+|||||
 
 ## Contributing
 We love contributions! Before submitting a Pull Request, it's always good to start with a new issue first.
