@@ -51,15 +51,6 @@ class Function(object):
                 if result:
                     matched = result["component"]
                     break
-        # components = load_component()
-        # if path in components:
-        #     result = components[path]
-        # else:
-        #     while "/" in path:
-        #         path = path[:path.rindex("/")]
-        #         if path in components:
-        #             result = components[path]
-        #             break
         return matched
 
     def find_function(self, path):
