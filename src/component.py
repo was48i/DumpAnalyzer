@@ -1,6 +1,3 @@
-import configparser
-import pymongo
-
 from utils import *
 
 
@@ -14,11 +11,11 @@ class Component(object):
     # Git
     url = config.get("git", "url")
     directory = config.get("git", "dir")
-    # Mongo
-    host = config.get("mongo", "host")
-    port = config.get("mongo", "port")
-    database = config.get("mongo", "db")
-    collection = config.get("mongo", "coll_cpnt")
+    # MongoDB
+    host = config.get("mongodb", "host")
+    port = config.get("mongodb", "port")
+    database = config.get("mongodb", "db")
+    collection = config.get("mongodb", "coll_cpnt")
 
     def __init__(self):
         # clone source code

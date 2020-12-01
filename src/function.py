@@ -1,6 +1,3 @@
-import configparser
-import pymongo
-
 from clang.cindex import Index
 from clang.cindex import Config
 from multiprocessing import Pool
@@ -16,42 +13,17 @@ class Function(object):
     config.read(path)
     # Git
     directory = config.get("git", "dir")
-    # Mongo
-    host = config.get("mongo", "host")
-    port = config.get("mongo", "port")
-    database = config.get("mongo", "db")
-    collection = config.get("mongo", "coll_func")
+    # MongoDB
+    host = config.get("mongodb", "host")
+    port = config.get("mongodb", "port")
+    database = config.get("mongodb", "db")
+    collection = config.get("mongodb", "coll_func")
 
     def __init__(self):
         # load libclang.so
         lib_path = "/usr/local/lib"
         if not Config.loaded:
             Config.set_library_path(lib_path)
-
-    def best_matched(self, path):
-        """
-        Obtain the best matched component from components collection.
-
-        Args:
-            path: The path of current header file.
-
-        Returns:
-            The best matched component.
-        """
-        matched = "UNKNOWN"
-        client = pymongo.MongoClient(host=self.host, port=int(self.port))
-        collection = client[self.database][self.collection]
-        result = collection.find_one({"path": path})
-        if result:
-            matched = result["component"]
-        else:
-            while "/" in path:
-                path = path[:path.rindex("/")]
-                result = collection.find_one({"path": path})
-                if result:
-                    matched = result["component"]
-                    break
-        return matched
 
     def find_function(self, path):
         """
@@ -65,7 +37,7 @@ class Function(object):
         """
         result = dict()
         index = Index.create()
-        cpnt = self.best_matched(path)
+        cpnt = best_matched(path)
         # remove it when include dependencies resolved
         header = os.path.join(self.directory, "rte", "rtebase", "include")
         args_list = ["-x", "c++", "-I" + self.directory, "-I" + header]

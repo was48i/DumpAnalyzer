@@ -1,5 +1,7 @@
+import configparser
 import glob
 import os
+import pymongo
 import re
 import subprocess
 
@@ -125,3 +127,38 @@ def valid_function(func):
         return ""
     else:
         return func
+
+
+def best_matched(path):
+    """
+    Obtain the best matched component from components collection.
+
+    Args:
+        path: The path of current header file.
+
+    Returns:
+        The best matched component.
+    """
+    config = configparser.ConfigParser()
+    config_path = os.path.join(os.getcwd(), "settings.ini")
+    config.read(config_path)
+    # MongoDB
+    host = config.get("mongodb", "host")
+    port = config.get("mongodb", "port")
+    database = config.get("mongodb", "db")
+    collection = config.get("mongodb", "coll_func")
+
+    matched = "UNKNOWN"
+    client = pymongo.MongoClient(host=host, port=int(port))
+    collection = client[database][collection]
+    result = collection.find_one({"path": path})
+    if result:
+        matched = result["component"]
+    else:
+        while "/" in path:
+            path = path[:path.rindex("/")]
+            result = collection.find_one({"path": path})
+            if result:
+                matched = result["component"]
+                break
+    return matched
