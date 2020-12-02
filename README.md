@@ -11,13 +11,13 @@ There are some dependencies that need to be installed in advance.
 
 ### LLVM
 Install [Clang](http://releases.llvm.org/download.html) using pre-built binary:
-```
+```bash
 $ wget https://github.com/llvm/llvm-project/releases/download/llvmorg-11.0.0/clang+llvm-11.0.0-x86_64-linux-sles12.4.tar.xz
 $ sudo tar -C /usr/local -xvf clang+llvm-11.0.0-x86_64-linux-sles12.4.tar.xz --strip 1
 ```
 
 Verify that Clang has installed successfully:
-```
+```bash
 $ clang --version
 clang version 11.0.0
 Target: x86_64-unknown-linux-gnu
@@ -27,27 +27,27 @@ InstalledDir: /usr/local/bin
 
 ### MongoDB
 Import the MongoDB public key:
-```
+```bash
 $ sudo rpm --import https://www.mongodb.org/static/pgp/server-4.4.asc
 ```
 
 Add the MongoDB repository:
-```
+```bash
 $ sudo zypper addrepo --gpgcheck "https://repo.mongodb.org/zypper/suse/15/mongodb-org/4.4/x86_64/" mongodb
 ```
 
 Install the MongoDB packages:
-```
+```bash
 $ sudo zypper -n install mongodb-org
 ```
 
 Start MongoDB:
-```
+```bash
 $ sudo systemctl start mongod
 ```
 
 Verify that MongoDB has started successfully:
-```
+```bash
 $ sudo systemctl status mongod
 Nov 24 02:38:37 i516697 systemd[1]: Starting MongoDB Database Server...
 Nov 24 02:38:37 i516697 mongod[48038]: about to fork child process, waiting until server is ready for connections.
@@ -57,13 +57,13 @@ Nov 24 02:38:38 i516697 systemd[1]: Started MongoDB Database Server.
 ```
 
 Begin using MongoDB:
-```
+```bash
 $ mongo
 ```
 
 ### Python
 Install the required packages:
-```
+```bash
 $ pip install -r requirements.txt
 ```
 
@@ -74,19 +74,19 @@ In particular, we use Python bindings for Clang to build the Abstract Syntax Tre
 We provide 4 main features:
 
 - Update potential function-related mappings from code base:
-    ```
+    ```bash
     $ ./src/main.py --update
     ```
 - Train the model with recent crash dumps for parameter tuning:
-    ```
+    ```bash
     $ ./src/main.py --train
     ```
 - Compare original call stacks and display with [combined diff format](https://git-scm.com/docs/diff-format):
-    ```
+    ```bash
     $ ./src/main.py --compare [<dumps>]
     ```
 - Detect crash dump similarity through the mathematical model:
-    ```
+    ```bash
     $ ./src/main.py --detect [<dumps>]
     ```
 

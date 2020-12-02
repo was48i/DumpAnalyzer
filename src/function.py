@@ -1,7 +1,13 @@
+import configparser
+import os
+import pymongo
+import re
+import subprocess
+import workflow
+
 from clang.cindex import Index
 from clang.cindex import Config
 from multiprocessing import Pool
-from utils import *
 
 
 class Function(object):
@@ -12,18 +18,65 @@ class Function(object):
     path = os.path.join(os.getcwd(), "settings.ini")
     config.read(path)
     # Git
-    directory = config.get("git", "dir")
+    git_dir = config.get("git", "dir")
     # MongoDB
     host = config.get("mongodb", "host")
     port = config.get("mongodb", "port")
-    database = config.get("mongodb", "db")
-    collection = config.get("mongodb", "coll_func")
+    db = config.get("mongodb", "db")
+    coll = config.get("mongodb", "coll_func")
 
     def __init__(self):
         # load libclang.so
         lib_path = "/usr/local/lib"
         if not Config.loaded:
             Config.set_library_path(lib_path)
+
+    @staticmethod
+    def header_path(dir_path):
+        """
+        Obtain all header file's paths in the current directory.
+
+        Args:
+            dir_path: The dictionary to be processed.
+
+        Returns:
+            All header file's paths in the directory.
+        """
+        headers = []
+        stack = [dir_path]
+        # DFS
+        while len(stack) > 0:
+            prefix = stack.pop(len(stack) - 1)
+            for node in os.listdir(prefix):
+                cur_path = os.path.join(prefix, node)
+                extension = os.path.splitext(cur_path)[-1]
+                if not os.path.isdir(cur_path):
+                    if extension in [".h", ".hpp"]:
+                        headers.append(cur_path)
+                else:
+                    stack.append(cur_path)
+        return headers
+
+    def fully_qualified(self, node, path):
+        """
+        Obtain fully qualified name recursively.
+
+        Args:
+            node: A node in abstract syntax tree.
+            path: The path of current header file.
+
+        Returns:
+            The fully qualified name that belongs to the node.
+        """
+        if node.location.file is None:
+            return ""
+        elif node.location.file.name != path:
+            return ""
+        else:
+            res = self.fully_qualified(node.semantic_parent, path)
+            if res != "":
+                return res + "::" + node.spelling
+        return node.spelling
 
     def find_function(self, path):
         """
@@ -37,17 +90,18 @@ class Function(object):
         """
         result = dict()
         index = Index.create()
-        cpnt = best_matched(path)
+        kdetector = workflow.Workflow()
+        cpnt = kdetector.best_matched(path)
         # remove it when include dependencies resolved
-        header = os.path.join(self.directory, "rte", "rtebase", "include")
-        args_list = ["-x", "c++", "-I" + self.directory, "-I" + header]
+        header = os.path.join(self.git_dir, "rte", "rtebase", "include")
+        args_list = ["-x", "c++", "-I" + self.git_dir, "-I" + header]
         tu = index.parse(path, args_list)
         decl_kinds = ["FUNCTION_DECL", "CXX_METHOD", "CONSTRUCTOR", "DESTRUCTOR", "CONVERSION_FUNCTION"]
         for node in tu.cursor.walk_preorder():
             if node.location.file is not None and node.location.file.name == path and node.spelling:
                 kind = str(node.kind)[str(node.kind).index('.')+1:]
                 if kind in decl_kinds:
-                    key = fully_qualified(node, path)
+                    key = self.fully_qualified(node, path)
                     result[key] = cpnt
         return result
 
@@ -85,17 +139,17 @@ class Function(object):
         Obtain File-Function mapping through Python bindings for Clang and complete the conversion.
         """
         function_mapping = dict()
-        for node in os.listdir(self.directory):
-            cur_path = os.path.join(self.directory, node)
+        for node in os.listdir(self.git_dir):
+            cur_path = os.path.join(self.git_dir, node)
             if os.path.isdir(cur_path):
                 print(cur_path)
                 # update functions by directory
-                headers = header_path(cur_path)
+                headers = self.header_path(cur_path)
                 if headers:
                     function_mapping.update(self.multi_process(headers))
         # insert documents
         client = pymongo.MongoClient(host=self.host, port=int(self.port))
-        collection = client[self.database][self.collection]
+        collection = client[self.db][self.coll]
         collection.drop()
         documents = []
         for key in function_mapping:
@@ -105,6 +159,6 @@ class Function(object):
             documents.append(data)
         collection.insert_many(documents)
         # remove source code
-        print("Removing from '{}'...".format(self.directory))
-        cmd = "rm -fr {}".format(self.directory)
+        print("Removing from '{}'...".format(self.git_dir))
+        cmd = "rm -fr {}".format(self.git_dir)
         subprocess.call(cmd.split(" "))

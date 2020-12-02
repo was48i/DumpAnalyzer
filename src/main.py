@@ -3,6 +3,7 @@
 
 import argparse
 import component
+import detection
 import function
 import time
 
@@ -31,4 +32,5 @@ if __name__ == "__main__":
         pass
     # detect crash dump similarity
     if args.detect:
-        pass
+        item = detection.Detection(args.detect)
+        item.temp()
