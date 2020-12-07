@@ -110,11 +110,11 @@ class Workflow(object):
         result.append([component, functions])
         return result
 
-    def calculate_sim(self, positions, distances, len_max):
+    def calculate_sim(self, features, len_max):
         numerator = 0.0
         denominator = 0.0
-        for pos, dist in zip(positions, distances):
-            numerator += math.exp(-self.m * pos * -self.n * dist)
+        for pos, dist in features:
+            numerator += math.exp(-self.m * pos) * math.exp(-self.n * dist)
         for i in range(len_max):
             denominator += math.exp(-self.m * i)
         similarity = numerator / denominator

@@ -34,15 +34,15 @@ class Utils(object):
         return index_x, index_y
 
     @staticmethod
-    def normalized_dist(str_x, str_y):
-        m = len(str_x)
-        n = len(str_y)
+    def normalized_dist(seq_x, seq_y):
+        m = len(seq_x)
+        n = len(seq_y)
         # initialize dp matrix
         dp = [[i + j for j in range(n + 1)] for i in range(m + 1)]
         # fill dp matrix
         for i in range(1, m + 1):
             for j in range(1, n + 1):
-                if str_x[i-1] == str_y[i-1]:
+                if seq_x[i-1] == seq_y[j-1]:
                     dist = 0
                 else:
                     dist = 1
