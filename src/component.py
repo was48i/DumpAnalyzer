@@ -1,9 +1,10 @@
 import configparser
 import glob
 import os
-import pymongo
 import re
 import subprocess
+
+from connection import MongoConnection
 
 
 class Component(object):
@@ -18,12 +19,15 @@ class Component(object):
     git_dir = config.get("git", "dir")
     # MongoDB
     host = config.get("mongodb", "host")
-    port = config.get("mongodb", "port")
+    port = config.getint("mongodb", "port")
     db = config.get("mongodb", "db")
     coll = config.get("mongodb", "coll_cpnt")
 
     def __init__(self):
-        # clone source code
+        if os.path.exists(self.git_dir):
+            print("Removing from '{}'...".format(self.git_dir))
+            cmd = "rm -fr {}".format(self.git_dir)
+            subprocess.call(cmd.split(" "))
         cmd = "git clone --branch master --depth 1 {} {}".format(self.git_url, self.git_dir)
         subprocess.call(cmd.split(" "))
 
@@ -91,14 +95,14 @@ class Component(object):
                 item = os.path.join(prefix, node)
                 if os.path.isdir(item):
                     queue.append(item)
-        # insert documents
-        client = pymongo.MongoClient(host=self.host, port=int(self.port))
-        collection = client[self.db][self.coll]
-        collection.drop()
-        documents = []
-        for key in component_mapping:
-            data = dict()
-            data["path"] = key
-            data["component"] = component_mapping[key]
-            documents.append(data)
-        collection.insert_many(documents)
+        with MongoConnection(self.host, self.port) as mongo:
+            collection = mongo.connection[self.db][self.coll]
+            collection.drop()
+            # insert documents
+            documents = []
+            for key in component_mapping:
+                data = dict()
+                data["path"] = key
+                data["component"] = component_mapping[key]
+                documents.append(data)
+            collection.insert_many(documents)

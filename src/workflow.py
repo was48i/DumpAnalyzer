@@ -26,10 +26,8 @@ class Workflow(object):
     n = config.getfloat("model", "n")
 
     @staticmethod
-    def pre_process(dump_path):
+    def pre_process(dump):
         result = []
-        with open(dump_path, "r", encoding="ISO-8859-1") as fp:
-            dump = fp.read()
         # call stack pattern
         stack_pattern = re.compile(r"\n(\[CRASH_STACK][\s\S]+)\[CRASH_REGISTERS]", re.M)
         content = stack_pattern.findall(dump)

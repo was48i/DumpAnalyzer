@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import component
-import detection
 import stop_source
-import utils
+import time
+
+from component import Component
+from detection import Detection
+from function import Function
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--update", nargs="?", const=True, help="Update components/functions.")
@@ -18,8 +20,10 @@ args = parser.parse_args()
 if __name__ == "__main__":
     # update components/functions
     if args.update:
-        kdetector = component.Component()
+        kdetector = Component()
         kdetector.update_component()
+        kdetector = Function()
+        kdetector.update_function()
     # training for parameter tuning
     if args.train:
         pass
@@ -28,9 +32,12 @@ if __name__ == "__main__":
         pass
     # detect crash dump similarity
     if args.detect:
-        kdetector = detection.Detection(args.detect)
+        kdetector = Detection(args.detect)
         kdetector.detect_sim()
     # count filtered file names
     if args.stop:
+        start = time.time()
         kdetector = stop_source.StopSource()
         kdetector.count_source()
+        end = time.time()
+        print(end - start)

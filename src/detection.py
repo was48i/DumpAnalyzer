@@ -1,14 +1,14 @@
-import logger
 import re
-import utils
-import workflow
+
+from log import Log
+from workflow import Workflow
+from utils import Utils
 
 
 class Detection(object):
     """
     Detect crash dump similarity through the mathematical model.
     """
-
     def __init__(self, paths):
         self.paths = paths
 
@@ -29,15 +29,17 @@ class Detection(object):
 
     def detect_sim(self):
         result = []
-        kdetector = workflow.Workflow()
+        kdetector = Workflow()
         for path in self.paths:
-            processed = kdetector.pre_process(path)
+            with open(path, "r", encoding="ISO-8859-1") as fp:
+                dump = fp.read()
+            processed = kdetector.pre_process(dump)
             message = kdetector.add_knowledge(processed)
             result.append(message)
-        printer = logger.Logger()
-        printer.dump_print(result)
+        logger = Log()
+        logger.dump_print(result)
         # small position first
-        tool = utils.Utils()
+        tool = Utils()
         components_x = [i[0] for i in result[0][::-1]]
         components_y = [i[0] for i in result[1][::-1]]
         len_x = len(components_x)
@@ -61,4 +63,4 @@ class Detection(object):
             distances.append(tool.normalized_dist(str_x, str_y))
         features = list(zip(positions, distances))
         similarity = kdetector.calculate_sim(features, len_max)
-        printer.formula_print(features, len_max, similarity)
+        logger.formula_print(features, len_max, similarity)

@@ -1,12 +1,11 @@
 import configparser
 import os
-import pymongo
 import re
-import subprocess
 import workflow
 
 from clang.cindex import Index
 from clang.cindex import Config
+from connection import MongoConnection
 from multiprocessing import Pool
 
 
@@ -21,7 +20,7 @@ class Function(object):
     git_dir = config.get("git", "dir")
     # MongoDB
     host = config.get("mongodb", "host")
-    port = config.get("mongodb", "port")
+    port = config.getint("mongodb", "port")
     db = config.get("mongodb", "db")
     coll = config.get("mongodb", "coll_func")
 
@@ -147,18 +146,14 @@ class Function(object):
                 headers = self.header_path(cur_path)
                 if headers:
                     function_mapping.update(self.multi_process(headers))
-        # insert documents
-        client = pymongo.MongoClient(host=self.host, port=int(self.port))
-        collection = client[self.db][self.coll]
-        collection.drop()
-        documents = []
-        for key in function_mapping:
-            data = dict()
-            data["function"] = key
-            data["component"] = function_mapping[key]
-            documents.append(data)
-        collection.insert_many(documents)
-        # remove source code
-        print("Removing from '{}'...".format(self.git_dir))
-        cmd = "rm -fr {}".format(self.git_dir)
-        subprocess.call(cmd.split(" "))
+        with MongoConnection(self.host, self.port) as mongo:
+            collection = mongo.connection[self.db][self.coll]
+            collection.drop()
+            # insert documents
+            documents = []
+            for key in function_mapping:
+                data = dict()
+                data["function"] = key
+                data["component"] = function_mapping[key]
+                documents.append(data)
+            collection.insert_many(documents)
