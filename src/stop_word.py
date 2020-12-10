@@ -19,9 +19,9 @@ class StopWord(object):
             return path
 
     def count_word(self):
-        source = []
         cnt = 0
-        result = ETL().extract_source()
+        source = []
+        result = ETL().extract_word()
         for row in result:
             cnt += 1
             test_id, url = row
@@ -34,6 +34,8 @@ class StopWord(object):
                     dump = ETL().extract_cdb(test_id)
                     processed = Process(dump).internal_process()
             except IndexError:
+                continue
+            except UnicodeDecodeError:
                 continue
             for frame in processed:
                 _, path = frame
