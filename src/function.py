@@ -1,11 +1,11 @@
 import configparser
 import os
 import re
-import workflow
 
 from clang.cindex import Index
 from clang.cindex import Config
 from connection import MongoConnection
+from knowledge import Knowledge
 from multiprocessing import Pool
 
 
@@ -89,8 +89,7 @@ class Function(object):
         """
         result = dict()
         index = Index.create()
-        kdetector = workflow.Workflow()
-        cpnt = kdetector.best_matched(path)
+        cpnt = Knowledge().best_matched(path)
         # remove it when include dependencies resolved
         header = os.path.join(self.git_dir, "rte", "rtebase", "include")
         args_list = ["-x", "c++", "-I" + self.git_dir, "-I" + header]
@@ -146,14 +145,14 @@ class Function(object):
                 headers = self.header_path(cur_path)
                 if headers:
                     function_mapping.update(self.multi_process(headers))
+        # insert documents
+        documents = []
+        for key in function_mapping:
+            data = dict()
+            data["function"] = key
+            data["component"] = function_mapping[key]
+            documents.append(data)
         with MongoConnection(self.host, self.port) as mongo:
             collection = mongo.connection[self.db][self.coll]
             collection.drop()
-            # insert documents
-            documents = []
-            for key in function_mapping:
-                data = dict()
-                data["function"] = key
-                data["component"] = function_mapping[key]
-                documents.append(data)
             collection.insert_many(documents)

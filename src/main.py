@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import stop_source
 import time
+import urllib3
 
 from component import Component
-from detection import Detection
+from detect import Detect
 from function import Function
+from stop_word import StopWord
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--update", nargs="?", const=True, help="Update components/functions.")
@@ -18,12 +19,14 @@ parser.add_argument("--stop", nargs="?", const=True, help="Count file names that
 args = parser.parse_args()
 
 if __name__ == "__main__":
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     # update components/functions
     if args.update:
-        kdetector = Component()
-        kdetector.update_component()
-        kdetector = Function()
-        kdetector.update_function()
+        start = time.time()
+        Component().update_component()
+        Function().update_function()
+        end = time.time()
+        print(end - start)
     # training for parameter tuning
     if args.train:
         pass
@@ -32,12 +35,13 @@ if __name__ == "__main__":
         pass
     # detect crash dump similarity
     if args.detect:
-        kdetector = Detection(args.detect)
-        kdetector.detect_sim()
+        start = time.time()
+        Detect(args.detect).detect_sim()
+        end = time.time()
+        print(end - start)
     # count filtered file names
     if args.stop:
         start = time.time()
-        kdetector = stop_source.StopSource()
-        kdetector.count_source()
+        StopWord().count_word()
         end = time.time()
         print(end - start)

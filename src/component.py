@@ -95,14 +95,14 @@ class Component(object):
                 item = os.path.join(prefix, node)
                 if os.path.isdir(item):
                     queue.append(item)
+        # insert documents
+        documents = []
+        for key in component_mapping:
+            data = dict()
+            data["path"] = key
+            data["component"] = component_mapping[key]
+            documents.append(data)
         with MongoConnection(self.host, self.port) as mongo:
             collection = mongo.connection[self.db][self.coll]
             collection.drop()
-            # insert documents
-            documents = []
-            for key in component_mapping:
-                data = dict()
-                data["path"] = key
-                data["component"] = component_mapping[key]
-                documents.append(data)
             collection.insert_many(documents)
