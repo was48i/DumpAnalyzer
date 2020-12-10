@@ -55,14 +55,18 @@ class Log(object):
         print("\n", end="")
         numerator = ""
         denominator = ""
-        # obtain numerator
-        for pos, dist in features:
-            numerator += "e^-{}*{}*".format(self.m, pos) + "e^-%.1f*%.4f + " % (self.n, dist)
-        numerator = numerator[:-3]
-        # obtain denominator
-        for i in range(len_max):
-            denominator += "e^-{}*{} + ".format(self.m, i)
-        denominator = denominator[:-3]
-        print("             " + numerator)
-        print("Similarity = {} = {:.2%}".format("-" * len(numerator), sim))
-        print("             " + denominator)
+        if features:
+            # obtain numerator
+            for pos, dist in features:
+                numerator += "e^-{}*{}*".format(self.m, pos) + "e^-%.1f*%.4f + " % (self.n, dist)
+            numerator = numerator[:-3]
+            # obtain denominator
+            for i in range(len_max):
+                denominator += "e^-{}*{} + ".format(self.m, i)
+            denominator = denominator[:-3]
+            print("             " + numerator)
+            print("Similarity = {} = {:.2%}".format("-" * len(numerator), sim))
+            print("             " + denominator)
+        else:
+            print("Similarity = 0.00%")
+
