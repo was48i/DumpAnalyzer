@@ -3,7 +3,7 @@ from etl import ETL
 from knowledge import Knowledge
 from log import Log
 from process import Process
-from utils import Utils
+from utils import DP
 
 
 class Detect(object):
@@ -21,16 +21,16 @@ class Detect(object):
         # top first
         len_x, len_y = len(order_x), len(order_y)
         if len_x > len_y:
-            indices = Utils().lcs_index(order_x[::-1], order_y[::-1])
+            indices = DP().lcs_index(order_x[::-1], order_y[::-1])
         else:
-            indices = Utils().lcs_index(order_x[::-1], order_y[::-1])
+            indices = DP().lcs_index(order_x[::-1], order_y[::-1])
         # TODO: need to improve
         index_x, index_y = indices
         position_x = [len_x - i - 1 for i in index_x]
         position_y = [len_y - i - 1 for i in index_y]
         for i, j in zip(position_x, position_y):
             positions.append(max(i, j))
-            distances.append(Utils().normalized_dist(block_pair[0][i], block_pair[1][j]))
+            distances.append(DP().normalized_dist(block_pair[0][i], block_pair[1][j]))
         return list(zip(positions, distances))
 
     def detect_sim(self):

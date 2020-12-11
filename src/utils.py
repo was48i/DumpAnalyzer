@@ -1,7 +1,4 @@
-class Utils(object):
-    """
-    Several algorithms used by our approach.
-    """
+class DP(object):
     @staticmethod
     def lcs_index(seq_x, seq_y):
         m = len(seq_x)
@@ -48,3 +45,33 @@ class Utils(object):
                     dist = 1
                 dp[i][j] = min(dp[i-1][j] + 1, dp[i][j-1] + 1, dp[i-1][j-1] + dist)
         return dp[m][n] / max(m, n)
+
+
+class UnionFind(object):
+    count = 0
+    id, sz = [], []
+
+    def __init__(self, n):
+        i = 0
+        self.count = n
+        while i < n:
+            self.id.append(i)
+            self.sz.append(1)
+            i += 1
+
+    def find(self, x):
+        while x != self.id[x]:
+            x = self.id[x]
+        return x
+
+    def unite(self, x, y):
+        id_x = self.find(x)
+        id_y = self.find(y)
+        if not self.find(x) == self.find(y):
+            if self.sz[id_x] < self.sz[id_y]:
+                self.id[id_x] = id_y
+                self.sz[id_y] += self.sz[id_x]
+            else:
+                self.id[id_y] = id_x
+                self.sz[id_x] += self.sz[id_y]
+            self.count -= 1

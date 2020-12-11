@@ -7,6 +7,8 @@ import urllib3
 
 from component import Component
 from detect import Detect
+from etl import ETL
+from sample import Sample
 from stop_word import StopWord
 
 parser = argparse.ArgumentParser()
@@ -15,7 +17,7 @@ parser.add_argument("--stop", nargs="?", const=True, help="Count file names that
 parser.add_argument("--compare", nargs=2, help="Compare original call stacks.")
 parser.add_argument("--detect", nargs=2, help="Detect crash dump similarity.")
 args = parser.parse_args()
-# suppress warning
+# suppress warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 if __name__ == "__main__":
@@ -23,6 +25,8 @@ if __name__ == "__main__":
     if args.train:
         start = time.time()
         Component().update_component()
+        ETL().crawl_dump()
+        dataset = Sample().sample_data()
         end = time.time()
         print(end - start)
     # count filtered file names

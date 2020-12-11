@@ -4,7 +4,7 @@ import os
 import re
 import subprocess
 
-from connection import MongoConnection
+from pool import MongoConnection
 
 
 class Component(object):
@@ -82,7 +82,7 @@ class Component(object):
         """
         Obtain Component-File mapping based on the layered CMakeLists.txt.
         """
-        component_mapping = dict()
+        component_map = dict()
         queue = [self.git_dir]
         # BFS
         while len(queue) > 0:
@@ -90,17 +90,17 @@ class Component(object):
             cmk_path = os.path.join(prefix, "CMakeLists.txt")
             if os.path.exists(cmk_path):
                 components = self.find_component(cmk_path)
-                component_mapping.update(self.convert_path(components, prefix))
+                component_map.update(self.convert_path(components, prefix))
             for node in os.listdir(prefix):
                 item = os.path.join(prefix, node)
                 if os.path.isdir(item):
                     queue.append(item)
         # insert documents
         documents = []
-        for key in component_mapping:
+        for key in component_map:
             data = dict()
             data["path"] = key
-            data["component"] = component_mapping[key]
+            data["component"] = component_map[key]
             documents.append(data)
         with MongoConnection(self.host, self.port) as mongo:
             collection = mongo.connection[self.db][self.coll]

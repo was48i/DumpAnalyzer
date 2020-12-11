@@ -4,9 +4,9 @@ import re
 
 from clang.cindex import Index
 from clang.cindex import Config
-from connection import MongoConnection
 from knowledge import Knowledge
 from multiprocessing import Pool
+from pool import MongoConnection
 
 
 class Function(object):
@@ -136,7 +136,7 @@ class Function(object):
         """
         Obtain File-Function mapping through Python bindings for Clang and complete the conversion.
         """
-        function_mapping = dict()
+        function_map = dict()
         for node in os.listdir(self.git_dir):
             cur_path = os.path.join(self.git_dir, node)
             if os.path.isdir(cur_path):
@@ -144,13 +144,13 @@ class Function(object):
                 # update functions by directory
                 headers = self.header_path(cur_path)
                 if headers:
-                    function_mapping.update(self.multi_process(headers))
+                    function_map.update(self.multi_process(headers))
         # insert documents
         documents = []
-        for key in function_mapping:
+        for key in function_map:
             data = dict()
             data["function"] = key
-            data["component"] = function_mapping[key]
+            data["component"] = function_map[key]
             documents.append(data)
         with MongoConnection(self.host, self.port) as mongo:
             collection = mongo.connection[self.db][self.coll]

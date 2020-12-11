@@ -1,0 +1,2 @@
+class Compare(object):
+    pass

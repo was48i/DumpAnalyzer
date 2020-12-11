@@ -4,9 +4,9 @@ import re
 import requests
 import hashlib
 
-from connection import MongoConnection, SqlConnection
 from datetime import datetime
 from knowledge import Knowledge
+from pool import MongoConnection, SqlConnection
 from process import Process
 
 
@@ -43,7 +43,7 @@ class ETL(object):
                     JOIN TEST_COMMENTS ON TEST_VALID.ID = TEST_COMMENTS.ID
                     JOIN TEST_PROFILES ON TEST_CASES.ID_TEST_PROFILE = TEST_PROFILES.ID
                     JOIN MAKES ON TEST_PROFILES.ID_MAKE = MAKES.ID
-                WHERE TEST_CASES.START_TIME BETWEEN '2020-08-01' AND '2020-08-31'
+                WHERE TEST_CASES.START_TIME >= ADD_MONTHS(TO_DATE(CURRENT_DATE), -6)
                     AND TEST_LOG_FILES.DUMP_TYPE = 'CRASH'
                     AND TEST_LOG_FILES.LINK NOT LIKE '%recursive.trc%'
                     AND TEST_COMMENTS.BUG_ID != 0
@@ -66,7 +66,7 @@ class ETL(object):
                     JOIN TEST_COMMENTS ON TEST_VALID.ID = TEST_COMMENTS.ID
                     JOIN TEST_PROFILES ON TEST_CASES.ID_TEST_PROFILE = TEST_PROFILES.ID
                     JOIN MAKES ON TEST_PROFILES.ID_MAKE = MAKES.ID
-                WHERE TEST_CASES.START_TIME BETWEEN '2020-08-01' AND '2020-08-31'
+                WHERE TEST_CASES.START_TIME >= ADD_MONTHS(TO_DATE(CURRENT_DATE), -6)
                     AND TEST_LOG_FILES.DUMP_TYPE = 'CRASH'
                     AND TEST_LOG_FILES.LINK NOT LIKE '%recursive.trc%'
                     AND TEST_COMMENTS.BUG_ID != 0
@@ -101,7 +101,7 @@ class ETL(object):
             result = sql.execute(extract_content).fetchall()
         return result[0][0]
 
-    def extract_source(self):
+    def extract_word(self):
         set_schema = """SET SCHEMA TESTER;"""
         extract_content = """
         SELECT TEST_MANY.ID, TEST_MANY.LINK
@@ -110,9 +110,10 @@ class ETL(object):
                 SELECT TEST_CASES.ID, TEST_CASES.START_TIME, TEST_LOG_FILES.LINK
                 FROM TEST_CASES
                     JOIN TEST_LOG_FILES ON TEST_CASES.ID = TEST_LOG_FILES.ID_TEST_CASE
+                    JOIN TEST_REVIEW ON TEST_CASES.ID = TEST_REVIEW.ID_TEST_CASE
                     JOIN TEST_PROFILES ON TEST_CASES.ID_TEST_PROFILE = TEST_PROFILES.ID
                     JOIN MAKES ON TEST_PROFILES.ID_MAKE = MAKES.ID
-                WHERE TEST_CASES.START_TIME >= ADD_MONTHS(TO_DATE(CURRENT_DATE), -1)
+                WHERE TEST_CASES.START_TIME >= ADD_MONTHS(TO_DATE(CURRENT_DATE), -6)
                     AND TEST_LOG_FILES.DUMP_TYPE = 'CRASH'
                     AND TEST_LOG_FILES.LINK NOT LIKE '%recursive.trc%'
                     AND MAKES.BUILD_PURPOSE = 'G'
@@ -123,9 +124,10 @@ class ETL(object):
                 SELECT TEST_CASES.ID, COUNT(TEST_LOG_FILES.LINK) AS NUM
                 FROM TEST_CASES
                     JOIN TEST_LOG_FILES ON TEST_CASES.ID = TEST_LOG_FILES.ID_TEST_CASE
+                    JOIN TEST_REVIEW ON TEST_CASES.ID = TEST_REVIEW.ID_TEST_CASE
                     JOIN TEST_PROFILES ON TEST_CASES.ID_TEST_PROFILE = TEST_PROFILES.ID
                     JOIN MAKES ON TEST_PROFILES.ID_MAKE = MAKES.ID
-                WHERE TEST_CASES.START_TIME >= ADD_MONTHS(TO_DATE(CURRENT_DATE), -1)
+                WHERE TEST_CASES.START_TIME >= ADD_MONTHS(TO_DATE(CURRENT_DATE), -6)
                     AND TEST_LOG_FILES.DUMP_TYPE = 'CRASH'
                     AND TEST_LOG_FILES.LINK NOT LIKE '%recursive.trc%'
                     AND MAKES.BUILD_PURPOSE = 'G'
@@ -165,9 +167,9 @@ class ETL(object):
         for blocks in func_block:
             for block in blocks:
                 text += block
-        return hashlib.md5(text).hexdigest()
+        return hashlib.md5(text.encode("utf-8")).hexdigest()
 
-    def format_dump(self):
+    def crawl_dump(self):
         cnt = 0
         documents = []
         result = self.extract_qdb()
@@ -184,6 +186,8 @@ class ETL(object):
                     processed = Process(dump).internal_process()
             except IndexError:
                 continue
+            except UnicodeDecodeError:
+                continue
             sequence = Knowledge().add_knowledge(processed)
             cpnt_order, func_block = self.serialize(sequence)
             data = dict()
@@ -193,7 +197,14 @@ class ETL(object):
             data["func_block"] = func_block
             data["bug_id"] = bug_id
             data["md5sum"] = self.check_sum(func_block)
-            documents.append(data)
+            # deduplication
+            is_insert = True
+            for doc in documents:
+                if doc["md5sum"] == data["md5sum"] and doc["time_stamp"] >= data["time_stamp"]:
+                    is_insert = False
+                    break
+            if is_insert:
+                documents.append(data)
         with MongoConnection(self.host, self.port) as mongo:
             collection = mongo.connection[self.db][self.coll]
             collection.drop()

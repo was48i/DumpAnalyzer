@@ -2,7 +2,7 @@ import configparser
 import os
 import subprocess
 
-from connection import MongoConnection
+from pool import MongoConnection
 
 
 class Knowledge(object):
