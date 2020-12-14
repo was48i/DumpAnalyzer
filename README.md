@@ -72,14 +72,13 @@ In particular, we use Python bindings for Clang to build the Abstract Syntax Tre
 
 ## Usage
 We provide 4 main features:
-
-- Update potential function-related mappings from code base:
-    ```bash
-    $ ./src/main.py --update
-    ```
-- Train the model with recent crash dumps for parameter tuning:
+- Train the model with recent crash dumps for parameter tuning. It contains knowledge updating, dump crawling and data sampling:
     ```bash
     $ ./src/main.py --train
+    ```
+- Count file names (stop words) that can be filtered:
+    ```bash
+    $ ./src/main.py --stop
     ```
 - Compare original call stacks and display with [combined diff format](https://git-scm.com/docs/diff-format):
     ```bash
@@ -98,9 +97,9 @@ We evaluate our code on a development server:
 - 1 TB Disk;
 
 The elapsed time is listed as follows:
-|Update|Train|Compare|Detect|
+|Train|Stop|Compare|Detect|
 |:-:|:-:|:-:|:-:|
-|2.05 hours||||
+||12.23 minutes||4.40 seconds|
 
 ## Contributing
 We love contributions! Before submitting a Pull Request, it's always good to start with a new issue first.
