@@ -14,6 +14,8 @@ class ETL(object):
     config = configparser.ConfigParser()
     path = os.path.join(os.getcwd(), "config.ini")
     config.read(path)
+    # ETL
+    months = config.getint("etl", "months")
     # SQL
     qdb_uri = config.get("sql", "qdb_uri")
     cdb_uri = config.get("sql", "cdb_uri")
@@ -43,7 +45,7 @@ class ETL(object):
                     JOIN TEST_COMMENTS ON TEST_VALID.ID = TEST_COMMENTS.ID
                     JOIN TEST_PROFILES ON TEST_CASES.ID_TEST_PROFILE = TEST_PROFILES.ID
                     JOIN MAKES ON TEST_PROFILES.ID_MAKE = MAKES.ID
-                WHERE TEST_CASES.START_TIME >= ADD_MONTHS(TO_DATE(CURRENT_DATE), -6)
+                WHERE TEST_CASES.START_TIME >= ADD_MONTHS(TO_DATE(CURRENT_DATE), -{})
                     AND TEST_LOG_FILES.DUMP_TYPE = 'CRASH'
                     AND TEST_LOG_FILES.LINK NOT LIKE '%recursive.trc%'
                     AND TEST_COMMENTS.BUG_ID != 0
@@ -66,7 +68,7 @@ class ETL(object):
                     JOIN TEST_COMMENTS ON TEST_VALID.ID = TEST_COMMENTS.ID
                     JOIN TEST_PROFILES ON TEST_CASES.ID_TEST_PROFILE = TEST_PROFILES.ID
                     JOIN MAKES ON TEST_PROFILES.ID_MAKE = MAKES.ID
-                WHERE TEST_CASES.START_TIME >= ADD_MONTHS(TO_DATE(CURRENT_DATE), -6)
+                WHERE TEST_CASES.START_TIME >= ADD_MONTHS(TO_DATE(CURRENT_DATE), -{})
                     AND TEST_LOG_FILES.DUMP_TYPE = 'CRASH'
                     AND TEST_LOG_FILES.LINK NOT LIKE '%recursive.trc%'
                     AND TEST_COMMENTS.BUG_ID != 0
@@ -77,7 +79,7 @@ class ETL(object):
             ON TEST_MANY.ID = TEST_ONLY.ID
         WHERE TEST_ONLY.NUM = 1
         ORDER BY TEST_MANY.START_TIME DESC;
-        """
+        """.format(self.months, self.months)
         with SqlConnection(self.qdb_uri).connection as sql:
             sql.execute(set_schema)
             result = sql.execute(extract_content).fetchall()
@@ -113,7 +115,7 @@ class ETL(object):
                     JOIN TEST_REVIEW ON TEST_CASES.ID = TEST_REVIEW.ID_TEST_CASE
                     JOIN TEST_PROFILES ON TEST_CASES.ID_TEST_PROFILE = TEST_PROFILES.ID
                     JOIN MAKES ON TEST_PROFILES.ID_MAKE = MAKES.ID
-                WHERE TEST_CASES.START_TIME >= ADD_MONTHS(TO_DATE(CURRENT_DATE), -6)
+                WHERE TEST_CASES.START_TIME >= ADD_MONTHS(TO_DATE(CURRENT_DATE), -{})
                     AND TEST_LOG_FILES.DUMP_TYPE = 'CRASH'
                     AND TEST_LOG_FILES.LINK NOT LIKE '%recursive.trc%'
                     AND MAKES.BUILD_PURPOSE = 'G'
@@ -127,7 +129,7 @@ class ETL(object):
                     JOIN TEST_REVIEW ON TEST_CASES.ID = TEST_REVIEW.ID_TEST_CASE
                     JOIN TEST_PROFILES ON TEST_CASES.ID_TEST_PROFILE = TEST_PROFILES.ID
                     JOIN MAKES ON TEST_PROFILES.ID_MAKE = MAKES.ID
-                WHERE TEST_CASES.START_TIME >= ADD_MONTHS(TO_DATE(CURRENT_DATE), -6)
+                WHERE TEST_CASES.START_TIME >= ADD_MONTHS(TO_DATE(CURRENT_DATE), -{})
                     AND TEST_LOG_FILES.DUMP_TYPE = 'CRASH'
                     AND TEST_LOG_FILES.LINK NOT LIKE '%recursive.trc%'
                     AND MAKES.BUILD_PURPOSE = 'G'
@@ -137,7 +139,7 @@ class ETL(object):
             ON TEST_MANY.ID = TEST_ONLY.ID
         WHERE TEST_ONLY.NUM = 1
         ORDER BY TEST_MANY.START_TIME DESC;
-        """
+        """.format(self.months, self.months)
         with SqlConnection(self.qdb_uri).connection as sql:
             sql.execute(set_schema)
             result = sql.execute(extract_content).fetchall()

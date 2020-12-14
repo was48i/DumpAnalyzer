@@ -3,6 +3,7 @@ import os
 
 from calculate import Calculate
 from component import Component
+from etl import ETL
 from numpy import arange, array
 from pool import MongoConnection
 from sample import Sample
@@ -49,9 +50,10 @@ class Train(object):
         n_opt = 0.0
         auc_max = 0.0
         # Component().update_component()
+        # ETL().crawl_dump()
         dataset = Sample().sample_data()
-        for m in arange(0.0, 0.1, 0.1):
-            for n in arange(0.0, 0.1, 0.1):
+        for m in arange(0.0, 2.1, 0.1):
+            for n in arange(0.0, 2.1, 0.1):
                 true_label = []
                 pred_score = []
                 for label, samples in enumerate(dataset):

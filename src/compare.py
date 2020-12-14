@@ -1,2 +1,6 @@
 class Compare(object):
-    pass
+    def __init__(self, paths):
+        self.dump_paths = paths
+
+    def compare_dump(self):
+        pass

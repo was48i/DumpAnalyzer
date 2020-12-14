@@ -2,14 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import time
 import urllib3
 
-from component import Component
+from compare import Compare
 from detect import Detect
-from etl import ETL
-from sample import Sample
 from stop_word import StopWord
+from train import Train
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--train", nargs="?", const=True, help="Training for parameter tuning.")
@@ -23,24 +21,13 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 if __name__ == "__main__":
     # training for parameter tuning
     if args.train:
-        start = time.time()
-        Component().update_component()
-        ETL().crawl_dump()
-        dataset = Sample().sample_data()
-        end = time.time()
-        print(end - start)
-    # count filtered file names
+        Train().training()
+    # count file names that can be filtered
     if args.stop:
-        start = time.time()
         StopWord().count_word()
-        end = time.time()
-        print(end - start)
     # compare original call stacks
     if args.compare:
-        pass
+        Compare(args.compare).compare_dump()
     # detect crash dump similarity
     if args.detect:
-        start = time.time()
         Detect(args.detect).detect_sim()
-        end = time.time()
-        print(end - start)
