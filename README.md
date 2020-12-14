@@ -72,7 +72,7 @@ In particular, we use Python bindings for Clang to build the Abstract Syntax Tre
 
 ## Usage
 We provide 4 main features:
-- Train the model with recent crash dumps for parameter tuning. It contains knowledge updating, dump crawling and data sampling:
+- Training for parameter tuning. It contains knowledge updating, dump crawling and data sampling:
     ```bash
     $ ./src/main.py --train
     ```
