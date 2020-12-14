@@ -4,12 +4,12 @@ import os
 from functools import reduce
 
 
-class Log(object):
+class Logger(object):
     """
     Print a few messages for the specific feature.
     """
     config = configparser.ConfigParser()
-    config_path = os.path.join(os.getcwd(), "settings.ini")
+    config_path = os.path.join(os.getcwd(), "config.ini")
     config.read(config_path)
     # Log
     width = config.getint("log", "width")
@@ -17,19 +17,10 @@ class Log(object):
     m = config.getfloat("model", "m")
     n = config.getfloat("model", "n")
 
-    def dump_print(self, message):
+    def dump_print(self, message, cursor_up):
         print("\n", end="")
-        dump_x, dump_y = message
-        len_left = reduce((lambda x, y: x + y), [len(i[1]) + 1 for i in dump_x])
-        len_right = reduce((lambda x, y: x + y), [len(i[1]) + 1 for i in dump_y])
-        len_max = max(len_left, len_right)
-        # align the dump length
-        if len_left < len_max:
-            dump_x = dump_x + [["", []]] * (len_max - len_left)
-        if len_right < len_max:
-            dump_y = dump_y + [["", []]] * (len_max - len_right)
         # print the left part
-        for msg in dump_x:
+        for msg in message[0]:
             component, functions = msg
             if component != "":
                 print("\x1b[0;36m" + component + "\x1b[0m")
@@ -38,8 +29,8 @@ class Log(object):
             else:
                 print("")
         # print the right part
-        print("\x1b[{}A".format(len_max), end="")
-        for msg in dump_y:
+        print("\x1b[{}A".format(cursor_up), end="")
+        for msg in message[1]:
             component, functions = msg
             if component != "":
                 print("\x1b[{}C".format(self.width + 2), end="")

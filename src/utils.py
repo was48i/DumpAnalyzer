@@ -1,6 +1,8 @@
 class DP(object):
     @staticmethod
-    def lcs_index(seq_x, seq_y):
+    def lcs_position(seq_x, seq_y):
+        pos_x = []
+        pos_y = []
         m = len(seq_x)
         n = len(seq_y)
         # initialize dp matrix with 0
@@ -14,21 +16,19 @@ class DP(object):
                     dp[i][j] = dp[i-1][j-1] + 1
                 else:
                     dp[i][j] = max(dp[i-1][j], dp[i][j-1])
-        # obtain the index of longest common subsequence
-        index_x = []
-        index_y = []
+        # obtain positions of longest common subsequence
         i, j = m, n
         while i > 0 and j > 0:
             if seq_x[i-1] == seq_y[j-1]:
-                index_x.append(i-1)
-                index_y.append(j-1)
+                pos_x.append(dp[m][n] - i)
+                pos_y.append(dp[m][n] - j)
                 i -= 1
                 j -= 1
             elif dp[i-1][j] > dp[i][j-1]:
                 i -= 1
             else:
                 j -= 1
-        return index_x, index_y
+        return pos_x, pos_y
 
     @staticmethod
     def normalized_dist(seq_x, seq_y):
