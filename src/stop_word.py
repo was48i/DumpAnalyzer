@@ -27,7 +27,7 @@ class StopWord(object):
             print("{}, {}/{}".format(test_id, cnt, len(result)))
             try:
                 if requests.get(url, verify=False).status_code == 200:
-                    dump = requests.get(url, verify=False).content.decode("latin-1")
+                    dump = requests.get(url, verify=False).content.decode("utf-8")
                     processed = Process(dump).pre_process()
                 else:
                     dump = ETL().extract_cdb(test_id)

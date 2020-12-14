@@ -12,7 +12,7 @@ from process import Process
 
 class ETL(object):
     config = configparser.ConfigParser()
-    path = os.path.join(os.getcwd(), "settings.ini")
+    path = os.path.join(os.getcwd(), "config.ini")
     config.read(path)
     # SQL
     qdb_uri = config.get("sql", "qdb_uri")
@@ -179,7 +179,7 @@ class ETL(object):
             print("{}, {}/{}".format(test_id, cnt, len(result)))
             try:
                 if requests.get(url, verify=False).status_code == 200:
-                    dump = requests.get(url, verify=False).content.decode("latin-1")
+                    dump = requests.get(url, verify=False).content.decode("utf-8")
                     processed = Process(dump).pre_process()
                 else:
                     dump = self.extract_cdb(test_id)

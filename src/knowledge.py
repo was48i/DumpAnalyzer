@@ -7,7 +7,7 @@ from pool import MongoConnection
 
 class Knowledge(object):
     config = configparser.ConfigParser()
-    config_path = os.path.join(os.getcwd(), "settings.ini")
+    config_path = os.path.join(os.getcwd(), "config.ini")
     config.read(config_path)
     # MongoDB
     host = config.get("mongodb", "host")

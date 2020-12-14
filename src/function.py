@@ -14,7 +14,7 @@ class Function(object):
      Obtain File-Function mapping through Python bindings for Clang.
     """
     config = configparser.ConfigParser()
-    path = os.path.join(os.getcwd(), "settings.ini")
+    path = os.path.join(os.getcwd(), "config.ini")
     config.read(path)
     # Git
     git_dir = config.get("git", "dir")

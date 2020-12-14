@@ -10,7 +10,7 @@ from utils import UnionFind
 
 class Sample(object):
     config = configparser.ConfigParser()
-    path = os.path.join(os.getcwd(), "settings.ini")
+    path = os.path.join(os.getcwd(), "config.ini")
     config.read(path)
     # MongoDB
     host = config.get("mongodb", "host")

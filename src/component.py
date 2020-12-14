@@ -12,7 +12,7 @@ class Component(object):
     Obtain Component-File mapping based on the layered CMakeLists.txt.
     """
     config = configparser.ConfigParser()
-    path = os.path.join(os.getcwd(), "settings.ini")
+    path = os.path.join(os.getcwd(), "config.ini")
     config.read(path)
     # Git
     git_url = config.get("git", "url")
