@@ -1,6 +1,5 @@
 import configparser
 import os
-import re
 import requests
 import hashlib
 
@@ -146,24 +145,6 @@ class ETL(object):
         return result
 
     @staticmethod
-    def serialize(sequence):
-        cpnt_order = [seq[0] for seq in sequence]
-        func_block = []
-        for functions in [seq[1] for seq in sequence]:
-            blocks = []
-            for func in functions:
-                if "(" in func:
-                    func = func[:func.index("(")]
-                if "<" in func:
-                    func = func[:func.index("<")]
-                if re.match(r"^[a-z]+[ ]", func):
-                    func = func[func.index(" ") + 1:]
-                for block in func.split("::"):
-                    blocks.append(block)
-            func_block.append(blocks)
-        return cpnt_order, func_block
-
-    @staticmethod
     def check_sum(func_block):
         text = ""
         for blocks in func_block:
@@ -190,8 +171,7 @@ class ETL(object):
                 continue
             except UnicodeDecodeError:
                 continue
-            sequence = Knowledge().add_knowledge(processed)
-            cpnt_order, func_block = self.serialize(sequence)
+            cpnt_order, func_block = Knowledge(processed).add_knowledge()
             data = dict()
             data["test_id"] = test_id
             data["time_stamp"] = int(datetime.timestamp(time_stamp))

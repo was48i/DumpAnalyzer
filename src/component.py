@@ -127,7 +127,7 @@ class Component(object):
         if "/" not in path:
             arguments = ["find", self.git_dir, "-name", path]
             pipe = subprocess.Popen(arguments, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-            stdout, stderr = pipe.communicate()
+            stdout, _ = pipe.communicate()
             full_path = stdout.decode("utf-8")[:-1]
         else:
             full_path = "{}/{}".format(self.git_dir, path)

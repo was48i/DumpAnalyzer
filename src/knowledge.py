@@ -1,8 +1,9 @@
 import configparser
 import os
+import re
 import subprocess
 
-from pool import MongoConnection
+from component import Component
 
 
 class Knowledge(object):
@@ -19,64 +20,71 @@ class Knowledge(object):
     # Stop
     stop_words = config.get("stop", "words")
 
-    @staticmethod
-    def execute_shell(arguments):
-        pipe = subprocess.Popen(arguments, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-        stdout, stderr = pipe.communicate()
-        return stdout.decode("utf-8")[:-1]
+    def __init__(self, processed):
+        self.processed = processed
 
-    def complete_path(self, path):
-        if "/" in path:
-            file = path[path.rindex("/")+1:]
-            path = self.git_dir + "/" + path
-        else:
-            file = path
-            arguments = ["find", self.git_dir, "-name", path]
-            path = self.execute_shell(arguments)
-        return file, path
-
-    def best_matched(self, path):
-        matched = "UNKNOWN"
-        with MongoConnection(self.host, self.port) as mongo:
-            collection = mongo.connection[self.db][self.coll]
-            result = collection.find_one({"path": path})
-            if result:
-                matched = result["component"]
-            else:
-                while "/" in path:
-                    path = path[:path.rindex("/")]
-                    result = collection.find_one({"path": path})
-                    if result:
-                        matched = result["component"]
-                        break
-        return matched
-
-    def add_knowledge(self, processed):
-        result = []
-        component = ""
-        functions = []
-        for frame in processed:
-            function, path = frame
-            file, path = self.complete_path(path)
-            # obtain best matched component
-            if file in self.stop_words:
-                continue
-            else:
-                if "\n" in path:
-                    cur_component = "UNKNOWN"
-                else:
-                    cur_component = self.best_matched(path)
+    def process_frame(self, frame):
+        function, path = frame
+        word = path[path.rindex("/") + 1:] if "/" in path else path
+        if word not in self.stop_words:
+            component = Component().to_component(path)
             # demangle
             if function.startswith("_Z"):
                 arguments = ["c++filt", "-p", function]
-                function = self.execute_shell(arguments)
-            # merge several functions into a component
-            if component == "" or cur_component == component:
-                component = cur_component
-                functions.append(function)
+                pipe = subprocess.Popen(arguments, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+                stdout, _ = pipe.communicate()
+                function = stdout.decode("utf-8")[:-1]
+            return component, function
+        else:
+            return "", ""
+
+    @staticmethod
+    def unboxing(function):
+        blocks = []
+        if "(" in function:
+            function = function[:function.index("(")]
+        if "<" in function:
+            function = function[:function.index("<")]
+        if re.match(r"^[a-z]+[ ]", function):
+            function = function[function.index(" ") + 1:]
+        for block in function.split("::"):
+            blocks.append(block)
+        return blocks
+
+    def add_knowledge(self):
+        cpnt_order = []
+        func_block = []
+        for frame in self.processed:
+            component, function = self.process_frame(frame)
+            if not component:
+                continue
+            # obtain cpnt_order and func_block
+            if cpnt_order:
+                if component != cpnt_order[-1]:
+                    cpnt_order.append(component)
+                    func_block.append(self.unboxing(function))
+                else:
+                    func_block[-1].extend(self.unboxing(function))
             else:
+                cpnt_order = [component]
+                func_block = [self.unboxing(function)]
+        return cpnt_order, func_block
+
+    def merge_function(self):
+        result = []
+        component = ""
+        functions = []
+        for frame in self.processed:
+            cur_component, function = self.process_frame(frame)
+            if not cur_component:
+                continue
+            # merge several functions into a component
+            if component != "" and cur_component != component:
                 result.append([component, functions])
                 component = cur_component
                 functions = [function]
+            else:
+                component = cur_component
+                functions.append(function)
         result.append([component, functions])
         return result
