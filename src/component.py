@@ -23,14 +23,6 @@ class Component(object):
     db = config.get("mongodb", "db")
     coll = config.get("mongodb", "coll_cpnt")
 
-    def __init__(self):
-        if os.path.exists(self.git_dir):
-            print("Removing from '{}'...".format(self.git_dir))
-            cmd = "rm -fr {}".format(self.git_dir)
-            subprocess.call(cmd.split(" "))
-        cmd = "git clone --branch master --depth 1 {} {}".format(self.git_url, self.git_dir)
-        subprocess.call(cmd.split(" "))
-
     @staticmethod
     def find_component(path):
         """
@@ -82,6 +74,13 @@ class Component(object):
         """
         Obtain Component-File mapping based on the layered CMakeLists.txt.
         """
+        # update source code base
+        if os.path.exists(self.git_dir):
+            print("Removing from '{}'...".format(self.git_dir))
+            cmd = "rm -fr {}".format(self.git_dir)
+            subprocess.call(cmd.split(" "))
+        cmd = "git clone --branch master --depth 1 {} {}".format(self.git_url, self.git_dir)
+        subprocess.call(cmd.split(" "))
         component_map = dict()
         queue = [self.git_dir]
         # BFS
@@ -106,3 +105,33 @@ class Component(object):
             collection = mongo.connection[self.db][self.coll]
             collection.drop()
             collection.insert_many(documents)
+        print("Component-File mapping is successfully updated.")
+
+    def best_matched(self, path):
+        matched = "UNKNOWN"
+        with MongoConnection(self.host, self.port) as mongo:
+            collection = mongo.connection[self.db][self.coll]
+            data = collection.find_one({"path": path})
+            if not data:
+                while "/" in path:
+                    path = path[:path.rindex("/")]
+                    data = collection.find_one({"path": path})
+                    if data:
+                        matched = data["component"]
+                        break
+            else:
+                matched = data["component"]
+        return matched
+
+    def to_component(self, path):
+        if "/" not in path:
+            arguments = ["find", self.git_dir, "-name", path]
+            pipe = subprocess.Popen(arguments, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+            stdout, stderr = pipe.communicate()
+            full_path = stdout.decode("utf-8")[:-1]
+        else:
+            full_path = "{}/{}".format(self.git_dir, path)
+        if "\n" not in full_path:
+            return self.best_matched(full_path)
+        else:
+            return "UNKNOWN"

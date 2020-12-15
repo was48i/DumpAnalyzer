@@ -4,7 +4,7 @@ import re
 
 from clang.cindex import Index
 from clang.cindex import Config
-from knowledge import Knowledge
+from component import Component
 from multiprocessing import Pool
 from pool import MongoConnection
 
@@ -23,12 +23,6 @@ class Function(object):
     port = config.getint("mongodb", "port")
     db = config.get("mongodb", "db")
     coll = config.get("mongodb", "coll_func")
-
-    def __init__(self):
-        # load libclang.so
-        lib_path = "/usr/local/lib"
-        if not Config.loaded:
-            Config.set_library_path(lib_path)
 
     @staticmethod
     def header_path(dir_path):
@@ -89,7 +83,7 @@ class Function(object):
         """
         result = dict()
         index = Index.create()
-        cpnt = Knowledge().best_matched(path)
+        cpnt = Component().best_matched(path)
         # remove it when include dependencies resolved
         header = os.path.join(self.git_dir, "rte", "rtebase", "include")
         args_list = ["-x", "c++", "-I" + self.git_dir, "-I" + header]
@@ -136,6 +130,10 @@ class Function(object):
         """
         Obtain File-Function mapping through Python bindings for Clang and complete the conversion.
         """
+        # load libclang.so
+        lib_path = "/usr/local/lib"
+        if not Config.loaded:
+            Config.set_library_path(lib_path)
         function_map = dict()
         for node in os.listdir(self.git_dir):
             cur_path = os.path.join(self.git_dir, node)
@@ -156,3 +154,4 @@ class Function(object):
             collection = mongo.connection[self.db][self.coll]
             collection.drop()
             collection.insert_many(documents)
+        print("File-Function mapping is successfully updated.")
