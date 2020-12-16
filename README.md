@@ -99,7 +99,7 @@ We evaluate our code on a development server:
 The elapsed time is listed as follows:
 |Train|Stop|Compare|Detect|
 |:-:|:-:|:-:|:-:|
-||12.23 minutes||4.40 seconds|
+|11609.44|621.78|0.0049|2.8535|
 
 ## Contributing
 We love contributions! Before submitting a Pull Request, it's always good to start with a new issue first.
