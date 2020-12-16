@@ -105,7 +105,7 @@ class Component(object):
             collection = mongo.connection[self.db][self.coll]
             collection.drop()
             collection.insert_many(documents)
-        print("Component-File mapping is successfully updated.")
+        print("Component-File mapping updated successfully.")
 
     def best_matched(self, path):
         matched = "UNKNOWN"

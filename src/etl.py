@@ -152,7 +152,7 @@ class ETL(object):
                 text += block
         return hashlib.md5(text.encode("utf-8")).hexdigest()
 
-    def crawl_dump(self):
+    def transform(self):
         cnt = 0
         documents = []
         result = self.extract_qdb()
@@ -187,7 +187,13 @@ class ETL(object):
                     break
             if is_insert:
                 documents.append(data)
+        return documents
+
+    def load(self):
+        print("Start ETL process.")
+        documents = self.transform()
         with MongoConnection(self.host, self.port) as mongo:
             collection = mongo.connection[self.db][self.coll]
             collection.drop()
             collection.insert_many(documents)
+        print("ETL process executed successfully.")

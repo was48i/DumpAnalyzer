@@ -49,9 +49,13 @@ class Train(object):
         m_opt = 0.0
         n_opt = 0.0
         auc_max = 0.0
-        # Component().update_component()
-        # ETL().crawl_dump()
+        # knowledge updating
+        Component().update_component()
+        # dump crawling
+        ETL().load()
+        # data sampling
         dataset = Sample().sample_data()
+        print("Start parameter tuning.")
         for m in arange(0.0, 2.1, 0.1):
             for n in arange(0.0, 2.1, 0.1):
                 true_label = []

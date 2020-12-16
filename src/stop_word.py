@@ -9,17 +9,11 @@ class StopWord(object):
     """
     Count file names that can be filtered.
     """
-    @staticmethod
-    def file_name(path):
-        if "/" not in path:
-            return path
-        else:
-            path = path[path.rindex("/") + 1:]
-            return path
 
-    def count_word(self):
+    @staticmethod
+    def count_word():
         cnt = 0
-        source = []
+        file_names = []
         result = ETL().extract_word()
         for row in result:
             cnt += 1
@@ -38,5 +32,6 @@ class StopWord(object):
                 continue
             for frame in processed:
                 _, path = frame
-                source.append(self.file_name(path))
-        print(Counter(source))
+                file_name = path[path.rindex("/") + 1:] if "/" in path else path
+                file_names.append(file_name)
+        print(Counter(file_names))

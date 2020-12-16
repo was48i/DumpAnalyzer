@@ -154,4 +154,4 @@ class Function(object):
             collection = mongo.connection[self.db][self.coll]
             collection.drop()
             collection.insert_many(documents)
-        print("File-Function mapping is successfully updated.")
+        print("File-Function mapping updated successfully.")

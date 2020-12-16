@@ -17,7 +17,7 @@ class Process(object):
         for frame in frames:
             function, path = frame
             # remove offset
-            offset_pattern = re.compile(r"([ ]const)*[ ][+][ ]0x.+")
+            offset_pattern = re.compile(r"([ ]const)*[ ][+][ ]0x\w+")
             function = re.sub(offset_pattern, "", function)
             result.append([function, path])
         return result
