@@ -1,4 +1,5 @@
 import configparser
+import difflib
 import os
 
 
@@ -55,3 +56,25 @@ class Logger(object):
             print("             " + denominator)
         else:
             print("Similarity = 0.00%")
+
+    @staticmethod
+    def diff_print(message, paths):
+        print("\n", end="")
+        diff = difflib.unified_diff(message[0].split("\n"), message[1].split("\n"),
+                                    fromfile=os.path.basename(paths[0]), tofile=os.path.basename(paths[1]),
+                                    lineterm="")
+        for line in diff:
+            if line.startswith("---") or line.startswith("+++"):
+                print("\x1b[1m" + line + "\x1b[0m")
+            elif line.startswith("-"):
+                print("\x1b[0;31m" + line + "\x1b[0m")
+            elif line.startswith("+"):
+                print("\x1b[0;32m" + line + "\x1b[0m")
+            elif line.startswith("@@"):
+                print("\x1b[0;36m" + line + "\x1b[0m")
+            else:
+                print(line)
+        # handle the same situation
+        if message[0] == message[1]:
+            for line in message[0].split("\n"):
+                print(line)
