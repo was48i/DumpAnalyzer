@@ -4,11 +4,23 @@ from logger import Logger
 
 
 class Compare(object):
+    """
+    Compare original crash dumps and display with combined diff format.
+    Attributes:
+        dump_paths: The paths of crash dumps.
+    """
     def __init__(self, paths):
         self.dump_paths = paths
 
     @staticmethod
     def find_backtrace(stack):
+        """
+        Obtain the backtrace part of call stack.
+        Args:
+            stack: A call stack text.
+        Returns:
+            The backtrace part.
+        """
         backtrace = ""
         pattern = re.compile(r"-\n[ ]*(\d+:[ ].+)([^-]+Source:[ ].+:)*", re.M)
         frames = pattern.findall(stack)
@@ -27,6 +39,13 @@ class Compare(object):
 
     @staticmethod
     def find_exception(stack):
+        """
+        Obtain the exception part of call stack.
+        Args:
+            stack: A call stack text.
+        Returns:
+            The exception part.
+        """
         exception = ""
         # extract headers
         headers = []
@@ -58,6 +77,9 @@ class Compare(object):
         return exception
 
     def compare_dump(self):
+        """
+        Obtain the call stack part of crash dump and output comparison result.
+        """
         message = []
         # call stack pattern
         stack_pattern = re.compile(r"\n(\[CRASH_STACK][\s\S]+)\[CRASH_REGISTERS]", re.M)
