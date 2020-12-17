@@ -96,7 +96,7 @@ We evaluate our code on a development server:
 - 160 GB RAM;
 - 1 TB Disk;
 
-The elapsed time is listed as follows:
+The elapsed time in seconds:
 |Train|Stop|Compare|Detect|
 |:-:|:-:|:-:|:-:|
 |11609.44|621.78|0.0049|2.8535|
