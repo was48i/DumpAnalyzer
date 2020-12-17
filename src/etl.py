@@ -69,7 +69,6 @@ class ETL(object):
                     JOIN MAKES ON TEST_PROFILES.ID_MAKE = MAKES.ID
                 WHERE TEST_CASES.START_TIME >= ADD_MONTHS(TO_DATE(CURRENT_DATE), -{})
                     AND TEST_LOG_FILES.DUMP_TYPE = 'CRASH'
-                    AND TEST_LOG_FILES.LINK NOT LIKE '%recursive.trc%'
                     AND TEST_COMMENTS.BUG_ID != 0
                     AND MAKES.BUILD_PURPOSE = 'G'
                     AND (MAKES.COMPONENT = 'HANA' OR MAKES.COMPONENT = 'Engine')
@@ -130,7 +129,6 @@ class ETL(object):
                     JOIN MAKES ON TEST_PROFILES.ID_MAKE = MAKES.ID
                 WHERE TEST_CASES.START_TIME >= ADD_MONTHS(TO_DATE(CURRENT_DATE), -{})
                     AND TEST_LOG_FILES.DUMP_TYPE = 'CRASH'
-                    AND TEST_LOG_FILES.LINK NOT LIKE '%recursive.trc%'
                     AND MAKES.BUILD_PURPOSE = 'G'
                     AND (MAKES.COMPONENT = 'HANA' OR MAKES.COMPONENT = 'Engine')
                 GROUP BY TEST_CASES.ID
