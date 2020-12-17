@@ -2,6 +2,7 @@ import knowledge
 import logger
 
 from calculate import Calculate
+from etl import ETL
 from functools import reduce
 from process import Process
 from train import Train
@@ -11,18 +12,17 @@ class Detect(object):
     """
     Detect crash dump similarity through the mathematical model.
     """
-    def __init__(self, paths):
-        self.dump_paths = paths
+    def __init__(self, ids):
+        self.test_ids = ids
 
     def detect_sim(self):
         message = []
         cursor_up = 0
         order_pair = []
         block_pair = []
-        for path in self.dump_paths:
-            with open(path, "r", encoding="utf-8") as fp:
-                dump = fp.read()
-            processed = Process(dump).pre_process()
+        for test_id in self.test_ids:
+            dump = ETL().extract_cdb(test_id)
+            processed = Process(dump).internal_process()
             kdetector = knowledge.Knowledge(processed)
             sequence = kdetector.merge_function()
             cpnt_order, func_block = kdetector.add_knowledge()
