@@ -27,7 +27,7 @@ class Process(object):
         ex_header = "exception throw location:"
         if ex_header in self.dump:
             self.dump = self.dump.split(ex_header)[0]
-        pattern = re.compile(r"\d+:[ ](.+)[ ]at[ ](.+)", re.M)
+        pattern = re.compile(r"^\d+:[ ](.+)[ ]at[ ](.+)", re.M)
         frames = pattern.findall(self.dump)
         for frame in frames:
             function, path = frame
