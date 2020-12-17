@@ -20,8 +20,8 @@ class DP(object):
         i, j = m, n
         while i > 0 and j > 0:
             if seq_x[i-1] == seq_y[j-1]:
-                pos_x.append(dp[m][n] - i)
-                pos_y.append(dp[m][n] - j)
+                pos_x.append(m - i)
+                pos_y.append(n - j)
                 i -= 1
                 j -= 1
             elif dp[i-1][j] > dp[i][j-1]:
