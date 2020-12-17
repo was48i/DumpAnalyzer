@@ -52,7 +52,7 @@ class Logger(object):
                 denominator += "e^-{}*{} + ".format(self.m, i)
             denominator = denominator[:-3]
             print("             " + numerator)
-            print("Similarity = {} = {:.2%}".format("-" * len(numerator), sim))
+            print("Similarity = {} = {:.2%}".format("-" * max(len(numerator), len(denominator)), sim))
             print("             " + denominator)
         else:
             print("Similarity = 0.00%")
