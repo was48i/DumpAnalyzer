@@ -3,6 +3,7 @@ import os
 import requests
 import hashlib
 
+from component import Component
 from datetime import datetime
 from knowledge import Knowledge
 from pool import MongoConnection, SqlConnection
@@ -188,10 +189,12 @@ class ETL(object):
         return documents
 
     def load(self):
+        # knowledge updating
+        Component().update_component()
         print("Start ETL process...\n")
         documents = self.transform()
         with MongoConnection(self.host, self.port) as mongo:
             collection = mongo.connection[self.db][self.coll]
             collection.drop()
             collection.insert_many(documents)
-        print("ETL process executed successfully.\n")
+        print("\nETL process ({}) executed successfully.\n".format(len(documents)))

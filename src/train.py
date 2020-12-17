@@ -2,8 +2,6 @@ import configparser
 import os
 
 from calculate import Calculate
-from component import Component
-from etl import ETL
 from numpy import arange, array
 from pool import MongoConnection
 from sample import Sample
@@ -49,10 +47,6 @@ class Train(object):
         m_opt = 0.0
         n_opt = 0.0
         auc_max = 0.0
-        # knowledge updating
-        Component().update_component()
-        # dump crawling
-        ETL().load()
         # data sampling
         dataset = Sample().sample_data()
         print("Start parameter tuning...\n")
@@ -62,6 +56,13 @@ class Train(object):
                 pred_score = []
                 for label, samples in enumerate(dataset):
                     for sample in samples:
+
+                        # sim = self.predict_score(sample, m, n)
+                        # if label == 0 and sim > 0.2:
+                        #     print("FP: {}".format(sample))
+                        # if label == 1 and sim < 0.2:
+                        #     print("FN: {}".format(sample))
+
                         true_label.append(label)
                         pred_score.append(self.predict_score(sample, m, n))
                 true_label = array(true_label)
@@ -73,5 +74,4 @@ class Train(object):
                     auc_max = roc_auc
                     m_opt = m
                     n_opt = n
-        print("{:.1}".format(m_opt))
-        print("{:.1}".format(n_opt))
+        print("\nm_opt=%.1f, n_opt=%.1f\n" % (m_opt, n_opt))
