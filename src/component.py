@@ -14,14 +14,14 @@ class Component(object):
     config = configparser.ConfigParser()
     path = os.path.join(os.getcwd(), "config.ini")
     config.read(path)
-    # Git
-    git_url = config.get("git", "url")
-    git_dir = config.get("git", "dir")
     # MongoDB
     host = config.get("mongodb", "host")
     port = config.getint("mongodb", "port")
     db = config.get("mongodb", "db")
     coll = config.get("mongodb", "coll_cpnt")
+    # Git
+    git_url = config.get("git", "url")
+    git_dir = config.get("git", "dir")
 
     @staticmethod
     def find_component(path):
@@ -54,10 +54,6 @@ class Component(object):
         """
         result = dict()
         for cpnt in components:
-            # convert parent component
-            if isinstance(cpnt, str):
-                result[prefix] = cpnt
-                continue
             # convert child component
             if isinstance(cpnt, tuple):
                 for item in [i.strip() for i in cpnt[1].split("\n") if i.strip()]:
@@ -68,6 +64,9 @@ class Component(object):
                     for wild in glob.iglob(path):
                         result[wild] = cpnt[0]
                 continue
+            # convert parent component
+            if isinstance(cpnt, str):
+                result[prefix] = cpnt
         return result
 
     def update_component(self):
@@ -76,7 +75,7 @@ class Component(object):
         """
         # update source code base
         if os.path.exists(self.git_dir):
-            print("Removing from '{}'...".format(self.git_dir))
+            print("Removing from '{}'...\n".format(self.git_dir))
             cmd = "rm -fr {}".format(self.git_dir)
             subprocess.call(cmd.split(" "))
         cmd = "git clone --branch master --depth 1 {} {}".format(self.git_url, self.git_dir)
@@ -105,7 +104,7 @@ class Component(object):
             collection = mongo.connection[self.db][self.coll]
             collection.drop()
             collection.insert_many(documents)
-        print("Component-File mapping updated successfully.")
+        print("Component-File mapping updated successfully.\n")
 
     def best_matched(self, path):
         matched = "UNKNOWN"

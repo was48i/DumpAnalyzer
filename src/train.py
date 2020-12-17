@@ -55,7 +55,7 @@ class Train(object):
         ETL().load()
         # data sampling
         dataset = Sample().sample_data()
-        print("Start parameter tuning.")
+        print("Start parameter tuning...\n")
         for m in arange(0.0, 2.1, 0.1):
             for n in arange(0.0, 2.1, 0.1):
                 true_label = []
@@ -73,5 +73,5 @@ class Train(object):
                     auc_max = roc_auc
                     m_opt = m
                     n_opt = n
-        print(m_opt)
-        print(n_opt)
+        print("{:.1}".format(m_opt))
+        print("{:.1}".format(n_opt))

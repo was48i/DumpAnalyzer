@@ -13,16 +13,16 @@ class ETL(object):
     config = configparser.ConfigParser()
     path = os.path.join(os.getcwd(), "config.ini")
     config.read(path)
-    # ETL
-    months = config.getint("etl", "months")
-    # SQL
-    qdb_uri = config.get("sql", "qdb_uri")
-    cdb_uri = config.get("sql", "cdb_uri")
     # MongoDB
     host = config.get("mongodb", "host")
     port = config.getint("mongodb", "port")
     db = config.get("mongodb", "db")
     coll = config.get("mongodb", "coll_data")
+    # SQL
+    qdb_uri = config.get("sql", "qdb_uri")
+    cdb_uri = config.get("sql", "cdb_uri")
+    # ETL
+    months = config.getint("etl", "months")
 
     def extract_qdb(self):
         set_schema = """SET SCHEMA TESTER;"""
@@ -190,10 +190,10 @@ class ETL(object):
         return documents
 
     def load(self):
-        print("Start ETL process.")
+        print("Start ETL process...\n")
         documents = self.transform()
         with MongoConnection(self.host, self.port) as mongo:
             collection = mongo.connection[self.db][self.coll]
             collection.drop()
             collection.insert_many(documents)
-        print("ETL process executed successfully.")
+        print("ETL process executed successfully.\n")

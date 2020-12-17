@@ -32,7 +32,7 @@ class Compare(object):
         headers = []
         header_pattern = re.compile(r"(^exception.+no[.].+)\n([\s\S]+?exception[ ]throw[ ]location:)", re.M)
         for header in header_pattern.findall(stack):
-            header = "\n{}\n{}\n".format(header[0], header[1])
+            header = "\n{}\n{}\n".format(header[0], header[1].strip())
             headers.append(header)
         # obtain break points
         points = []

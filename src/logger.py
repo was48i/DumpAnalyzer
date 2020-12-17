@@ -10,11 +10,11 @@ class Logger(object):
     config = configparser.ConfigParser()
     config_path = os.path.join(os.getcwd(), "config.ini")
     config.read(config_path)
-    # Log
-    width = config.getint("log", "width")
     # Model
     m = config.getfloat("model", "m")
     n = config.getfloat("model", "n")
+    # Log
+    width = config.getint("log", "width")
 
     def dump_print(self, message, cursor_up):
         print("\n", end="")

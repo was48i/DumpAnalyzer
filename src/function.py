@@ -16,13 +16,13 @@ class Function(object):
     config = configparser.ConfigParser()
     path = os.path.join(os.getcwd(), "config.ini")
     config.read(path)
-    # Git
-    git_dir = config.get("git", "dir")
     # MongoDB
     host = config.get("mongodb", "host")
     port = config.getint("mongodb", "port")
     db = config.get("mongodb", "db")
     coll = config.get("mongodb", "coll_func")
+    # Git
+    git_dir = config.get("git", "dir")
 
     @staticmethod
     def header_path(dir_path):
