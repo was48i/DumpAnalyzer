@@ -27,10 +27,8 @@ class Component(object):
     def find_component(path):
         """
         Obtain parent/child components from a CMakeLists.txt path.
-
         Args:
             path: A CMakeLists.txt path.
-
         Returns:
             Parent and its children.
         """
@@ -71,7 +69,7 @@ class Component(object):
 
     def update_component(self):
         """
-        Obtain Component-File mapping based on the layered CMakeLists.txt.
+        Obtain Component-File mapping based on the layered CMakeLists.txt and load into database.
         """
         # update source code base
         if os.path.exists(self.git_dir):
@@ -95,7 +93,7 @@ class Component(object):
                     queue.append(item)
         # insert documents
         documents = []
-        for key in component_map:
+        for key in component_map.keys():
             data = dict()
             data["path"] = key
             data["component"] = component_map[key]
@@ -104,9 +102,16 @@ class Component(object):
             collection = mongo.connection[self.db][self.coll]
             collection.drop()
             collection.insert_many(documents)
-        print("Component-File mapping updated successfully.\n")
+        print("Component-File mapping ({}) updated successfully.\n".format(len(documents)))
 
     def best_matched(self, path):
+        """
+        Query the components collection to obtain the best matched component.
+        Args:
+            path: A complete path is the stack frame.
+        Returns:
+            matched: The best matched component.
+        """
         matched = "UNKNOWN"
         with MongoConnection(self.host, self.port) as mongo:
             collection = mongo.connection[self.db][self.coll]
@@ -123,6 +128,15 @@ class Component(object):
         return matched
 
     def to_component(self, path):
+        """
+        Verify the validity of path and obtain the matched component.
+        Args:
+            path: A path in the stack frame.
+        Returns:
+            matched: A matched component.
+        """
+        if re.search(r"[^/0-9a-zA-Z._]", path):
+            return "UNKNOWN"
         if "/" not in path:
             arguments = ["find", self.git_dir, "-name", path]
             pipe = subprocess.Popen(arguments, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
@@ -130,7 +144,7 @@ class Component(object):
             full_path = stdout.decode("utf-8")[:-1]
         else:
             full_path = "{}/{}".format(self.git_dir, path)
-        if "\n" not in full_path:
-            return self.best_matched(full_path)
-        else:
+        if not full_path or "\n" in full_path:
             return "UNKNOWN"
+        else:
+            return self.best_matched(full_path)
