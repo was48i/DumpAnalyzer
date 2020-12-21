@@ -2,11 +2,21 @@ import re
 
 
 class Process(object):
+    """
+    Data preprocessing for crash dump string.
+    Attributes:
+        dump: A crash dump string.
+    """
     def __init__(self, dump):
         self.dump = dump
 
     def pre_process(self):
-        result = []
+        """
+        Extract the backtrace part of the original crash dump string.
+        Returns:
+            processed: Processed string with function, path information.
+        """
+        processed = []
         # call stack pattern
         stack_pattern = re.compile(r"\n(\[CRASH_STACK][\s\S]+)\[CRASH_REGISTERS]", re.M)
         content = stack_pattern.findall(self.dump)
@@ -19,11 +29,16 @@ class Process(object):
             # remove offset
             offset_pattern = re.compile(r"([ ]const)*[ ][+][ ]0x\w+")
             function = re.sub(offset_pattern, "", function)
-            result.append([function, path])
-        return result
+            processed.append([function, path])
+        return processed
 
     def internal_process(self):
-        result = []
+        """
+        Extract the backtrace part of the internal crash dump string.
+        Returns:
+            processed: Processed string with function, path information.
+        """
+        processed = []
         ex_header = "exception throw location:"
         if ex_header in self.dump:
             self.dump = self.dump.split(ex_header)[0]
@@ -31,5 +46,5 @@ class Process(object):
         frames = pattern.findall(self.dump)
         for frame in frames:
             function, path = frame
-            result.append([function, path])
-        return result
+            processed.append([function, path])
+        return processed

@@ -11,6 +11,9 @@ from process import Process
 
 
 class ETL(object):
+    """
+    The Extract, Transform, Load process for data crawling.
+    """
     config = configparser.ConfigParser()
     path = os.path.join(os.getcwd(), "config.ini")
     config.read(path)
@@ -26,6 +29,11 @@ class ETL(object):
     months = config.getint("etl", "months")
 
     def extract_qdb(self):
+        """
+        Extract recent data from database.
+        Returns:
+            test_id, start_time, dump_link, bug_id.
+        """
         set_schema = """SET SCHEMA TESTER;"""
         extract_content = """
         SELECT TEST_MANY.ID, TEST_MANY.START_TIME, TEST_MANY.LINK, TEST_MANY.BUG_ID
@@ -85,6 +93,11 @@ class ETL(object):
         return result
 
     def extract_cdb(self, test_id):
+        """
+        Extract history data from database via test_id.
+        Returns:
+            callstack_string.
+        """
         extract_content = """
         SELECT HANAQA.CRASHES.CALLSTACK_STRING
         FROM HANAQA.QADB_CRASHES
@@ -103,6 +116,11 @@ class ETL(object):
         return result[0][0]
 
     def extract_word(self):
+        """
+        Extract stop words from database.
+        Returns:
+            test_id, dump_link.
+        """
         set_schema = """SET SCHEMA TESTER;"""
         extract_content = """
         SELECT TEST_MANY.ID, TEST_MANY.LINK
@@ -145,6 +163,13 @@ class ETL(object):
 
     @staticmethod
     def check_sum(func_block):
+        """
+        Convert function blocks to MD5 hash in hexadecimal format.
+        Args:
+            func_block: The function blocks in a crash dump.
+        Returns:
+            MD5 hash value.
+        """
         text = ""
         for blocks in func_block:
             for block in blocks:
@@ -152,6 +177,11 @@ class ETL(object):
         return hashlib.md5(text.encode("utf-8")).hexdigest()
 
     def transform(self):
+        """
+        Convert original crash dump information into the target data format.
+        Returns:
+            Documents to be stored.
+        """
         cnt = 0
         documents = []
         result = self.extract_qdb()
@@ -189,6 +219,9 @@ class ETL(object):
         return documents
 
     def load(self):
+        """
+        Load many documents into the database.
+        """
         # knowledge updating
         Component().update_component()
         print("Start ETL process...\n")

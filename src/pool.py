@@ -3,6 +3,13 @@ from sqlalchemy import create_engine
 
 
 class MongoConnection(object):
+    """
+    The life cycle management of MongoDB connection via context manager.
+    Attributes:
+        host: A host name.
+        port: A port number.
+        connection: Create a new MongoClient instance.
+    """
     def __init__(self, host, port):
         self.host = host
         self.port = port
@@ -17,5 +24,8 @@ class MongoConnection(object):
 
 
 class SqlConnection(object):
+    """
+    Create a new Engine instance.
+    """
     def __init__(self, uri):
         self.connection = create_engine(uri).connect()

@@ -49,7 +49,7 @@ class Log(object):
         Args:
             features: Feature values of position and distance.
             len_max: The longer length of 2 component sequences.
-            sim: Similarity result.
+            sim: The similarity result.
         """
         print("\n", end="")
         numerator = ""

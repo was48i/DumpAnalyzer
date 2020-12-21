@@ -1,8 +1,7 @@
-import logger
+import log
 
 from calculate import Calculate
 from etl import ETL
-from functools import reduce
 from knowledge import Knowledge
 from process import Process
 from train import Train
@@ -32,7 +31,7 @@ class Detect(object):
             order_pair.append(cpnt_order)
             block_pair.append(func_block)
         # output dump comparison
-        printer = logger.Logger()
+        printer = log.Log()
         features = Train().obtain_feature(order_pair, block_pair)
         len_max = len(max(order_pair, key=len))
         sim = Calculate(features, len_max).calculate_sim()

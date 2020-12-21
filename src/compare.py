@@ -17,7 +17,7 @@ class Compare(object):
         """
         Obtain the backtrace part of call stack.
         Args:
-            stack: A call stack text.
+            stack: A call stack string.
         Returns:
             The backtrace part.
         """
@@ -42,7 +42,7 @@ class Compare(object):
         """
         Obtain the exception part of call stack.
         Args:
-            stack: A call stack text.
+            stack: A call stack string.
         Returns:
             The exception part.
         """
