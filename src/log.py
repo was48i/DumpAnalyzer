@@ -4,7 +4,7 @@ import os
 import textwrap
 
 
-class Logger(object):
+class Log(object):
     """
     Print a few messages for the specific feature.
     """
