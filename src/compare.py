@@ -1,6 +1,6 @@
 import re
 
-from logger import Logger
+from log import Log
 
 
 class Compare(object):
@@ -95,4 +95,4 @@ class Compare(object):
             if ex_header in stack:
                 exception = self.find_exception(stack)
                 message[-1] += exception
-        Logger().diff_print(message, self.dump_paths)
+        Log().diff_print(message, self.dump_paths)
