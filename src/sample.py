@@ -67,7 +67,7 @@ class Sample(object):
 
     def group_data(self):
         """
-        Group test_ids if the issue it the same.
+        Group test_ids via group_id if root cause it the same.
         Returns:
             groups: The result of test_id grouping.
         """
@@ -86,7 +86,7 @@ class Sample(object):
 
     def sample_data(self):
         """
-        Group test_ids via group_id if root cause it the same.
+        Sample data based on combination and random methods.
         Returns:
             The negatives and positives after sampling.
         """

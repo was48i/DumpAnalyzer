@@ -1,4 +1,7 @@
 class DP(object):
+    """
+    Several dynamic programming algorithms that will be used.
+    """
     @staticmethod
     def lcs_position(seq_x, seq_y):
         pos_x = []

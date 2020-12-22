@@ -10,6 +10,9 @@ from utils import DP
 
 
 class Train(object):
+    """
+    Training for parameter tuning which contains data sampling.
+    """
     config = configparser.ConfigParser()
     config_path = os.path.join(os.getcwd(), "config.ini")
     config.read(config_path)
@@ -21,6 +24,14 @@ class Train(object):
 
     @staticmethod
     def obtain_feature(order_pair, block_pair):
+        """
+        Obtain the features used for calculation through dump pair information.
+        Args:
+            order_pair: The component order information within crash dump pair.
+            block_pair: The function block information within crash dump pair.
+        Returns:
+            The features used for calculation.
+        """
         positions = []
         distances = []
         order_x, order_y = order_pair
@@ -32,6 +43,15 @@ class Train(object):
         return list(zip(positions, distances))
 
     def predict_score(self, sample, m, n):
+        """
+        Calculate the predicted score for each sample.
+        Args:
+            sample: A sample in the dataset.
+            m: The parameter for component position.
+            n: The parameter for component distance.
+        Returns:
+            score: The predicted score.
+        """
         with MongoConnection(self.host, self.port) as mongo:
             collection = mongo.connection[self.db][self.coll]
             source = collection.find_one({"test_id": sample[0]})
@@ -44,6 +64,15 @@ class Train(object):
         return score
 
     def draw_curve(self, dataset, m, n):
+        """
+        Obtain basic information for curve drawing.
+        Args:
+            dataset: The sampled dataset.
+            m: The parameter for component position.
+            n: The parameter for component distance.
+        Returns:
+            The basic information such as fpr, tpr, threshold...
+        """
         true_label = []
         pred_score = []
         for label, samples in enumerate(dataset):
@@ -56,6 +85,11 @@ class Train(object):
         return roc_curve(true_label, pred_score)
 
     def debugging(self, dataset):
+        """
+        Output debugging information of training.
+        Args:
+            dataset: The sampled dataset.
+        """
         print("\n", end="")
         threshold = 0.0000
         # obtain optimized parameters
@@ -77,6 +111,9 @@ class Train(object):
         print("\n", end="")
 
     def training(self):
+        """
+        Training for parameter tuning which contains data sampling.
+        """
         m_opt = 0.0
         n_opt = 0.0
         auc_max = 0.0
