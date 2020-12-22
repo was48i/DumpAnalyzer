@@ -86,7 +86,7 @@ We provide 4 main features:
     ```
 - Detect crash dump similarity through the mathematical model:
     ```bash
-    $ ./src/main.py --detect [<dumps>]
+    $ ./src/main.py --detect [<test_ids>]
     ```
 
 ## Evaluation
@@ -99,7 +99,7 @@ We evaluate our code on a development server:
 The elapsed time in seconds:
 |Crawl|Train|Stop|Detect|
 |:-:|:-:|:-:|:-:|
-|||||
+|775.94|158.47|621.78|5.59|
 
 ## Contributing
 We love contributions! Before submitting a Pull Request, it's always good to start with a new issue first.
