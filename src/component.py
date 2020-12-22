@@ -12,8 +12,8 @@ class Component(object):
     Obtain Component-File mapping based on the layered CMakeLists.txt.
     """
     config = configparser.ConfigParser()
-    path = os.path.join(os.getcwd(), "config.ini")
-    config.read(path)
+    config_path = os.path.join(os.getcwd(), "config.ini")
+    config.read(config_path)
     # MongoDB
     host = config.get("mongodb", "host")
     port = config.getint("mongodb", "port")
@@ -72,6 +72,7 @@ class Component(object):
         Obtain Component-File mapping based on the layered CMakeLists.txt and load into database.
         """
         # update source code base
+        print("\n", end="")
         if os.path.exists(self.git_dir):
             print("Removing from '{}'...\n".format(self.git_dir))
             cmd = "rm -fr {}".format(self.git_dir)

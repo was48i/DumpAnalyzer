@@ -15,8 +15,8 @@ class ETL(object):
     The Extract, Transform, Load process for data crawling.
     """
     config = configparser.ConfigParser()
-    path = os.path.join(os.getcwd(), "config.ini")
-    config.read(path)
+    config_path = os.path.join(os.getcwd(), "config.ini")
+    config.read(config_path)
     # MongoDB
     host = config.get("mongodb", "host")
     port = config.getint("mongodb", "port")

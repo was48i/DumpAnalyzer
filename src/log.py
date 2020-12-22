@@ -43,6 +43,7 @@ class Log(object):
         if cursor_down < cursor_up:
             for _ in range(cursor_up - cursor_down):
                 print("\x1b[{}C  |".format(self.width))
+        print("\n", end="")
 
     def formula_print(self, features, len_max, sim):
         """
@@ -52,7 +53,6 @@ class Log(object):
             len_max: The longer length of 2 component sequences.
             sim: The similarity result.
         """
-        print("\n", end="")
         numerator = ""
         denominator = ""
         if features:

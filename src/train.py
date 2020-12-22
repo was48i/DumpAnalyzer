@@ -56,6 +56,7 @@ class Train(object):
         return roc_curve(true_label, pred_score)
 
     def debugging(self, dataset):
+        print("\n", end="")
         threshold = 0.0000
         # obtain optimized parameters
         m = self.config.getfloat("model", "m")
@@ -64,7 +65,7 @@ class Train(object):
         for i, fpr in enumerate(fpr_list):
             if fpr > 0:
                 threshold = threshold_list[i]
-                print("threshold={:.2%}\n".format(threshold))
+                print("Threshold={:.2%}\n".format(threshold))
                 break
         for label, samples in enumerate(dataset):
             for sample in samples:
@@ -73,6 +74,7 @@ class Train(object):
                     print("FP: {} {}".format(sample[0], sample[1]))
                 if label == 1 and score < threshold:
                     print("FN: {} {}".format(sample[0], sample[1]))
+        print("\n", end="")
 
     def training(self):
         m_opt = 0.0
@@ -82,7 +84,7 @@ class Train(object):
         dataset = Sample().sample_data()
         print("Start parameter tuning...\n")
         for m in arange(0.0, 1.1, 0.1):
-            for n in arange(1.4, 2.8, 0.1):
+            for n in arange(2.0, 3.1, 0.1):
                 fpr, tpr, _ = self.draw_curve(dataset, m, n)
                 roc_auc = auc(fpr, tpr)
                 print("m=%.1f, n=%.1f, AUC=%.3f" % (m, n, roc_auc))
@@ -90,7 +92,7 @@ class Train(object):
                     m_opt = m
                     n_opt = n
                     auc_max = roc_auc
-        print("\nm_opt=%.1f, n_opt=%.1f, AUC_MAX=%.3f\n" % (m_opt, n_opt, auc_max))
+        print("\nm_opt=%.1f, n_opt=%.1f, AUC_MAX=%.3f" % (m_opt, n_opt, auc_max))
         # overwrite model parameters
         self.config.set("model", "m", "%.1f" % m_opt)
         self.config.set("model", "n", "%.1f" % n_opt)

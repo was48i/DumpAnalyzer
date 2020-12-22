@@ -9,9 +9,12 @@ from utils import UnionFind
 
 
 class Sample(object):
+    """
+    Sample negatives and positives via bug_id.
+    """
     config = configparser.ConfigParser()
-    path = os.path.join(os.getcwd(), "config.ini")
-    config.read(path)
+    config_path = os.path.join(os.getcwd(), "config.ini")
+    config.read(config_path)
     # MongoDB
     host = config.get("mongodb", "host")
     port = config.getint("mongodb", "port")
@@ -22,6 +25,11 @@ class Sample(object):
     key = config.get("bugzilla", "key")
 
     def bug_map(self):
+        """
+        Obtain the mapping relationship between bug_id and test_id.
+        Returns:
+            bug_map: The bug_id/test_id mapping.
+        """
         bug_map = dict()
         # obtain bug_id/test_id mapping
         with MongoConnection(self.host, self.port) as mongo:
@@ -36,6 +44,13 @@ class Sample(object):
         return bug_map
 
     def union_map(self, bug_list):
+        """
+        Obtain the mapping relationship between bug_id and group_id.
+        Args:
+            bug_list: The key list of bug_map.
+        Returns:
+            union_map: The bug_id/group_id mapping.
+        """
         # obtain bug_id/group_id mapping
         pairs = []
         bzapi = bugzilla.Bugzilla(self.url, api_key=self.key, sslverify=False)
@@ -51,9 +66,14 @@ class Sample(object):
         return union_map
 
     def group_data(self):
+        """
+        Group test_ids if the issue it the same.
+        Returns:
+            groups: The result of test_id grouping.
+        """
         groups = []
         bug_map = self.bug_map()
-        union_map = self.union_map(list(bug_map))
+        union_map = self.union_map(list(bug_map.keys()))
         # test_id grouping
         for union_id in set(union_map.values()):
             group = []
@@ -65,7 +85,12 @@ class Sample(object):
         return groups
 
     def sample_data(self):
-        print("Start data sampling...\n")
+        """
+        Group test_ids via group_id if root cause it the same.
+        Returns:
+            The negatives and positives after sampling.
+        """
+        print("\nStart data sampling...")
         positives = []
         negatives = []
         groups = self.group_data()
@@ -76,5 +101,5 @@ class Sample(object):
             negatives.append((sample(group_x, 1)[0], sample(group_y, 1)[0]))
             if len(negatives) == len(positives):
                 break
-        print("There are {} negative samples and {} positive samples.\n".format(len(negatives), len(positives)))
+        print("\nThere are {} negative samples and {} positive samples.\n".format(len(negatives), len(positives)))
         return [negatives, positives]
