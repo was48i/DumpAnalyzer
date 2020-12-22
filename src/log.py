@@ -41,7 +41,8 @@ class Log(object):
             for line in blocks.split("\n"):
                 print("\x1b[{}C  |  {}".format(self.width, line))
         if cursor_down < cursor_up:
-            print("\x1b[{}B".format(cursor_up - cursor_down), end="")
+            for _ in range(cursor_up - cursor_down):
+                print("\x1b[{}C  |".format(self.width))
 
     def formula_print(self, features, len_max, sim):
         """
@@ -63,9 +64,9 @@ class Log(object):
             for i in range(len_max):
                 denominator += "e^-{}*{} + ".format(self.m, i)
             denominator = denominator[:-3]
-            print("             " + numerator)
+            print("             {}".format(numerator))
             print("Similarity = {} = {:.2%}".format("-" * max(len(numerator), len(denominator)), sim))
-            print("             " + denominator)
+            print("             {}".format(denominator))
         else:
             print("Similarity = 0.00%")
         print("\n", end="")
@@ -84,13 +85,13 @@ class Log(object):
                                     lineterm="")
         for line in diff:
             if line.startswith("---") or line.startswith("+++"):
-                print("\x1b[1m" + line + "\x1b[0m")
+                print("\x1b[1m{}\x1b[0m".format(line))
             elif line.startswith("-"):
-                print("\x1b[0;31m" + line + "\x1b[0m")
+                print("\x1b[0;31m{}\x1b[0m".format(line))
             elif line.startswith("+"):
-                print("\x1b[0;32m" + line + "\x1b[0m")
+                print("\x1b[0;32m{}\x1b[0m".format(line))
             elif line.startswith("@@"):
-                print("\x1b[0;36m" + line + "\x1b[0m")
+                print("\x1b[0;36m{}\x1b[0m".format(line))
             else:
                 print(line)
         # handle the same situation
