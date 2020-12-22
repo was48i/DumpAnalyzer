@@ -11,8 +11,8 @@ from utils import DP
 
 class Train(object):
     config = configparser.ConfigParser()
-    path = os.path.join(os.getcwd(), "config.ini")
-    config.read(path)
+    config_path = os.path.join(os.getcwd(), "config.ini")
+    config.read(config_path)
     # MongoDB
     host = config.get("mongodb", "host")
     port = config.getint("mongodb", "port")
@@ -43,6 +43,37 @@ class Train(object):
         score = Calculate(features, len_max).calculate_sim(m, n)
         return score
 
+    def draw_curve(self, dataset, m, n):
+        true_label = []
+        pred_score = []
+        for label, samples in enumerate(dataset):
+            for sample in samples:
+                score = self.predict_score(sample, m, n)
+                true_label.append(label)
+                pred_score.append(score)
+        true_label = array(true_label)
+        pred_score = array(pred_score)
+        return roc_curve(true_label, pred_score)
+
+    def debugging(self, dataset):
+        threshold = 0.0000
+        # obtain optimized parameters
+        m = self.config.getfloat("model", "m")
+        n = self.config.getfloat("model", "n")
+        fpr_list, _, threshold_list = self.draw_curve(dataset, m, n)
+        for i, fpr in enumerate(fpr_list):
+            if fpr > 0:
+                threshold = threshold_list[i]
+                print("threshold={:.2%}\n".format(threshold))
+                break
+        for label, samples in enumerate(dataset):
+            for sample in samples:
+                score = self.predict_score(sample, m, n)
+                if label == 0 and score >= threshold:
+                    print("FP: {} {}".format(sample[0], sample[1]))
+                if label == 1 and score < threshold:
+                    print("FN: {} {}".format(sample[0], sample[1]))
+
     def training(self):
         m_opt = 0.0
         n_opt = 0.0
@@ -50,28 +81,18 @@ class Train(object):
         # data sampling
         dataset = Sample().sample_data()
         print("Start parameter tuning...\n")
-        for m in arange(0.0, 2.1, 0.1):
-            for n in arange(0.0, 2.1, 0.1):
-                true_label = []
-                pred_score = []
-                for label, samples in enumerate(dataset):
-                    for sample in samples:
-
-                        # sim = self.predict_score(sample, m, n)
-                        # if label == 0 and sim > 0.2:
-                        #     print("FP: {}".format(sample))
-                        # if label == 1 and sim < 0.2:
-                        #     print("FN: {}".format(sample))
-
-                        true_label.append(label)
-                        pred_score.append(self.predict_score(sample, m, n))
-                true_label = array(true_label)
-                pred_score = array(pred_score)
-                fpr, tpr, _ = roc_curve(true_label, pred_score)
+        for m in arange(0.0, 1.1, 0.1):
+            for n in arange(1.4, 2.8, 0.1):
+                fpr, tpr, _ = self.draw_curve(dataset, m, n)
                 roc_auc = auc(fpr, tpr)
                 print("m=%.1f, n=%.1f, AUC=%.3f" % (m, n, roc_auc))
                 if roc_auc > auc_max:
-                    auc_max = roc_auc
                     m_opt = m
                     n_opt = n
-        print("\nm_opt=%.1f, n_opt=%.1f\n" % (m_opt, n_opt))
+                    auc_max = roc_auc
+        print("\nm_opt=%.1f, n_opt=%.1f, AUC_MAX=%.3f\n" % (m_opt, n_opt, auc_max))
+        # overwrite model parameters
+        self.config.set("model", "m", "%.1f" % m_opt)
+        self.config.set("model", "n", "%.1f" % n_opt)
+        self.config.write(open(self.config_path, "w"))
+        self.debugging(dataset)
