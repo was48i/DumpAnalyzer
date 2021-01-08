@@ -4,10 +4,8 @@ class DP(object):
     """
     @staticmethod
     def lcs_position(seq_x, seq_y):
-        pos_x = []
-        pos_y = []
-        m = len(seq_x)
-        n = len(seq_y)
+        pos_x, pos_y = [], []
+        m, n = len(seq_x), len(seq_y)
         # initialize dp matrix with 0
         dp = [[0 for _ in range(n + 1)] for _ in range(m + 1)]
         # fill dp matrix
@@ -15,20 +13,19 @@ class DP(object):
             for j in range(n + 1):
                 if i == 0 or j == 0:
                     dp[i][j] = 0
-                elif seq_x[i-1] == seq_y[j-1]:
+                elif seq_x[m-i] == seq_y[n-j]:
                     dp[i][j] = dp[i-1][j-1] + 1
                 else:
                     dp[i][j] = max(dp[i-1][j], dp[i][j-1])
         # obtain positions of longest common subsequence
         i, j = m, n
         while i > 0 and j > 0:
-            if seq_x[i-1] == seq_y[j-1]:
-                # reverse position
+            if seq_x[m-i] == seq_y[n-j]:
                 pos_x.append(m - i)
                 pos_y.append(n - j)
                 i -= 1
                 j -= 1
-            elif dp[i-1][j] > dp[i][j-1]:
+            elif dp[i - 1][j] > dp[i][j - 1]:
                 i -= 1
             else:
                 j -= 1
