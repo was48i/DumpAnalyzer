@@ -26,18 +26,18 @@ class Log(object):
         print("\n", end="")
         # print the left part
         cursor_up = 0
-        for index in range(len(message[0])):
-            blocks = textwrap.fill(" ".join(message[1][index]), width=self.width)
+        for i in range(len(message[0])):
+            blocks = textwrap.fill(" ".join(message[1][i]), width=self.width)
             cursor_up += len(blocks.split("\n")) + 1
-            print("\x1b[0;36m{}\x1b[0m".format(message[0][index]))
+            print("\x1b[0;36m{}\x1b[0m".format(message[0][i]))
             print(blocks)
         print("\x1b[{}A".format(cursor_up), end="")
         # print the right part
         cursor_down = 0
-        for index in range(len(message[2])):
-            blocks = textwrap.fill(" ".join(message[3][index]), width=self.width)
+        for i in range(len(message[2])):
+            blocks = textwrap.fill(" ".join(message[3][i]), width=self.width)
             cursor_down += len(blocks.split("\n")) + 1
-            print("\x1b[{}C  |  \x1b[0;36m{}\x1b[0m".format(self.width, message[2][index]))
+            print("\x1b[{}C  |  \x1b[0;36m{}\x1b[0m".format(self.width, message[2][i]))
             for line in blocks.split("\n"):
                 print("\x1b[{}C  |  {}".format(self.width, line))
         if cursor_down < cursor_up:
