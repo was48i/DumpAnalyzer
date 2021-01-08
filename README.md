@@ -1,5 +1,5 @@
 # KDetector
-This repository contains our implementation for "K-Detector: Identifying Duplicate Crash Failures in Large-Scale Software Delivery", which is nominated as candidate to the **Best Industry Paper Award** in IEEE 31st International Symposium on Software Reliability Engineering (ISSRE 2020).
+This repository contains our implementation for "K-Detector: Identifying Duplicate Crash Failures in Large-Scale Software Delivery", which is nominated as candidate to the **Best Industry Paper Award** in the 31st International Symposium on Software Reliability Engineering (ISSRE 2020).
 
 ![](https://raw.githubusercontent.com/was48i/mPOST/master/KDetector/00.png)
 
