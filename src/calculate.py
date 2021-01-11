@@ -2,6 +2,7 @@ import configparser
 import math
 import os
 
+from log import Log
 from utils import DP
 
 
@@ -36,20 +37,26 @@ class Calculate(object):
             distances.append(DP().normalized_dist(self.block_pair[0][i], self.block_pair[1][j]))
         return list(zip(positions, distances))
 
-    def calculate_sim(self, m=m, n=n):
+    def calculate_sim(self, m=m, n=n, debug=False):
         """
         Calculate the crash dump similarity under current parameters.
         Args:
             m: The parameter for component position.
             n: The parameter for component distance.
+            debug: Whether to print the calculation formula.
         Returns:
             sim: The similarity result.
         """
         numerator = 0.0
         denominator = 0.0
-        for pos, dist in self.obtain_feature():
+        features = self.obtain_feature()
+        len_max = len(max(self.order_pair, key=len))
+        for pos, dist in features:
             numerator += math.exp(-m * pos) * math.exp(-n * dist)
-        for i in range(len(max(self.order_pair, key=len))):
+        for i in range(len_max):
             denominator += math.exp(-m * i)
         sim = numerator / denominator
-        return sim
+        if debug:
+            Log().formula_print(features, len_max, sim)
+        else:
+            return sim
