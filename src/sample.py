@@ -5,7 +5,7 @@ import os
 from pool import MongoConnection
 from itertools import combinations
 from random import sample
-from utils import UnionFind
+from utils import UF
 
 
 class Sample(object):
@@ -58,10 +58,9 @@ class Sample(object):
             bug = bzapi.getbug(bug_id)
             if bug.dupe_of and bug.dupe_of in bug_list:
                 pairs.append([bug_id, bug.dupe_of])
-        uf = UnionFind(len(bug_list))
+        uf = UF(len(bug_list))
         for pair in pairs:
-            uf.unite(bug_list.index(pair[0]), bug_list.index(pair[1]))
-        uf.id = [uf.find(i) for i in uf.id]
+            uf.union(bug_list.index(pair[0]), bug_list.index(pair[1]))
         union_map = dict(zip(bug_list, uf.id))
         return union_map
 

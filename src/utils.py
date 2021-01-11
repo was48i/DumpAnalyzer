@@ -4,6 +4,14 @@ class DP(object):
     """
     @staticmethod
     def lcs_position(seq_x, seq_y):
+        """
+        Obtain the position information of longest common subsequence via top first.
+        Args:
+            seq_x: A sequence to be iterated.
+            seq_y: A sequence to be iterated.
+        Returns:
+            The position information of longest common subsequence.
+        """
         pos_x, pos_y = [], []
         m, n = len(seq_x), len(seq_y)
         # initialize dp matrix with 0
@@ -33,6 +41,14 @@ class DP(object):
 
     @staticmethod
     def normalized_dist(seq_x, seq_y):
+        """
+        Obtain the normalized distance between two sequences.
+        Args:
+            seq_x: A sequence to be iterated.
+            seq_y: A sequence to be iterated.
+        Returns:
+            The normalized distance between two sequences.
+        """
         m = len(seq_x)
         n = len(seq_y)
         # initialize dp matrix
@@ -48,31 +64,42 @@ class DP(object):
         return dp[m][n] / max(m, n)
 
 
-class UnionFind(object):
-    count = 0
-    id, sz = [], []
-
+class UF:
+    """
+    An implementation of Union-Find algorithm.
+    Attributes:
+        id: The identifier of each tree.
+        rank: The weight of each tree.
+    """
     def __init__(self, n):
-        i = 0
-        self.count = n
-        while i < n:
-            self.id.append(i)
-            self.sz.append(1)
-            i += 1
+        self.id = list(range(n))
+        self.rank = [0] * n
 
-    def find(self, x):
-        while x != self.id[x]:
-            x = self.id[x]
-        return x
+    def find(self, p):
+        """
+        Obtain the tree identifier for an element node via path compression.
+        Args:
+            p: An element node.
+        Returns:
+            The tree identifier.
+        """
+        while p != self.id[p]:
+            p = self.id[p] = self.id[self.id[p]]
+        return p
 
-    def unite(self, x, y):
-        id_x = self.find(x)
-        id_y = self.find(y)
-        if not self.find(x) == self.find(y):
-            if self.sz[id_x] < self.sz[id_y]:
-                self.id[id_x] = id_y
-                self.sz[id_y] += self.sz[id_x]
-            else:
-                self.id[id_y] = id_x
-                self.sz[id_x] += self.sz[id_y]
-            self.count -= 1
+    def union(self, p, q):
+        """
+        Combine trees containing two element nodes into a single tree.
+        Args:
+            p: An element node.
+            q: An element node.
+        """
+        i, j = self.find(p), self.find(q)
+        if i == j:
+            return
+        if self.rank[i] < self.rank[j]:
+            self.id[i] = j
+        else:
+            if self.rank[i] == self.rank[j]:
+                self.rank[i] += 1
+            self.id[j] = i
