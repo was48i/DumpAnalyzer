@@ -6,7 +6,7 @@ import subprocess
 from component import Component
 
 
-class Knowledge(object):
+class Knowledge:
     """
     Add component knowledge and obtain cpnt_order, func_block for calculation.
     Attributes:
@@ -35,7 +35,7 @@ class Knowledge(object):
         Args:
             function: A original function name.
         Returns:
-            Function blocks composed of class, namespace, ...
+            Function blocks are composed of class, namespace, ...
         """
         blocks = []
         # handle anonymous namespace
@@ -88,8 +88,7 @@ class Knowledge(object):
         Returns:
             The cpnt_order and func_block for calculation.
         """
-        cpnt_order = []
-        func_block = []
+        cpnt_order, func_block = [], []
         for frame in self.processed:
             component, function = self.process_frame(frame)
             if component == "":

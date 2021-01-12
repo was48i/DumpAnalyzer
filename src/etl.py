@@ -10,7 +10,7 @@ from pool import MongoConnection, SqlConnection
 from process import Process
 
 
-class ETL(object):
+class ETL:
     """
     The Extract, Transform, Load process for data crawling.
     """
@@ -182,13 +182,13 @@ class ETL(object):
         Returns:
             Documents to be stored.
         """
-        cnt = 0
         documents = []
+        count = 0
         result = self.extract_qdb()
         for row in result:
-            cnt += 1
+            count += 1
             test_id, time_stamp, url, bug_id = row
-            print("{}, {}/{}".format(test_id, cnt, len(result)))
+            print("{}, {}/{}".format(test_id, count, len(result)))
             try:
                 if requests.get(url, verify=False).status_code == 200:
                     dump = requests.get(url, verify=False).content.decode("utf-8")

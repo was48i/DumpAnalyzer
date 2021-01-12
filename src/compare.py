@@ -3,7 +3,7 @@ import re
 from log import Log
 
 
-class Compare(object):
+class Compare:
     """
     Compare original crash dumps and display with combined diff format.
     Attributes:

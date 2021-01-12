@@ -8,7 +8,7 @@ from sample import Sample
 from sklearn.metrics import roc_curve, auc
 
 
-class Train(object):
+class Train:
     """
     Training for parameter tuning which contains data sampling.
     Attributes:
@@ -54,8 +54,7 @@ class Train(object):
         Returns:
             The basic information such as fpr, tpr, threshold, ...
         """
-        true_label = []
-        pred_score = []
+        true_label, pred_score = [], []
         for label, samples in enumerate(self.dataset):
             for sample in samples:
                 score = self.predict_score(sample, m, n)
@@ -77,7 +76,7 @@ class Train(object):
         for i, fpr in enumerate(fpr_list):
             if fpr > 0:
                 threshold = threshold_list[i]
-                print("Threshold={:.2%}".format(threshold))
+                print("\nThreshold={:.2%}".format(threshold))
                 break
         for label, samples in enumerate(self.dataset):
             for sample in samples:
@@ -91,9 +90,8 @@ class Train(object):
         """
         Training for parameter tuning which contains data sampling.
         """
-        m_opt = 0.0
-        n_opt = 0.0
         auc_max = 0.0
+        m_opt, n_opt = 0.0, 0.0
         print("Start parameter tuning...")
         for m in arange(0.0, 2.1, 0.1):
             for n in arange(0.0, 2.1, 0.1):

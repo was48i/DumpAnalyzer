@@ -4,7 +4,7 @@ import os
 import textwrap
 
 
-class Log(object):
+class Log:
     """
     Print a few messages for the specific feature.
     """
@@ -53,8 +53,7 @@ class Log(object):
             len_max: The longer length of 2 component sequences.
             sim: The similarity result.
         """
-        numerator = ""
-        denominator = ""
+        numerator, denominator = "", ""
         if features:
             # obtain numerator
             for pos, dist in features:

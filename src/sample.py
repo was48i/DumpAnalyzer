@@ -8,7 +8,7 @@ from random import sample
 from utils import UF
 
 
-class Sample(object):
+class Sample:
     """
     Sample negatives and positives via bug_id.
     """
@@ -90,8 +90,7 @@ class Sample(object):
             The negatives and positives after sampling.
         """
         print("Start data sampling...")
-        positives = []
-        negatives = []
+        positives, negatives = [], []
         groups = self.group_data()
         for group in groups:
             positives.extend(list(combinations(group, 2)))

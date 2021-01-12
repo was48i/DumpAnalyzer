@@ -6,7 +6,7 @@ from log import Log
 from utils import DP
 
 
-class Calculate(object):
+class Calculate:
     """
     Calculate crash dump similarity through the mathematical model.
     Attributes:
@@ -47,8 +47,7 @@ class Calculate(object):
         Returns:
             sim: The similarity result.
         """
-        numerator = 0.0
-        denominator = 0.0
+        numerator, denominator = 0.0, 0.0
         features = self.obtain_feature()
         len_max = len(max(self.order_pair, key=len))
         for pos, dist in features:

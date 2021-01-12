@@ -9,7 +9,7 @@ from multiprocessing import Pool
 from pool import MongoConnection
 
 
-class Function(object):
+class Function:
     """
     Obtain File-Function mapping through Python bindings for Clang.
     """
@@ -37,7 +37,7 @@ class Function(object):
         stack = [dir_path]
         # DFS
         while len(stack) > 0:
-            prefix = stack.pop(len(stack) - 1)
+            prefix = stack.pop()
             for node in os.listdir(prefix):
                 cur_path = os.path.join(prefix, node)
                 extension = os.path.splitext(cur_path)[-1]
@@ -81,8 +81,7 @@ class Function(object):
         # remove it when include dependencies resolved
         header = os.path.join(self.git_dir, "rte", "rtebase", "include")
         args_list = ["-x", "c++",
-                     "-I" + self.git_dir,
-                     "-I" + header]
+                     "-I" + self.git_dir, "-I" + header]
         tu = index.parse(path, args_list)
         decl_kinds = ["FUNCTION_DECL", "CXX_METHOD", "CONSTRUCTOR", "DESTRUCTOR", "CONVERSION_FUNCTION"]
         for node in tu.cursor.walk_preorder():
@@ -148,4 +147,4 @@ class Function(object):
             collection = mongo.connection[self.db][self.coll]
             collection.drop()
             collection.insert_many(documents)
-        print("File-Function mapping ({}) updated successfully.\n".format(len(documents)))
+        print("\x1b[32mSuccessfully updated File-Function mapping ({}).\x1b[0m".format(len(documents)))

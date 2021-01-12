@@ -2,7 +2,7 @@ from pymongo import MongoClient
 from sqlalchemy import create_engine
 
 
-class MongoConnection(object):
+class MongoConnection:
     """
     The life cycle management of MongoDB connection via context manager.
     Attributes:
@@ -23,7 +23,7 @@ class MongoConnection(object):
         self.connection.close()
 
 
-class SqlConnection(object):
+class SqlConnection:
     """
     Create a new Engine instance.
     """

@@ -1,4 +1,4 @@
-class DP(object):
+class DP:
     """
     Several dynamic programming algorithms that will be used.
     """
@@ -49,8 +49,7 @@ class DP(object):
         Returns:
             The normalized distance between two sequences.
         """
-        m = len(seq_x)
-        n = len(seq_y)
+        m, n = len(seq_x), len(seq_y)
         # initialize dp matrix
         dp = [[i + j for j in range(n + 1)] for i in range(m + 1)]
         # fill dp matrix

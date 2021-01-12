@@ -1,7 +1,7 @@
 import re
 
 
-class Process(object):
+class Process:
     """
     Data preprocessing for crash dump string.
     Attributes:

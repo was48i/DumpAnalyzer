@@ -7,7 +7,7 @@ import subprocess
 from pool import MongoConnection
 
 
-class Component(object):
+class Component:
     """
     Obtain Component-File mapping based on the layered CMakeLists.txt.
     """
@@ -75,8 +75,8 @@ class Component(object):
         if os.path.exists(self.git_dir):
             print("Removing from '{}'...".format(self.git_dir))
             cmd = "rm -fr {}".format(self.git_dir)
-            print("\x1b[32mSuccessfully removed code base.\x1b[0m")
             subprocess.call(cmd.split(" "))
+            print("\x1b[32mSuccessfully removed code base.\x1b[0m")
         cmd = "git clone --branch master --depth 1 {} {}".format(self.git_url, self.git_dir)
         subprocess.call(cmd.split(" "))
         component_map = dict()

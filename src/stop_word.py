@@ -5,11 +5,10 @@ from etl import ETL
 from process import Process
 
 
-class StopWord(object):
+class StopWord:
     """
     Count file names that can be filtered.
     """
-
     @staticmethod
     def count_word():
         cnt = 0
