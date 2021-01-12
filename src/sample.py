@@ -89,7 +89,7 @@ class Sample(object):
         Returns:
             The negatives and positives after sampling.
         """
-        print("\nStart data sampling...")
+        print("Start data sampling...")
         positives = []
         negatives = []
         groups = self.group_data()
@@ -100,5 +100,5 @@ class Sample(object):
             negatives.append((sample(group_x, 1)[0], sample(group_y, 1)[0]))
             if len(negatives) == len(positives):
                 break
-        print("\nThere are {} negative samples and {} positive samples.\n".format(len(negatives), len(positives)))
+        print("\x1b[32mSuccessfully completed data sampling ({} x 2).\x1b[0m".format(len(positives)))
         return [negatives, positives]

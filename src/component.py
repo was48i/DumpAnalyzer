@@ -72,10 +72,10 @@ class Component(object):
         Obtain Component-File mapping based on the layered CMakeLists.txt and load into database.
         """
         # update source code base
-        print("\n", end="")
         if os.path.exists(self.git_dir):
-            print("Removing from '{}'...\n".format(self.git_dir))
+            print("Removing from '{}'...".format(self.git_dir))
             cmd = "rm -fr {}".format(self.git_dir)
+            print("\x1b[32mSuccessfully removed code base.\x1b[0m")
             subprocess.call(cmd.split(" "))
         cmd = "git clone --branch master --depth 1 {} {}".format(self.git_url, self.git_dir)
         subprocess.call(cmd.split(" "))
@@ -103,7 +103,7 @@ class Component(object):
             collection = mongo.connection[self.db][self.coll]
             collection.drop()
             collection.insert_many(documents)
-        print("Component-File mapping ({}) updated successfully.\n".format(len(documents)))
+        print("\x1b[32mSuccessfully updated Component-File mapping ({}).\x1b[0m".format(len(documents)))
 
     def best_matched(self, path):
         """

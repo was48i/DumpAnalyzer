@@ -224,10 +224,10 @@ class ETL(object):
         """
         # knowledge updating
         Component().update_component()
-        print("Start ETL process...\n")
+        print("Start ETL process...")
         documents = self.transform()
         with MongoConnection(self.host, self.port) as mongo:
             collection = mongo.connection[self.db][self.coll]
             collection.drop()
             collection.insert_many(documents)
-        print("\nETL process ({}) executed successfully.\n".format(len(documents)))
+        print("\x1b[32mSuccessfully executed ETL process ({}).\x1b[0m".format(len(documents)))
