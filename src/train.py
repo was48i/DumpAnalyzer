@@ -5,7 +5,7 @@ from calculate import Calculate
 from numpy import arange, array
 from pool import MongoConnection
 from sample import Sample
-from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import average_precision_score, precision_recall_curve
 
 
 class Train:
@@ -52,7 +52,7 @@ class Train:
             m: The parameter for component position.
             n: The parameter for component distance.
         Returns:
-            The basic information such as fpr, tpr, threshold, ...
+            The basic information, i.e., true label and predicted score.
         """
         true_label, pred_score = [], []
         for label, samples in enumerate(self.dataset):
@@ -60,24 +60,27 @@ class Train:
                 score = self.predict_score(sample, m, n)
                 true_label.append(label)
                 pred_score.append(score)
-        true_label = array(true_label)
-        pred_score = array(pred_score)
-        return roc_curve(true_label, pred_score)
+        return array(true_label), array(pred_score)
 
     def debugging(self):
         """
         Output debugging information of training.
         """
-        threshold = 0.0000
-        # obtain optimized parameters
         m = self.config.getfloat("model", "m")
         n = self.config.getfloat("model", "n")
-        fpr_list, _, threshold_list = self.draw_curve(m, n)
-        for i, fpr in enumerate(fpr_list):
-            if fpr > 0:
-                threshold = threshold_list[i]
-                print("\nThreshold={:.2%}".format(threshold))
-                break
+        # obtain optimal cut-off point
+        max_score, index = 0, 0
+        true_label, pred_score = self.draw_curve(m, n)
+        precision, recall, thresholds = precision_recall_curve(true_label, pred_score)
+        for i in range(1, len(precision)):
+            if precision[i] != precision[i-1]:
+                # raise precision importance via F0.5-Measure
+                curr_score = (1 + 0.5 ** 2) * precision[i] * recall[i] / ((0.5 ** 2) * precision[i] + recall[i])
+                if curr_score > max_score:
+                    max_score, index = curr_score, i
+        threshold = thresholds[index]
+        print("\nThreshold={:.2%}".format(threshold))
+        # output FP and FN
         for label, samples in enumerate(self.dataset):
             for sample in samples:
                 score = self.predict_score(sample, m, n)
@@ -90,19 +93,18 @@ class Train:
         """
         Training for parameter tuning which contains data sampling.
         """
-        auc_max = 0.0
+        ap_max = 0.0
         m_opt, n_opt = 0.0, 0.0
         print("Start parameter tuning...")
         for m in arange(0.0, 2.1, 0.1):
             for n in arange(0.0, 2.1, 0.1):
-                fpr, tpr, _ = self.draw_curve(m, n)
-                roc_auc = auc(fpr, tpr)
-                print("m=%.1f, n=%.1f, AUC=%.3f" % (m, n, roc_auc))
-                if roc_auc > auc_max:
-                    m_opt = m
-                    n_opt = n
-                    auc_max = roc_auc
-        print("\x1b[32mm_opt=%.1f, n_opt=%.1f, AUC_MAX=%.3f\x1b[0m" % (m_opt, n_opt, auc_max))
+                true_label, pred_score = self.draw_curve(m, n)
+                ap = average_precision_score(true_label, pred_score)
+                print("m=%.1f, n=%.1f, AP=%.3f" % (m, n, ap))
+                if ap > ap_max:
+                    ap_max = ap
+                    m_opt, n_opt = m, n
+        print("\x1b[32mM_OPT=%.1f, N_OPT=%.1f, AP_MAX=%.3f\x1b[0m" % (m_opt, n_opt, ap_max))
         # update model parameters
         self.config.set("model", "m", "%.1f" % m_opt)
         self.config.set("model", "n", "%.1f" % n_opt)

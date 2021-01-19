@@ -1,7 +1,7 @@
 import configparser
+import hashlib
 import os
 import requests
-import hashlib
 
 from component import Component
 from datetime import datetime
@@ -196,9 +196,7 @@ class ETL:
                 else:
                     dump = self.extract_cdb(test_id)
                     processed = Process(dump).internal_process()
-            except IndexError:
-                continue
-            except UnicodeDecodeError:
+            except (IndexError, UnicodeDecodeError) as e:
                 continue
             cpnt_order, func_block = Knowledge(processed).add_knowledge()
             data = dict()

@@ -32,7 +32,7 @@ class Component:
         Returns:
             Parent and its children.
         """
-        with open(path, "r") as fp:
+        with open(path, "r", encoding="utf-8") as fp:
             content = fp.read()
         parent_pattern = re.compile(r'SET_COMPONENT\("(.+)"\)', re.M)
         child_pattern = re.compile(r'SET_COMPONENT\("(.+)"\n([^)]+)\)', re.M)
