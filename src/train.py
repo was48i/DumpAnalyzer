@@ -23,8 +23,8 @@ class Train:
     db = config.get("mongodb", "db")
     coll = config.get("mongodb", "coll_data")
 
-    def __init__(self):
-        self.dataset = Sample().sample_data()
+    def __init__(self, dataset=None):
+        self.dataset = Sample().sample_data() if dataset is None else dataset
 
     def predict_score(self, sample, m, n):
         """
@@ -42,8 +42,7 @@ class Train:
             target = collection.find_one({"test_id": sample[1]})
             order_pair = [source["cpnt_order"], target["cpnt_order"]]
             block_pair = [source["func_block"], target["func_block"]]
-        score = Calculate(order_pair, block_pair).calculate_sim(m, n)
-        return score
+        return Calculate(order_pair, block_pair).calculate_sim(m, n)
 
     def draw_curve(self, m, n):
         """
@@ -74,7 +73,7 @@ class Train:
         precision, recall, thresholds = precision_recall_curve(true_label, pred_score)
         for i in range(1, len(precision)):
             if precision[i] != precision[i-1]:
-                # raise precision importance via F0.5-Measure
+                # raise precision importance via F-Measure
                 curr_score = (1 + 0.5 ** 2) * precision[i] * recall[i] / ((0.5 ** 2) * precision[i] + recall[i])
                 if curr_score > max_score:
                     max_score, index = curr_score, i
