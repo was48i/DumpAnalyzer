@@ -2,6 +2,7 @@ import bugzilla
 import configparser
 import os
 
+from collections import defaultdict
 from pool import MongoConnection
 from itertools import combinations
 from random import sample
@@ -30,17 +31,14 @@ class Sample:
         Returns:
             bug_map: The bug_id/test_id mapping.
         """
-        bug_map = dict()
+        bug_map = defaultdict(list)
         # obtain bug_id/test_id mapping
         with MongoConnection(self.host, self.port) as mongo:
             collection = mongo.connection[self.db][self.coll]
             dataset = collection.find()
         for data in dataset:
             bug_id, test_id = data["bug_id"], data["test_id"]
-            if bug_id not in bug_map:
-                bug_map[bug_id] = [test_id]
-            else:
-                bug_map[bug_id].append(test_id)
+            bug_map[bug_id].append(test_id)
         return bug_map
 
     def union_map(self, bug_list):
